@@ -1,0 +1,63 @@
+import ProgressBar from "../components/ProgressBar.jsx";
+import OptionButton from "../components/OptionButton.jsx";
+
+const BEHAVIOR_TYPES = [
+  "Aggression (biting, growling, lunging)",
+  "Anxiety or fear (hiding, trembling, destructive when alone)",
+  "Reactivity (barking, pulling on leash at other dogs/people)",
+  "House soiling / potty issues",
+  "Excessive barking or whining",
+  "Resource guarding (food, toys, space)",
+  "Other",
+];
+
+export default function Question1({ intake, update, setScreen, currentStep }) {
+  return (
+    <div className="screen">
+      <ProgressBar step={currentStep} total={4} />
+      <h2>What's going on?</h2>
+      <p className="subtitle">Select the behavior you're most concerned about.</p>
+
+      <div className="option-grid">
+        {BEHAVIOR_TYPES.map((type) => (
+          <OptionButton
+            key={type}
+            label={type}
+            selected={intake.behavior_type === type}
+            onClick={() => update({ behavior_type: type })}
+          />
+        ))}
+      </div>
+
+      {intake.behavior_type && (
+        <>
+          <label className="field-label" htmlFor="behavior-desc">
+            Describe what happens (optional)
+          </label>
+          <textarea
+            id="behavior-desc"
+            className="text-input"
+            placeholder="e.g. My dog lunges at strangers who come to the door..."
+            value={intake.behavior_description || ""}
+            onChange={(e) =>
+              update({ behavior_description: e.target.value || null })
+            }
+          />
+        </>
+      )}
+
+      <div className="nav-row">
+        <button className="btn btn-secondary" onClick={() => setScreen("landing")}>
+          Back
+        </button>
+        <button
+          className="btn btn-primary"
+          disabled={!intake.behavior_type}
+          onClick={() => setScreen("q2")}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
