@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
 from db import get_supabase
-from models import TriageIntake, TriageResult, TriageWithSession
+from models import TriageIntake, TriageResult
 from prompts.system import SYSTEM_PROMPT
 
 router = APIRouter()
@@ -14,7 +14,7 @@ client = anthropic.Anthropic()
 
 
 @router.post("/triage")
-async def triage(intake: TriageIntake) -> TriageWithSession:
+async def triage(intake: TriageIntake):
     user_message = json.dumps(intake.model_dump(), indent=2)
 
     try:
@@ -77,10 +77,15 @@ async def triage(intake: TriageIntake) -> TriageWithSession:
                 "photo_url": None,
             }
         ).execute()
+        print(f"Session saved: {insert_res.data}")
         if insert_res.data and len(insert_res.data) > 0:
-            session_id = insert_res.data[0].get("id")
+            session_id = insert_res.data[0]["id"]
+            print(f"[triage] Saved triage session_id={session_id}")
+        else:
+            print("[triage] Supabase insert returned no data")
     except Exception as e:
         # Log but don't fail the request — the user still gets their result
         print(f"Supabase insert error: {e}")
 
-    return TriageWithSession(**{**result.model_dump(), "session_id": session_id})
+    print(f"[triage] Returning session_id={session_id}")
+    return {**result.dict(), "session_id": session_id}

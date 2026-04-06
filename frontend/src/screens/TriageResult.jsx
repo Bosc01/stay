@@ -60,15 +60,20 @@ export default function TriageResult({
   const [followupError, setFollowupError] = useState(null);
   const [checkInDateLabel, setCheckInDateLabel] = useState(null);
   const [friendShareCopied, setFriendShareCopied] = useState(false);
+  const [sessionId, setSessionId] = useState(result?.session_id ?? null);
 
   if (!result) return null;
 
   const resourceTags = result.resource_tags ?? [];
-  const sessionId = result.session_id;
+  const hasSessionId = sessionId !== null && sessionId !== undefined;
 
   useEffect(() => {
-    if (sessionId) rememberProfileSession(sessionId);
-  }, [sessionId]);
+    setSessionId(result?.session_id ?? null);
+  }, [result]);
+
+  useEffect(() => {
+    if (hasSessionId) rememberProfileSession(sessionId);
+  }, [hasSessionId, sessionId]);
 
   const severityRaw = String(result.severity ?? "").toLowerCase();
   const severityKey = ["green", "yellow", "red"].includes(severityRaw)
@@ -154,7 +159,7 @@ export default function TriageResult({
   };
 
   const handleFollowupSubmit = async () => {
-    if (!sessionId) {
+    if (!hasSessionId) {
       setFollowupError(
         "We couldn't save your session for email updates. Please start over and try again."
       );
@@ -187,7 +192,7 @@ export default function TriageResult({
 
       <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
 
-      {sessionId ? (
+      {hasSessionId ? (
         <p className="dog-profile-link-wrap">
           <Link to={`/profile/${sessionId}`}>
             {intake.dog_name?.trim()
@@ -299,14 +304,14 @@ export default function TriageResult({
             <button
               className="btn btn-primary"
               disabled={
-                !email.includes("@") || followupLoading || !sessionId
+                !email.includes("@") || followupLoading || !hasSessionId
               }
               onClick={handleFollowupSubmit}
             >
               {followupLoading ? "Saving…" : "Sign up"}
             </button>
           </div>
-          {!sessionId && (
+          {!hasSessionId && (
             <p className="followup-hint">
               Email signup isn&apos;t available because this session wasn&apos;t
               saved. Your triage above is still valid.

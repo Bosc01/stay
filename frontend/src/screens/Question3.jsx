@@ -18,7 +18,7 @@ export default function Question3({
     setError(null);
     try {
       const res = await submitTriage(intake);
-      setResult(res);
+      setResult({ ...res, session_id: res?.session_id ?? null });
       setScreen("result");
     } catch (err) {
       setError(err.message);

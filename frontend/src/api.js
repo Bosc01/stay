@@ -25,7 +25,8 @@ export async function submitTriage(intake) {
     throw new Error(err.detail || "Triage request failed");
   }
 
-  return res.json();
+  const data = await res.json();
+  return { ...data, session_id: data?.session_id ?? null };
 }
 
 export async function submitFollowup({ session_id, email }) {
