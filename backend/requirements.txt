@@ -4,3 +4,4 @@ anthropic
 supabase
 python-dotenv
 pydantic
+resend
