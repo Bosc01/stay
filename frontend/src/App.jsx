@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Landing from "./screens/Landing.jsx";
 import Question1 from "./screens/Question1.jsx";
 import Question2 from "./screens/Question2.jsx";
 import Question3 from "./screens/Question3.jsx";
 import TriageResult from "./screens/TriageResult.jsx";
-import "./App.css";
 
 const SCREENS = ["landing", "q1", "q2", "q3", "result"];
 
@@ -12,6 +12,7 @@ const INITIAL_INTAKE = {
   behavior_type: "",
   behavior_description: null,
   dog_name: null,
+  referral_source: null,
   triggers: [],
   duration: "",
   already_tried: "",
@@ -19,15 +20,24 @@ const INITIAL_INTAKE = {
 };
 
 export default function App() {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState("landing");
   const [intake, setIntake] = useState(INITIAL_INTAKE);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref")?.trim();
+    if (ref) {
+      setIntake((prev) => ({ ...prev, referral_source: ref }));
+    }
+  }, []);
 
   const update = (fields) => setIntake((prev) => ({ ...prev, ...fields }));
   const currentStep = SCREENS.indexOf(screen);
 
   const resetToStart = () => {
-    setIntake({ ...INITIAL_INTAKE });
+    const ref = new URLSearchParams(window.location.search).get("ref")?.trim() || null;
+    setIntake({ ...INITIAL_INTAKE, referral_source: ref });
     setResult(null);
     setScreen("landing");
   };
@@ -38,7 +48,13 @@ export default function App() {
     <div className="app">
       <div className="app-frame">
         <header className="app-header">
-          <h1 className="logo" onClick={() => setScreen("landing")}>
+          <h1
+            className="logo"
+            onClick={() => {
+              navigate("/");
+              setScreen("landing");
+            }}
+          >
             Stay
           </h1>
         </header>

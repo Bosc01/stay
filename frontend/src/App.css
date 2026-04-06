@@ -101,6 +101,12 @@ body {
   letter-spacing: -0.02em;
 }
 
+a.logo-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 .app-main {
   flex: 1;
   display: flex;
@@ -449,6 +455,89 @@ body {
   color: var(--fg-muted);
 }
 
+/* Off-screen node for html2canvas share image */
+.share-result-capture {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 400px;
+  padding: 28px 24px 20px;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #111111;
+  font-family: system-ui, -apple-system, sans-serif;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+}
+
+.share-result-capture__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.share-result-capture__logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.share-result-capture__headline {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.share-badge-capture {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 16px;
+}
+
+.share-badge-capture.green {
+  background: rgba(20, 120, 60, 0.1);
+  color: #145a32;
+}
+
+.share-badge-capture.yellow {
+  background: rgba(160, 120, 0, 0.12);
+  color: #6b5200;
+}
+
+.share-badge-capture.red {
+  background: rgba(180, 40, 40, 0.1);
+  color: #7a1f1f;
+}
+
+.share-result-capture__note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #333333;
+}
+
+.share-result-capture__url {
+  margin: 22px 0 0;
+  font-size: 12px;
+  color: #666666;
+  text-align: center;
+}
+
+.result-share-row {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
 .urgency-note {
   background: var(--urgency-bg);
   border: 0.5px solid var(--urgency-border);
@@ -539,6 +628,54 @@ body {
   color: var(--fg-muted);
 }
 
+.landing-stories {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 0.5px solid var(--border);
+  text-align: left;
+}
+
+.landing-stories-heading {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.landing-stories-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-story-card {
+  padding: 12px 14px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-muted);
+}
+
+.landing-story-meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.landing-story-text {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--fg);
+  margin: 0;
+}
+
 /* Follow-up */
 .followup-section {
   margin-top: 8px;
@@ -599,6 +736,323 @@ body {
   font-weight: 600;
 }
 
+.followup-success-7day {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--fg-muted);
+}
+
+.friend-share-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 0.5px solid var(--border);
+  text-align: center;
+}
+
+.friend-share-heading {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg);
+  margin: 0 0 14px;
+  line-height: 1.35;
+}
+
+.friend-share-btn {
+  width: 100%;
+  max-width: 280px;
+}
+
+.friend-share-copied {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.shelter-page__title {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.shelter-page__sub {
+  margin-bottom: 22px;
+}
+
+.shelter-page__link-box {
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-muted);
+}
+
+.shelter-page__link-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+  margin: 0 0 8px;
+}
+
+.shelter-page__link-url {
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-all;
+  margin: 0;
+  color: var(--fg);
+}
+
+.shelter-page__stats {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.shelter-page__stats-count {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--fg);
+  margin: 0;
+}
+
+.shelter-page__stats-count strong {
+  font-weight: 600;
+}
+
+.shelter-page__back {
+  margin-top: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.shelter-page__back a {
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.shelter-page__back a:hover {
+  text-decoration: underline;
+}
+
 .section-heading {
   margin-top: 20px;
+}
+
+.dog-profile-link-wrap {
+  text-align: center;
+  margin: -4px 0 16px;
+  font-size: 14px;
+}
+
+.dog-profile-link-wrap a {
+  color: var(--fg-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.dog-profile-link-wrap a:hover {
+  color: var(--fg);
+}
+
+.dog-profile-page {
+  padding-bottom: 48px;
+}
+
+.dog-profile-header {
+  margin-bottom: 8px;
+}
+
+.dog-profile-back {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.dog-profile-back a {
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.dog-profile-back a:hover {
+  text-decoration: underline;
+}
+
+.dog-profile-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dog-profile-banner {
+  margin: 12px 0;
+}
+
+.dog-profile-muted {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin: 8px 0;
+}
+
+.dog-profile-section {
+  margin-top: 28px;
+}
+
+.dog-profile-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+  margin: 0 0 12px;
+}
+
+.dog-profile-badge-wrap {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.dog-profile-photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.dog-profile-photo {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 0.5px solid var(--border);
+}
+
+.dog-profile-photo-placeholder {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  border: 0.5px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.dog-profile-upload-label {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dog-profile-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dog-profile-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dog-profile-name-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.dog-profile-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dog-profile-history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.dog-profile-history-item:last-child {
+  border-bottom: none;
+}
+
+.dog-profile-history-date {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.dog-profile-history-class {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.dog-profile-journal-input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.45;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--fg);
+  resize: vertical;
+  min-height: 96px;
+}
+
+.dog-profile-journal-submit {
+  margin-bottom: 16px;
+}
+
+.dog-profile-journal-empty {
+  margin-top: 4px;
+}
+
+.dog-profile-journal-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dog-profile-journal-item {
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.dog-profile-journal-item:last-child {
+  border-bottom: none;
+}
+
+.dog-profile-journal-time {
+  display: block;
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+}
+
+.dog-profile-journal-body {
+  font-size: 15px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dog-profile-error {
+  color: var(--urgency-fg);
+  margin-bottom: 12px;
 }

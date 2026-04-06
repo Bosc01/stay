@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException
 
 from db import get_supabase
-from models import FollowUpRequest
+from models import CheckInRequest, FollowUpRequest
 
 router = APIRouter()
 
@@ -46,6 +46,25 @@ async def create_followup(req: FollowUpRequest):
         raise HTTPException(status_code=404, detail="Session not found")
 
     return {"status": "ok", **response_extra}
+
+
+@router.post("/checkin")
+async def week1_checkin(req: CheckInRequest):
+    try:
+        result = (
+            get_supabase()
+            .table("triage_sessions")
+            .update({"week1_improvement_score": req.improvement_score})
+            .eq("id", req.session_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    return {"status": "ok"}
 
 
 @router.get("/followup/{session_id}")
