@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
+import os
+from html import escape
 
 from fastapi import APIRouter, HTTPException
+import resend
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest
@@ -44,6 +47,46 @@ async def create_followup(req: FollowUpRequest):
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
+
+    # Best-effort welcome email after email signup is saved.
+    if req.email is not None:
+        try:
+            resend.api_key = os.environ.get("RESEND_API_KEY")
+            if resend.api_key:
+                row = result.data[0] if isinstance(result.data, list) and result.data else {}
+                intake = row.get("intake") or {}
+                triage_result = row.get("result") or {}
+                dog_name = (
+                    row.get("dog_name")
+                    or intake.get("dog_name")
+                    or "your dog"
+                )
+                follow_up_date = response_extra.get("follow_up_send_at", "")
+                try:
+                    follow_up_date = datetime.fromisoformat(follow_up_date).strftime("%B %d, %Y")
+                except Exception:
+                    pass
+
+                resend.Emails.send(
+                    {
+                        "from": "Stay <hello@trystay.org>",
+                        "to": req.email,
+                        "subject": f"Your triage for {dog_name}",
+                        "html": f"""
+    <h2>Here's what we found for {escape(str(dog_name))}</h2>
+    <p><strong>What's driving it:</strong> {escape(str(triage_result.get("root_cause", "")))}</p>
+    <p><strong>Try this today:</strong> {escape(str(triage_result.get("first_step", "")))}</p>
+    <p><strong>Honest assessment:</strong> {escape(str(triage_result.get("honest_note", "")))}</p>
+    <br>
+    <p>We'll check in on {escape(str(follow_up_date))} to see how things are going.</p>
+    <p><a href="https://trystay.org">Back to Stay</a></p>
+  """,
+                    }
+                )
+            else:
+                print("RESEND_API_KEY not set; skipping welcome email")
+        except Exception as e:
+            print(f"Resend welcome email failed: {e}")
 
     return {"status": "ok", **response_extra}
 

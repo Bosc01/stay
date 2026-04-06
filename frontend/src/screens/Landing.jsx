@@ -4,6 +4,7 @@ import logo from '../assets/stay-logo.png';
 
 export default function Landing({ setScreen }) {
   const [stories, setStories] = useState([]);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +32,16 @@ export default function Landing({ setScreen }) {
     };
   }, []);
 
+  useEffect(() => {
+    try {
+      const ua = navigator.userAgent || "";
+      const shouldShow = /iPhone/.test(ua) && window.navigator.standalone === false;
+      setIsIOS(shouldShow);
+    } catch {
+      setIsIOS(false);
+    }
+  }, []);
+
   return (
     <div className="screen landing-hero">
       <img
@@ -53,6 +64,19 @@ export default function Landing({ setScreen }) {
         Tell us what happened
       </button>
       <p className="landing-footnote">Free. No account required.</p>
+      {isIOS ? (
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--color-text-tertiary)",
+            textAlign: "center",
+            marginTop: 8,
+          }}
+        >
+          iPhone users: tap ⬆ Share → "Add to Home Screen" for the full app
+          experience
+        </p>
+      ) : null}
 
       {stories.length > 0 ? (
         <section
