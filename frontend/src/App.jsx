@@ -19,16 +19,31 @@ const INITIAL_INTAKE = {
   email: null,
 };
 
+const IOS_INSTALL_BANNER_KEY = "stay_ios_install_banner_dismissed";
+
 export default function App() {
   const navigate = useNavigate();
   const [screen, setScreen] = useState("landing");
   const [intake, setIntake] = useState(INITIAL_INTAKE);
   const [result, setResult] = useState(null);
+  const [showIosInstallBanner, setShowIosInstallBanner] = useState(false);
 
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref")?.trim();
     if (ref) {
       setIntake((prev) => ({ ...prev, referral_source: ref }));
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(IOS_INSTALL_BANNER_KEY) === "1") return;
+      const ua = navigator.userAgent || "";
+      if (!/iPhone/.test(ua)) return;
+      if (window.navigator.standalone !== false) return;
+      setShowIosInstallBanner(true);
+    } catch {
+      /* ignore */
     }
   }, []);
 
@@ -44,8 +59,32 @@ export default function App() {
 
   const props = { intake, update, setScreen, result, setResult, currentStep };
 
+  const dismissIosInstallBanner = () => {
+    try {
+      sessionStorage.setItem(IOS_INSTALL_BANNER_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setShowIosInstallBanner(false);
+  };
+
   return (
     <div className="app">
+      {showIosInstallBanner ? (
+        <div className="ios-install-banner" role="region" aria-label="Install app">
+          <p className="ios-install-banner__text">
+            Add Stay to your home screen for quick access
+          </p>
+          <button
+            type="button"
+            className="ios-install-banner__dismiss"
+            aria-label="Dismiss"
+            onClick={dismissIosInstallBanner}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
       <div className="app-frame">
         <header className="app-header">
           <h1
@@ -71,3 +110,4 @@ export default function App() {
     </div>
   );
 }
+
