@@ -1,0 +1,16 @@
+{
+  "name": "Stay",
+  "short_name": "Stay",
+  "description": "AI behavior triage for dog owners",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
