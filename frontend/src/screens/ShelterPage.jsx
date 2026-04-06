@@ -2,14 +2,15 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchReferralStats } from "../api.js";
 
-const SITE_ORIGIN = "https://stay-sandy-delta.vercel.app";
+const SITE_ORIGIN = "https://trystay.org";
 
 function slugifyShelterRef(name) {
-  const s = name
+  const s = String(name || "")
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^a-z0-9_]/g, "");
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
   return s.slice(0, 64);
 }
 
@@ -22,6 +23,7 @@ export default function ShelterPage() {
   const [formError, setFormError] = useState(null);
   const [statsFetchError, setStatsFetchError] = useState(null);
   const [copyDone, setCopyDone] = useState(false);
+  const [previewText, setPreviewText] = useState("");
 
   const handleGenerate = async () => {
     const slug = slugifyShelterRef(shelterInput);
@@ -30,6 +32,8 @@ export default function ShelterPage() {
       setActiveRef("");
       setHelpedCount(null);
       setFormError("Enter a shelter or rescue name.");
+      setCopyDone(false);
+      setPreviewText("");
       return;
     }
     setFormError(null);
@@ -37,8 +41,19 @@ export default function ShelterPage() {
     const link = `${SITE_ORIGIN}?ref=${encodeURIComponent(slug)}`;
     setReferralLink(link);
     setActiveRef(slug);
+    setPreviewText(`trystay.org?ref=${slug}`);
     setStatsLoading(true);
     setHelpedCount(null);
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopyDone(true);
+      window.setTimeout(() => setCopyDone(false), 2000);
+    } catch {
+      // Fail silently — link still shown.
+      setCopyDone(false);
+    }
+
     try {
       const data = await fetchReferralStats(slug);
       setHelpedCount(typeof data.count === "number" ? data.count : 0);
@@ -99,7 +114,7 @@ export default function ShelterPage() {
               style={{ width: "100%", marginBottom: 20 }}
               onClick={handleGenerate}
             >
-              Generate your referral link
+              Generate referral link
             </button>
 
             {formError && <p className="error-text">{formError}</p>}
@@ -108,13 +123,21 @@ export default function ShelterPage() {
               <div className="shelter-page__link-box">
                 <p className="shelter-page__link-label">Your link</p>
                 <p className="shelter-page__link-url">{referralLink}</p>
+                {previewText ? (
+                  <>
+                    <p className="shelter-page__link-label" style={{ marginTop: 14 }}>
+                      Preview
+                    </p>
+                    <p className="shelter-page__link-url">{previewText}</p>
+                  </>
+                ) : null}
                 <button
                   type="button"
                   className="btn btn-secondary"
                   style={{ width: "100%", marginTop: 10 }}
                   onClick={handleCopyLink}
                 >
-                  {copyDone ? "Copied!" : "Copy link"}
+                  {copyDone ? "Link copied" : "Copy link"}
                 </button>
               </div>
             )}

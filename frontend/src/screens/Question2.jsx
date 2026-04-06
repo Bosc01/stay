@@ -21,6 +21,8 @@ const DURATIONS = [
 ];
 
 export default function Question2({ intake, update, setScreen, currentStep }) {
+  const selectedCount = intake.triggers?.length ?? 0;
+
   const toggleTrigger = (trigger) => {
     const current = intake.triggers;
     const next = current.includes(trigger)
@@ -34,6 +36,18 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
       <ProgressBar step={currentStep} total={4} />
 
       <h2>When does it happen?</h2>
+      {selectedCount > 0 ? (
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-tertiary)",
+            marginTop: 6,
+            textAlign: "center",
+          }}
+        >
+          {selectedCount} selected
+        </p>
+      ) : null}
       <p className="subtitle">Select all triggers that apply.</p>
 
       <div className="option-grid">

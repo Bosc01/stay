@@ -186,6 +186,18 @@ export default function TriageResult({
 
   return (
     <div className="screen result-screen">
+      {intake.dog_name?.trim() ? (
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-secondary)",
+            textAlign: "center",
+            margin: "0 0 10px",
+          }}
+        >
+          {intake.dog_name.trim()}'s triage
+        </p>
+      ) : null}
       <div className="result-badge-row">
         <TriageBadge severity={result.severity} label={result.severity_label} />
       </div>
@@ -245,6 +257,38 @@ export default function TriageResult({
           ))}
         </div>
       )}
+
+      <div
+        style={{
+          padding: "16px",
+          borderRadius: "10px",
+          border: "0.5px solid var(--border)",
+          marginBottom: 16,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 13,
+            fontWeight: 500,
+            margin: "0 0 8px",
+            color: "var(--fg)",
+          }}
+        >
+          What happens next
+        </p>
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-secondary)",
+            margin: 0,
+            lineHeight: 1.6,
+          }}
+        >
+          Try the step above for one week. Sign up below and we'll check in at
+          day 7 to see how things are going, and again at day 30. No spam —
+          just two emails.
+        </p>
+      </div>
 
       <div className="result-share-row">
         <button
