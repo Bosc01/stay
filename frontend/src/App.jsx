@@ -10,6 +10,7 @@ const SCREENS = ["landing", "q1", "q2", "q3", "result"];
 
 const INITIAL_INTAKE = {
   behavior_type: "",
+  behavior_intensity: 2,
   behavior_description: null,
   dog_name: null,
   referral_source: null,

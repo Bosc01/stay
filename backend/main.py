@@ -10,6 +10,7 @@ from routes.followup import router as followup_router
 from routes.referrals import router as referrals_router
 from routes.profile import router as profile_router
 from routes.stories import router as stories_router
+from routes.resources import router as resources_router
 
 app = FastAPI(title="Stay — Dog Behavior Triage")
 
@@ -26,6 +27,7 @@ app.include_router(followup_router)
 app.include_router(referrals_router)
 app.include_router(profile_router)
 app.include_router(stories_router)
+app.include_router(resources_router)
 
 
 @app.get("/health")

@@ -11,7 +11,16 @@ const BEHAVIOR_TYPES = [
   "Other",
 ];
 
+const INTENSITY_LABELS = {
+  1: "Mild",
+  2: "Moderate",
+  3: "Severe",
+};
+
 export default function Question1({ intake, update, setScreen, currentStep }) {
+  const intensityValue =
+    typeof intake.behavior_intensity === "number" ? intake.behavior_intensity : 2;
+
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
@@ -40,6 +49,31 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
 
       {intake.behavior_type && (
         <>
+          <label className="field-label" htmlFor="behavior-intensity">
+            How intense is it on a bad day?
+          </label>
+          <input
+            id="behavior-intensity"
+            type="range"
+            min="1"
+            max="3"
+            step="1"
+            value={intensityValue}
+            onChange={(e) =>
+              update({ behavior_intensity: Number(e.target.value) || 2 })
+            }
+            style={{ width: "100%", marginBottom: 6 }}
+          />
+          <p
+            style={{
+              fontSize: 13,
+              color: "var(--color-text-secondary)",
+              margin: "0 0 16px",
+              textAlign: "center",
+            }}
+          >
+            {INTENSITY_LABELS[intensityValue] || "Moderate"}
+          </p>
           <label className="field-label" htmlFor="behavior-desc">
             Describe what happens (optional)
           </label>

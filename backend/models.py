@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, field_validator
 
 class TriageIntake(BaseModel):
     behavior_type: str
+    behavior_intensity: int | None = Field(default=None, ge=1, le=3)
     behavior_description: str | None = None
     dog_name: str | None = None
     referral_source: str | None = None

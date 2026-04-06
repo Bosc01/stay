@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import TriageBadge from "../components/TriageBadge.jsx";
-import { submitFollowup } from "../api.js";
+import { fetchNearbyResources, fetchSimilarStories, submitFollowup } from "../api.js";
 import { rememberProfileSession } from "../profileHistory.js";
 import logoUrl from "../assets/stay-logo.png";
 
@@ -59,6 +59,8 @@ export default function TriageResult({
   const [checkInDateLabel, setCheckInDateLabel] = useState(null);
   const [friendShareCopied, setFriendShareCopied] = useState(false);
   const [sessionId, setSessionId] = useState(result?.session_id ?? null);
+  const [similarStories, setSimilarStories] = useState([]);
+  const [nearbyResources, setNearbyResources] = useState([]);
 
   if (!result) return null;
 
@@ -73,10 +75,94 @@ export default function TriageResult({
     if (hasSessionId) rememberProfileSession(sessionId);
   }, [hasSessionId, sessionId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const classification = String(result?.behavior_classification || "").trim();
+    if (!classification) {
+      setSimilarStories([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+    (async () => {
+      try {
+        const data = await fetchSimilarStories(classification);
+        const list = Array.isArray(data?.stories) ? data.stories : [];
+        const normalized = list
+          .filter((s) => s && typeof s === "object" && String(s.update_text || "").trim())
+          .slice(0, 3);
+        if (!cancelled) setSimilarStories(normalized);
+      } catch {
+        if (!cancelled) setSimilarStories([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [result?.behavior_classification]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!["yellow", "red"].includes(severityKey)) {
+      setNearbyResources([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const setRows = (data) => {
+      const rows = Array.isArray(data?.resources) ? data.resources.slice(0, 3) : [];
+      if (!cancelled) setNearbyResources(rows);
+    };
+
+    const fallbackNational = async () => {
+      try {
+        const data = await fetchNearbyResources();
+        setRows(data);
+      } catch {
+        if (!cancelled) setNearbyResources([]);
+      }
+    };
+
+    if (!navigator.geolocation) {
+      fallbackNational();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const data = await fetchNearbyResources({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+          });
+          setRows(data);
+        } catch {
+          await fallbackNational();
+        }
+      },
+      async () => {
+        await fallbackNational();
+      },
+      { timeout: 8000, maximumAge: 10 * 60 * 1000 }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [severityKey]);
+
   const severityRaw = String(result.severity ?? "").toLowerCase();
   const severityKey = ["green", "yellow", "red"].includes(severityRaw)
     ? severityRaw
     : "yellow";
+  const signalCount =
+    (Array.isArray(intake.triggers) ? intake.triggers.length : 0) +
+    1 +
+    (String(intake.behavior_description || "").trim() ? 1 : 0) +
+    (String(intake.already_tried || "").trim() ? 1 : 0);
 
   const shareHeadlineParts = [];
   if (intake.dog_name?.trim()) shareHeadlineParts.push(intake.dog_name.trim());
@@ -200,6 +286,15 @@ export default function TriageResult({
       ) : null}
       <div className="result-badge-row">
         <TriageBadge severity={result.severity} label={result.severity_label} />
+        <p
+          style={{
+            margin: "8px 0 0",
+            fontSize: 12,
+            color: "var(--color-text-tertiary)",
+          }}
+        >
+          Based on {signalCount} behavioral signals
+        </p>
       </div>
 
       <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
@@ -237,6 +332,63 @@ export default function TriageResult({
         </section>
       )}
 
+      {similarStories.length > 0 ? (
+        <section
+          className="result-card"
+          aria-labelledby="similar-stories-heading"
+          style={{ marginTop: 2 }}
+        >
+          <p id="similar-stories-heading" className="result-card-label">
+            Others with similar situations
+          </p>
+          <div style={{ display: "grid", gap: 10 }}>
+            {similarStories.map((story, i) => (
+              <article
+                key={`${story.dog_name || "dog"}-${i}`}
+                style={{
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 12,
+                  padding: "12px 14px",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <p
+                  style={{
+                    margin: "0 0 6px",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "var(--fg)",
+                  }}
+                >
+                  {`${story.dog_name || "Another dog"} — ${
+                    story.behavior_classification || result.behavior_classification
+                  }`}
+                </p>
+                <p
+                  style={{
+                    margin: "0 0 6px",
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {String(story.update_text || "").trim()}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 12,
+                    color: "var(--color-text-tertiary)",
+                  }}
+                >
+                  {`${Number(story.weeks_since_triage) || 0} weeks later`}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {result.escalation_needed && (
         <section className="escalation-card" aria-labelledby="escalation-title">
           <h3 id="escalation-title" className="escalation-card-title">
@@ -257,6 +409,49 @@ export default function TriageResult({
           ))}
         </div>
       )}
+
+      {["yellow", "red"].includes(severityKey) && nearbyResources.length > 0 ? (
+        <section className="result-card" aria-labelledby="nearby-help-heading">
+          <p id="nearby-help-heading" className="result-card-label">
+            Free help near you
+          </p>
+          <div style={{ display: "grid", gap: 10 }}>
+            {nearbyResources.map((r, i) => (
+              <article
+                key={`${r.name || "resource"}-${i}`}
+                style={{
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 12,
+                  padding: "12px 14px",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <p style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 600 }}>
+                  {r.name}
+                </p>
+                <p
+                  style={{
+                    margin: "0 0 10px",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {r.description}
+                </p>
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 13 }}
+                >
+                  Get help
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div
         style={{
