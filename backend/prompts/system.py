@@ -105,4 +105,12 @@ Return valid JSON only. No preamble, no explanation outside the JSON structure.
 4. Do not recommend specific paid products, apps, or trainers by name.
 
 5. Keep root_cause and first_step at a 7th-grade reading level. No clinical terms without a plain-language explanation.
+
+Owner context (if provided):
+- Experience: {owner_experience}
+- Prior training: {prior_training}
+
+If experience is 'First dog', use plain language and explain any training concepts from scratch.
+If prior_training is 'Yes, didn't help', acknowledge what they tried and don't repeat it.
+If prior_training is 'Yes, it helped', build on that foundation.
 """

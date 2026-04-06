@@ -75,6 +75,47 @@ export async function submitFollowup({ session_id, email }) {
   return res.json();
 }
 
+export async function fetchFollowupSession(sessionId) {
+  const res = await fetch(apiUrl(`/followup/${encodeURIComponent(sessionId)}`));
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to load session");
+  }
+  return res.json();
+}
+
+export async function submitWeeklyCheckin({ session_id, week_number, score, note }) {
+  const res = await fetch(apiUrl("/checkin/weekly"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id, week_number, score, note }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to save weekly check-in");
+  }
+  return res.json();
+}
+
+export async function submitFollowupQuestion({
+  session_id,
+  question,
+  original_triage,
+}) {
+  const res = await fetch(apiUrl("/followup-question"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id, question, original_triage }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Follow-up question failed");
+  }
+
+  return res.json();
+}
+
 export async function fetchReferralStats(ref) {
   const q = new URLSearchParams({ ref });
   const res = await fetch(`${apiUrl("/referral-stats")}?${q.toString()}`);

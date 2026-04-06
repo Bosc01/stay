@@ -13,6 +13,8 @@ const INITIAL_INTAKE = {
   behavior_intensity: 2,
   behavior_description: null,
   dog_name: null,
+  owner_experience: null,
+  prior_training: null,
   referral_source: null,
   triggers: [],
   duration: "",
@@ -105,7 +107,11 @@ export default function App() {
           {screen === "q2" && <Question2 {...props} />}
           {screen === "q3" && <Question3 {...props} />}
           {screen === "result" && (
-            <TriageResult {...props} resetToStart={resetToStart} />
+            <TriageResult
+              {...props}
+              sessionId={result?.session_id ?? null}
+              resetToStart={resetToStart}
+            />
           )}
         </main>
       </div>

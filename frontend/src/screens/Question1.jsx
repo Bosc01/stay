@@ -17,6 +17,8 @@ const INTENSITY_LABELS = {
   3: "Severe",
 };
 
+const OWNER_EXPERIENCE_OPTIONS = ["First dog", "Had dogs before"];
+
 export default function Question1({ intake, update, setScreen, currentStep }) {
   const intensityValue =
     typeof intake.behavior_intensity === "number" ? intake.behavior_intensity : 2;
@@ -35,6 +37,37 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         onChange={(e) => update({ dog_name: e.target.value || null })}
         style={{ width: "100%", marginBottom: 16 }}
       />
+
+      <div style={{ marginBottom: 12 }}>
+        <p className="field-label" style={{ marginBottom: 6 }}>
+          Have you had dogs before?
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {OWNER_EXPERIENCE_OPTIONS.map((opt) => {
+            const selected = intake.owner_experience === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                className={`option-btn${selected ? " selected" : ""}`}
+                style={{
+                  width: "auto",
+                  padding: "6px 12px",
+                  fontSize: 13,
+                  borderRadius: 999,
+                }}
+                onClick={() =>
+                  update({
+                    owner_experience: selected ? null : opt,
+                  })
+                }
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="option-grid">
         {BEHAVIOR_TYPES.map((type) => (

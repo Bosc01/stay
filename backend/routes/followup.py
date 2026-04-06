@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 import resend
 
 from db import get_supabase
-from models import CheckInRequest, FollowUpRequest
+from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
 
 router = APIRouter()
 
@@ -93,11 +93,19 @@ async def create_followup(req: FollowUpRequest):
 
 @router.post("/checkin")
 async def week1_checkin(req: CheckInRequest):
+    now = datetime.now()
     try:
         result = (
             get_supabase()
             .table("triage_sessions")
-            .update({"week1_improvement_score": req.improvement_score})
+            .update(
+                {
+                    "week1_improvement_score": req.improvement_score,
+                    "week2_send_at": (now + timedelta(days=14)).isoformat(),
+                    "week3_send_at": (now + timedelta(days=21)).isoformat(),
+                    "week4_send_at": (now + timedelta(days=28)).isoformat(),
+                }
+            )
             .eq("id", req.session_id)
             .execute()
         )
@@ -108,6 +116,46 @@ async def week1_checkin(req: CheckInRequest):
         raise HTTPException(status_code=404, detail="Session not found")
 
     return {"status": "ok"}
+
+
+@router.post("/checkin/weekly")
+async def weekly_checkin(req: WeeklyCheckInRequest):
+    try:
+        session_exists = (
+            get_supabase()
+            .table("triage_sessions")
+            .select("id")
+            .eq("id", req.session_id)
+            .single()
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    if not session_exists.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    try:
+        insert_res = (
+            get_supabase()
+            .table("weekly_checkins")
+            .insert(
+                {
+                    "session_id": req.session_id,
+                    "week_number": req.week_number,
+                    "score": req.score,
+                    "note": req.note,
+                }
+            )
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    return {
+        "status": "ok",
+        "checkin": insert_res.data[0] if isinstance(insert_res.data, list) and insert_res.data else None,
+    }
 
 
 @router.get("/followup/{session_id}")

@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import TriageBadge from "../components/TriageBadge.jsx";
-import { fetchNearbyResources, fetchSimilarStories, submitFollowup } from "../api.js";
+import {
+  fetchNearbyResources,
+  fetchSimilarStories,
+  submitFollowup,
+  submitFollowupQuestion,
+} from "../api.js";
+import { getBehaviorEducation } from "../data/behaviorEducation.js";
 import { rememberProfileSession } from "../profileHistory.js";
 import logoUrl from "../assets/stay-logo.png";
 
@@ -47,6 +53,7 @@ export default function TriageResult({
   result,
   intake,
   update,
+  sessionId: sessionIdProp,
   resetToStart,
 }) {
   const shareCaptureRef = useRef(null);
@@ -58,18 +65,30 @@ export default function TriageResult({
   const [followupError, setFollowupError] = useState(null);
   const [checkInDateLabel, setCheckInDateLabel] = useState(null);
   const [friendShareCopied, setFriendShareCopied] = useState(false);
-  const [sessionId, setSessionId] = useState(result?.session_id ?? null);
+  const [followupQuestion, setFollowupQuestion] = useState("");
+  const [followupQuestionLoading, setFollowupQuestionLoading] = useState(false);
+  const [followupQuestionError, setFollowupQuestionError] = useState(null);
+  const [followupQuestionAnswer, setFollowupQuestionAnswer] = useState("");
+  const [hasAskedFollowupQuestion, setHasAskedFollowupQuestion] = useState(false);
+  const [sessionId, setSessionId] = useState(
+    sessionIdProp ?? result?.session_id ?? null
+  );
   const [similarStories, setSimilarStories] = useState([]);
   const [nearbyResources, setNearbyResources] = useState([]);
+  const [showEducation, setShowEducation] = useState(false);
 
   if (!result) return null;
 
   const resourceTags = result.resource_tags ?? [];
+  const severityRaw = String(result.severity ?? "").toLowerCase();
+  const severityKey = ["green", "yellow", "red"].includes(severityRaw)
+    ? severityRaw
+    : "yellow";
   const hasSessionId = sessionId !== null && sessionId !== undefined;
 
   useEffect(() => {
-    setSessionId(result?.session_id ?? null);
-  }, [result]);
+    setSessionId(sessionIdProp ?? result?.session_id ?? null);
+  }, [result, sessionIdProp]);
 
   useEffect(() => {
     if (hasSessionId) rememberProfileSession(sessionId);
@@ -154,15 +173,12 @@ export default function TriageResult({
     };
   }, [severityKey]);
 
-  const severityRaw = String(result.severity ?? "").toLowerCase();
-  const severityKey = ["green", "yellow", "red"].includes(severityRaw)
-    ? severityRaw
-    : "yellow";
   const signalCount =
     (Array.isArray(intake.triggers) ? intake.triggers.length : 0) +
     1 +
     (String(intake.behavior_description || "").trim() ? 1 : 0) +
     (String(intake.already_tried || "").trim() ? 1 : 0);
+  const behaviorEducation = getBehaviorEducation(result.behavior_classification);
 
   const shareHeadlineParts = [];
   if (intake.dog_name?.trim()) shareHeadlineParts.push(intake.dog_name.trim());
@@ -270,6 +286,29 @@ export default function TriageResult({
     }
   };
 
+  const handleFollowupQuestionSubmit = async () => {
+    if (!hasSessionId || hasAskedFollowupQuestion || !followupQuestion.trim()) return;
+    setFollowupQuestionLoading(true);
+    setFollowupQuestionError(null);
+    try {
+      const data = await submitFollowupQuestion({
+        session_id: sessionId,
+        question: followupQuestion.trim(),
+        original_triage: result,
+      });
+      setFollowupQuestionAnswer(String(data?.answer || "").trim());
+      setHasAskedFollowupQuestion(true);
+    } catch (err) {
+      const msg = err.message || "Could not get an answer right now.";
+      setFollowupQuestionError(msg);
+      if (msg.toLowerCase().includes("already asked")) {
+        setHasAskedFollowupQuestion(true);
+      }
+    } finally {
+      setFollowupQuestionLoading(false);
+    }
+  };
+
   return (
     <div className="screen result-screen">
       {intake.dog_name?.trim() ? (
@@ -331,6 +370,48 @@ export default function TriageResult({
           <p className="result-card-body result-card-body--muted">{result.honest_note}</p>
         </section>
       )}
+
+      {behaviorEducation ? (
+        <section className="result-card" aria-labelledby="behavior-education-heading">
+          <button
+            id="behavior-education-heading"
+            type="button"
+            className="btn btn-secondary"
+            style={{
+              width: "100%",
+              justifyContent: "space-between",
+              marginBottom: showEducation ? 12 : 0,
+            }}
+            onClick={() => setShowEducation((v) => !v)}
+            aria-expanded={showEducation}
+            aria-controls="behavior-education-content"
+          >
+            Understand this behavior
+            <span aria-hidden="true">{showEducation ? "−" : "+"}</span>
+          </button>
+          {showEducation ? (
+            <div id="behavior-education-content">
+              <p className="result-card-label">What</p>
+              <p className="result-card-body" style={{ marginBottom: 12 }}>
+                {behaviorEducation.what}
+              </p>
+
+              <p className="result-card-label">Causes</p>
+              <p className="result-card-body" style={{ marginBottom: 12 }}>
+                {behaviorEducation.causes}
+              </p>
+
+              <p className="result-card-label">Signs</p>
+              <p className="result-card-body" style={{ marginBottom: 12 }}>
+                {behaviorEducation.signs}
+              </p>
+
+              <p className="result-card-label">Myth</p>
+              <p className="result-card-body">{behaviorEducation.myth}</p>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {similarStories.length > 0 ? (
         <section
@@ -583,6 +664,53 @@ export default function TriageResult({
         consultation. For dogs with a bite history, contact a certified
         professional directly.
       </p>
+
+      <section className="result-card" aria-labelledby="followup-question-heading">
+        <p id="followup-question-heading" className="result-card-label">
+          Have a specific question about {intake.dog_name?.trim() || "your dog's"} situation?
+        </p>
+        <div className="followup-row">
+          <input
+            type="text"
+            className="email-input"
+            placeholder="Type your question…"
+            value={followupQuestion}
+            onChange={(e) => setFollowupQuestion(e.target.value)}
+            disabled={!hasSessionId || hasAskedFollowupQuestion || followupQuestionLoading}
+          />
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={
+              !hasSessionId ||
+              hasAskedFollowupQuestion ||
+              followupQuestionLoading ||
+              !followupQuestion.trim()
+            }
+            onClick={handleFollowupQuestionSubmit}
+          >
+            {followupQuestionLoading ? "Sending…" : "Send"}
+          </button>
+        </div>
+        {followupQuestionError ? (
+          <p className="error-text" style={{ marginTop: 8 }}>
+            {followupQuestionError}
+          </p>
+        ) : null}
+        {followupQuestionAnswer ? (
+          <div
+            style={{
+              marginTop: 12,
+              padding: "12px 14px",
+              border: "1px solid var(--border)",
+              borderRadius: 12,
+              background: "rgba(255,255,255,0.02)",
+            }}
+          >
+            <p className="result-card-body">{followupQuestionAnswer}</p>
+          </div>
+        ) : null}
+      </section>
 
       <div className="nav-row">
         <button type="button" className="btn btn-secondary" onClick={resetToStart}>

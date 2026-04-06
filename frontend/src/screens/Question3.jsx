@@ -2,6 +2,12 @@ import { useState } from "react";
 import ProgressBar from "../components/ProgressBar.jsx";
 import { submitTriage } from "../api.js";
 
+const PRIOR_TRAINING_OPTIONS = [
+  "Never",
+  "Yes, didn't help",
+  "Yes, it helped",
+];
+
 export default function Question3({
   intake,
   update,
@@ -17,8 +23,13 @@ export default function Question3({
     setLoading(true);
     setError(null);
     try {
-      const res = await submitTriage(intake);
-      setResult({ ...res, session_id: res?.session_id ?? null });
+      const payload = { ...intake };
+      if (!payload.owner_experience) delete payload.owner_experience;
+      if (!payload.prior_training) delete payload.prior_training;
+
+      const res = await submitTriage(payload);
+      console.log("submitTriage response:", res);
+      setResult(res);
       setScreen("result");
     } catch (err) {
       setError(err.message);
@@ -35,6 +46,38 @@ export default function Question3({
       <p className="subtitle">
         Tell us about any training, vet visits, or changes you've already made.
       </p>
+
+      <div style={{ marginBottom: 12 }}>
+        <p className="field-label" style={{ marginBottom: 6 }}>
+          Has your dog seen a trainer?
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {PRIOR_TRAINING_OPTIONS.map((opt) => {
+            const selected = intake.prior_training === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                className={`option-btn${selected ? " selected" : ""}`}
+                style={{
+                  width: "auto",
+                  padding: "6px 12px",
+                  fontSize: 13,
+                  borderRadius: 999,
+                }}
+                onClick={() =>
+                  update({
+                    prior_training: selected ? null : opt,
+                  })
+                }
+                disabled={loading}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <textarea
         className="text-input"
