@@ -77,6 +77,7 @@ export default function TriageResult({
   const [nearbyResources, setNearbyResources] = useState([]);
   const [showEducation, setShowEducation] = useState(false);
   const [showNextSteps, setShowNextSteps] = useState(false);
+  const [redGateDismissed, setRedGateDismissed] = useState(false);
   const section2Ref = useRef(null);
 
   if (!result) return null;
@@ -95,6 +96,10 @@ export default function TriageResult({
   useEffect(() => {
     if (hasSessionId) rememberProfileSession(sessionId);
   }, [hasSessionId, sessionId]);
+
+  useEffect(() => {
+    setRedGateDismissed(false);
+  }, [result?.session_id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -324,8 +329,102 @@ export default function TriageResult({
     });
   };
 
+  const showRedGate = severityKey === "red" && !redGateDismissed;
+
   return (
     <div className="screen result-screen">
+      {showRedGate ? (
+        <div
+          style={{
+            minHeight: 400,
+            background: "rgba(0,0,0,0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 16,
+            margin: "0 0 16px",
+          }}
+          role="alertdialog"
+          aria-labelledby="red-gate-heading"
+          aria-describedby="red-gate-body"
+        >
+          <div
+            style={{
+              maxWidth: 360,
+              padding: "28px 22px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: 16,
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                padding: "5px 12px",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                borderRadius: 999,
+                background: "#2e0a0a",
+                color: "#f87171",
+                border: "1px solid #991b1b",
+              }}
+            >
+              Immediate attention needed
+            </span>
+            <h2
+              id="red-gate-heading"
+              style={{
+                margin: 0,
+                fontSize: 22,
+                fontWeight: 600,
+                lineHeight: 1.25,
+                letterSpacing: "-0.02em",
+                color: "var(--fg)",
+              }}
+            >
+              Your dog needs professional support before anything else.
+            </h2>
+            <p
+              id="red-gate-body"
+              style={{
+                margin: 0,
+                fontSize: 15,
+                lineHeight: 1.55,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              What you&apos;re describing goes beyond what any app should advise
+              on. The most important thing you can do right now is contact a
+              certified professional — not because your dog can&apos;t be helped,
+              but because they can.
+            </p>
+            <a
+              className="btn btn-primary"
+              href="https://dacvb.org/find-a-diplomate"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: "100%", boxSizing: "border-box" }}
+            >
+              Find a certified behaviorist →
+            </a>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ width: "100%" }}
+              onClick={() => setRedGateDismissed(true)}
+            >
+              See full triage anyway
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {!showRedGate ? (
+        <>
       {intake.dog_name?.trim() ? (
         <p
           style={{
@@ -549,7 +648,7 @@ export default function TriageResult({
 
       <div
         className={`result-section-2-wrap${showNextSteps ? " result-section-2-wrap--open" : ""}`}
-        aria-hidden={!showNextSteps}
+        inert={!showNextSteps}
       >
         <div ref={section2Ref} className="result-section-2-inner">
           {hasSessionId ? (
@@ -785,6 +884,8 @@ export default function TriageResult({
         </p>
         <p className="share-result-capture__url">{SHARE_DISPLAY_URL}</p>
       </div>
+        </>
+      ) : null}
     </div>
   );
 }
