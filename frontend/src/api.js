@@ -198,3 +198,21 @@ export async function createJournalEntry({ session_id, body }) {
   }
   return res.json();
 }
+
+export async function fetchAdminStats(adminPassword) {
+  const res = await fetch(apiUrl("/admin/stats"), {
+    headers: {
+      "X-Admin-Password": adminPassword,
+    },
+  });
+  if (res.status === 401) {
+    const err = new Error("Unauthorized");
+    err.status = 401;
+    throw err;
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Could not load admin stats");
+  }
+  return res.json();
+}
