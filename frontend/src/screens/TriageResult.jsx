@@ -6,12 +6,10 @@ import { submitFollowup } from "../api.js";
 import { rememberProfileSession } from "../profileHistory.js";
 import logoUrl from "../assets/stay-logo.png";
 
-const SHARE_DISPLAY_URL = "stay-sandy-delta.vercel.app";
+const SHARE_DISPLAY_URL = "trystay.org";
 
-const FRIEND_SHARE_URL = "https://stay-sandy-delta.vercel.app";
+const FRIEND_SHARE_URL = "https://trystay.org";
 const FRIEND_SHARE_TITLE = "Stay — free dog behavior triage";
-const FRIEND_SHARE_TEXT =
-  "I just used this to understand my dog's behavior. It's free and takes 2 minutes.";
 
 function prefersMobileShare() {
   if (typeof navigator.share !== "function") return false;
@@ -135,12 +133,14 @@ export default function TriageResult({
   };
 
   const handleSendToFriend = async () => {
+    const dogName = intake.dog_name?.trim();
+    const friendShareText = `I just used Stay to understand ${dogName || "my dog"}'s behavior. It's free and takes 2 minutes — no judgment.`;
     if (prefersMobileShare()) {
       try {
         await navigator.share({
-          title: FRIEND_SHARE_TITLE,
-          text: FRIEND_SHARE_TEXT,
-          url: FRIEND_SHARE_URL,
+          title: "Stay — free dog behavior triage",
+          text: friendShareText,
+          url: "https://trystay.org",
         });
         return;
       } catch (e) {
@@ -149,7 +149,7 @@ export default function TriageResult({
     }
     try {
       await navigator.clipboard.writeText(
-        `${FRIEND_SHARE_TEXT}\n${FRIEND_SHARE_URL}`
+        `${friendShareText}\nhttps://trystay.org`
       );
       setFriendShareCopied(true);
       window.setTimeout(() => setFriendShareCopied(false), 2500);
