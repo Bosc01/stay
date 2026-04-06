@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, HTTPException
 
-from backend.db import get_supabase
-from backend.models import FollowUpRequest
+from db import get_supabase
+from models import FollowUpRequest
 
 router = APIRouter()
 
