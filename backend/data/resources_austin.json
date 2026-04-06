@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Austin Pets Alive! Behavior Helpline",
+    "description": "Free behavior guidance and support for Austin-area pet guardians.",
+    "url": "https://www.austinpetsalive.org/resources/behavior",
+    "city": "Austin",
+    "state": "TX",
+    "is_national": false
+  },
+  {
+    "name": "Austin Animal Center Free Behavior Consults",
+    "description": "No-cost behavior consult options and training support through Austin Animal Center.",
+    "url": "https://www.austintexas.gov/department/austin-animal-center",
+    "city": "Austin",
+    "state": "TX",
+    "is_national": false
+  },
+  {
+    "name": "ASPCA Behavior Hotline",
+    "description": "National behavior support and training resources from the ASPCA.",
+    "url": "https://www.aspca.org/pet-care/dog-care/common-dog-behavior-issues",
+    "city": null,
+    "state": null,
+    "is_national": true
+  }
+]

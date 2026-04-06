@@ -13,6 +13,30 @@ export async function fetchRecentStories() {
   return res.json();
 }
 
+export async function fetchSimilarStories(behaviorClassification) {
+  const q = new URLSearchParams({ behavior_classification: behaviorClassification });
+  const res = await fetch(`${apiUrl("/stories/similar")}?${q.toString()}`);
+  if (!res.ok) {
+    throw new Error("Similar stories request failed");
+  }
+  return res.json();
+}
+
+export async function fetchNearbyResources({ lat, lon } = {}) {
+  const q = new URLSearchParams();
+  if (typeof lat === "number" && Number.isFinite(lat)) q.set("lat", String(lat));
+  if (typeof lon === "number" && Number.isFinite(lon)) q.set("lon", String(lon));
+  const qs = q.toString();
+  const url = qs
+    ? `${apiUrl("/resources/nearby")}?${qs}`
+    : apiUrl("/resources/nearby");
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error("Nearby resources request failed");
+  }
+  return res.json();
+}
+
 export async function submitTriage(intake) {
   const res = await fetch(apiUrl("/triage"), {
     method: "POST",
