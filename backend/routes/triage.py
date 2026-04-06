@@ -5,9 +5,9 @@ import anthropic
 from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
-from backend.db import get_supabase
-from backend.models import TriageIntake, TriageResult, TriageWithSession
-from backend.prompts.system import SYSTEM_PROMPT
+from db import get_supabase
+from models import TriageIntake, TriageResult, TriageWithSession
+from prompts.system import SYSTEM_PROMPT
 
 router = APIRouter()
 client = anthropic.Anthropic()
