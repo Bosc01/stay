@@ -76,6 +76,8 @@ export default function TriageResult({
   const [similarStories, setSimilarStories] = useState([]);
   const [nearbyResources, setNearbyResources] = useState([]);
   const [showEducation, setShowEducation] = useState(false);
+  const [showNextSteps, setShowNextSteps] = useState(false);
+  const section2Ref = useRef(null);
 
   if (!result) return null;
 
@@ -287,13 +289,14 @@ export default function TriageResult({
   };
 
   const handleFollowupQuestionSubmit = async () => {
-    if (!hasSessionId || hasAskedFollowupQuestion || !followupQuestion.trim()) return;
+    const question = followupQuestion.trim();
+    if (!hasSessionId || hasAskedFollowupQuestion || !question) return;
     setFollowupQuestionLoading(true);
     setFollowupQuestionError(null);
     try {
       const data = await submitFollowupQuestion({
         session_id: sessionId,
-        question: followupQuestion.trim(),
+        question,
         original_triage: result,
       });
       setFollowupQuestionAnswer(String(data?.answer || "").trim());
@@ -307,6 +310,18 @@ export default function TriageResult({
     } finally {
       setFollowupQuestionLoading(false);
     }
+  };
+
+  const handleNextStepsClick = () => {
+    setShowNextSteps(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        section2Ref.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    });
   };
 
   return (
@@ -338,16 +353,6 @@ export default function TriageResult({
 
       <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
 
-      {hasSessionId ? (
-        <p className="dog-profile-link-wrap">
-          <Link to={`/profile/${sessionId}`}>
-            {intake.dog_name?.trim()
-              ? `${intake.dog_name.trim()}'s profile`
-              : "Dog profile"}
-          </Link>
-        </p>
-      ) : null}
-
       <section className="result-card" aria-labelledby="label-root-cause">
         <p id="label-root-cause" className="result-card-label">
           What&apos;s driving it
@@ -369,6 +374,16 @@ export default function TriageResult({
           </p>
           <p className="result-card-body result-card-body--muted">{result.honest_note}</p>
         </section>
+      )}
+
+      {resourceTags.length > 0 && (
+        <div className="resource-pills" aria-label="Resource tags">
+          {resourceTags.map((tag, i) => (
+            <span key={`${String(tag)}-${i}`} className="resource-pill">
+              {formatResourceTag(tag)}
+            </span>
+          ))}
+        </div>
       )}
 
       {behaviorEducation ? (
@@ -481,16 +496,6 @@ export default function TriageResult({
         </section>
       )}
 
-      {resourceTags.length > 0 && (
-        <div className="resource-pills" aria-label="Resource tags">
-          {resourceTags.map((tag, i) => (
-            <span key={`${String(tag)}-${i}`} className="resource-pill">
-              {formatResourceTag(tag)}
-            </span>
-          ))}
-        </div>
-      )}
-
       {["yellow", "red"].includes(severityKey) && nearbyResources.length > 0 ? (
         <section className="result-card" aria-labelledby="nearby-help-heading">
           <p id="nearby-help-heading" className="result-card-label">
@@ -534,47 +539,224 @@ export default function TriageResult({
         </section>
       ) : null}
 
-      <div
-        style={{
-          padding: "16px",
-          borderRadius: "10px",
-          border: "0.5px solid var(--border)",
-          marginBottom: 16,
-        }}
+      <button
+        type="button"
+        className="result-next-steps-toggle"
+        onClick={handleNextStepsClick}
       >
-        <p
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            margin: "0 0 8px",
-            color: "var(--fg)",
-          }}
-        >
-          What happens next
-        </p>
-        <p
-          style={{
-            fontSize: 13,
-            color: "var(--color-text-secondary)",
-            margin: 0,
-            lineHeight: 1.6,
-          }}
-        >
-          Try the step above for one week. Sign up below and we'll check in at
-          day 7 to see how things are going, and again at day 30. No spam —
-          just two emails.
-        </p>
+        What should I do next? →
+      </button>
+
+      <div
+        className={`result-section-2-wrap${showNextSteps ? " result-section-2-wrap--open" : ""}`}
+        aria-hidden={!showNextSteps}
+      >
+        <div ref={section2Ref} className="result-section-2-inner">
+          {hasSessionId ? (
+            <p className="dog-profile-link-wrap">
+              <Link to={`/profile/${sessionId}`}>
+                {intake.dog_name?.trim()
+                  ? `${intake.dog_name.trim()}'s profile`
+                  : "Dog profile"}
+              </Link>
+            </p>
+          ) : null}
+
+          <div
+            style={{
+              padding: "16px",
+              borderRadius: "10px",
+              border: "0.5px solid var(--border)",
+              marginBottom: 16,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                margin: "0 0 8px",
+                color: "var(--fg)",
+              }}
+            >
+              What happens next
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--color-text-secondary)",
+                margin: 0,
+                lineHeight: 1.6,
+              }}
+            >
+              Try the step above for one week. Sign up below and we&apos;ll check
+              in at day 7 to see how things are going, and again at day 30. No
+              spam — just two emails.
+            </p>
+          </div>
+
+          {!emailSaved ? (
+            <div className="followup-section">
+              <h3>Get a check-in in 30 days</h3>
+              <p>
+                We&apos;ll email you to see how things are going and whether your
+                dog is still home.
+              </p>
+              <div className="followup-row">
+                <input
+                  type="email"
+                  className="email-input"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={followupLoading}
+                  autoComplete="email"
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={
+                    !email.includes("@") || followupLoading || !hasSessionId
+                  }
+                  onClick={handleFollowupSubmit}
+                >
+                  {followupLoading ? "Saving…" : "Sign up"}
+                </button>
+              </div>
+              {!hasSessionId && (
+                <p className="followup-hint">
+                  Email signup isn&apos;t available because this session
+                  wasn&apos;t saved. Your triage above is still valid.
+                </p>
+              )}
+              {followupError && <p className="error-text">{followupError}</p>}
+            </div>
+          ) : (
+            <div className="followup-section followup-section--success">
+              <p className="followup-success-message">
+                You&apos;re signed up — we&apos;ll check in on{" "}
+                <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
+              </p>
+              <p className="followup-success-7day">
+                We&apos;ll also check in after 7 days to see if things are
+                improving.
+              </p>
+            </div>
+          )}
+
+          <div className="result-share-row">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ width: "100%" }}
+              disabled={shareBusy}
+              onClick={handleShareResults}
+            >
+              {shareBusy ? "Preparing image…" : "Share your results"}
+            </button>
+          </div>
+
+          <section
+            className="friend-share-section"
+            aria-labelledby="friend-share-heading"
+          >
+            <h3 id="friend-share-heading" className="friend-share-heading">
+              Know someone who needs this?
+            </h3>
+            <button
+              type="button"
+              className="btn btn-secondary friend-share-btn"
+              onClick={handleSendToFriend}
+            >
+              Send to a friend
+            </button>
+            {friendShareCopied ? (
+              <p className="friend-share-copied" role="status">
+                Copied to clipboard
+              </p>
+            ) : null}
+          </section>
+
+          <section
+            className="result-card"
+            aria-labelledby="followup-question-heading"
+          >
+            <p id="followup-question-heading" className="result-card-label">
+              Have a specific question about{" "}
+              {intake.dog_name?.trim() || "your dog's"} situation?
+            </p>
+            <div className="followup-row">
+              <input
+                type="text"
+                className="email-input"
+                placeholder="Type your question…"
+                value={followupQuestion}
+                onChange={(e) => setFollowupQuestion(e.target.value)}
+                disabled={
+                  !hasSessionId ||
+                  hasAskedFollowupQuestion ||
+                  followupQuestionLoading
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleFollowupQuestionSubmit();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={
+                  !hasSessionId ||
+                  hasAskedFollowupQuestion ||
+                  followupQuestionLoading ||
+                  !followupQuestion.trim()
+                }
+                onClick={handleFollowupQuestionSubmit}
+              >
+                {followupQuestionLoading ? "Sending…" : "Send"}
+              </button>
+            </div>
+            {followupQuestionError ? (
+              <p className="error-text" style={{ marginTop: 8 }}>
+                {followupQuestionError}
+              </p>
+            ) : null}
+            {followupQuestionAnswer ? (
+              <div
+                style={{
+                  marginTop: 12,
+                  padding: "12px 14px",
+                  border: "1px solid var(--border)",
+                  borderRadius: 12,
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <p className="result-card-body">{followupQuestionAnswer}</p>
+              </div>
+            ) : null}
+          </section>
+        </div>
       </div>
 
-      <div className="result-share-row">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          style={{ width: "100%" }}
-          disabled={shareBusy}
-          onClick={handleShareResults}
-        >
-          {shareBusy ? "Preparing image…" : "Share your results"}
+      <p
+        style={{
+          fontSize: 12,
+          color: "var(--color-text-tertiary)",
+          textAlign: "center",
+          padding: "0 16px",
+          lineHeight: 1.5,
+          marginTop: 16,
+        }}
+      >
+        Stay provides educational information only, not professional behavioral
+        consultation. For dogs with a bite history, contact a certified
+        professional directly.
+      </p>
+
+      <div className="nav-row">
+        <button type="button" className="btn btn-secondary" onClick={resetToStart}>
+          Start Over
         </button>
       </div>
 
@@ -603,141 +785,6 @@ export default function TriageResult({
         </p>
         <p className="share-result-capture__url">{SHARE_DISPLAY_URL}</p>
       </div>
-
-      {!emailSaved ? (
-        <div className="followup-section">
-          <h3>Get a check-in in 30 days</h3>
-          <p>
-            We'll email you to see how things are going and whether your dog is
-            still home.
-          </p>
-          <div className="followup-row">
-            <input
-              type="email"
-              className="email-input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={followupLoading}
-              autoComplete="email"
-            />
-            <button
-              className="btn btn-primary"
-              disabled={
-                !email.includes("@") || followupLoading || !hasSessionId
-              }
-              onClick={handleFollowupSubmit}
-            >
-              {followupLoading ? "Saving…" : "Sign up"}
-            </button>
-          </div>
-          {!hasSessionId && (
-            <p className="followup-hint">
-              Email signup isn&apos;t available because this session wasn&apos;t
-              saved. Your triage above is still valid.
-            </p>
-          )}
-          {followupError && <p className="error-text">{followupError}</p>}
-        </div>
-      ) : (
-        <div className="followup-section followup-section--success">
-          <p className="followup-success-message">
-            You&apos;re signed up — we&apos;ll check in on{" "}
-            <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
-          </p>
-          <p className="followup-success-7day">
-            We&apos;ll also check in after 7 days to see if things are improving.
-          </p>
-        </div>
-      )}
-
-      <p
-        style={{
-          fontSize: 12,
-          color: "var(--color-text-tertiary)",
-          textAlign: "center",
-          padding: "0 16px",
-          lineHeight: 1.5,
-        }}
-      >
-        Stay provides educational information only, not professional behavioral
-        consultation. For dogs with a bite history, contact a certified
-        professional directly.
-      </p>
-
-      <section className="result-card" aria-labelledby="followup-question-heading">
-        <p id="followup-question-heading" className="result-card-label">
-          Have a specific question about {intake.dog_name?.trim() || "your dog's"} situation?
-        </p>
-        <div className="followup-row">
-          <input
-            type="text"
-            className="email-input"
-            placeholder="Type your question…"
-            value={followupQuestion}
-            onChange={(e) => setFollowupQuestion(e.target.value)}
-            disabled={!hasSessionId || hasAskedFollowupQuestion || followupQuestionLoading}
-          />
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={
-              !hasSessionId ||
-              hasAskedFollowupQuestion ||
-              followupQuestionLoading ||
-              !followupQuestion.trim()
-            }
-            onClick={handleFollowupQuestionSubmit}
-          >
-            {followupQuestionLoading ? "Sending…" : "Send"}
-          </button>
-        </div>
-        {followupQuestionError ? (
-          <p className="error-text" style={{ marginTop: 8 }}>
-            {followupQuestionError}
-          </p>
-        ) : null}
-        {followupQuestionAnswer ? (
-          <div
-            style={{
-              marginTop: 12,
-              padding: "12px 14px",
-              border: "1px solid var(--border)",
-              borderRadius: 12,
-              background: "rgba(255,255,255,0.02)",
-            }}
-          >
-            <p className="result-card-body">{followupQuestionAnswer}</p>
-          </div>
-        ) : null}
-      </section>
-
-      <div className="nav-row">
-        <button type="button" className="btn btn-secondary" onClick={resetToStart}>
-          Start Over
-        </button>
-      </div>
-
-      <section
-        className="friend-share-section"
-        aria-labelledby="friend-share-heading"
-      >
-        <h3 id="friend-share-heading" className="friend-share-heading">
-          Know someone who needs this?
-        </h3>
-        <button
-          type="button"
-          className="btn btn-secondary friend-share-btn"
-          onClick={handleSendToFriend}
-        >
-          Send to a friend
-        </button>
-        {friendShareCopied ? (
-          <p className="friend-share-copied" role="status">
-            Copied to clipboard
-          </p>
-        ) : null}
-      </section>
     </div>
   );
 }
