@@ -1,6 +1,24 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import html2canvas from "html2canvas";
 import TriageBadge from "../components/TriageBadge.jsx";
 import { submitFollowup } from "../api.js";
+import { rememberProfileSession } from "../profileHistory.js";
+import logoUrl from "../assets/stay-logo.png";
+
+const SHARE_DISPLAY_URL = "stay-sandy-delta.vercel.app";
+
+const FRIEND_SHARE_URL = "https://stay-sandy-delta.vercel.app";
+const FRIEND_SHARE_TITLE = "Stay — free dog behavior triage";
+const FRIEND_SHARE_TEXT =
+  "I just used this to understand my dog's behavior. It's free and takes 2 minutes.";
+
+function prefersMobileShare() {
+  if (typeof navigator.share !== "function") return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
 
 function formatFollowUpDate(iso) {
   if (!iso) return null;
@@ -31,19 +49,109 @@ export default function TriageResult({
   result,
   intake,
   update,
-  setScreen,
   resetToStart,
 }) {
+  const shareCaptureRef = useRef(null);
+  const [shareBusy, setShareBusy] = useState(false);
+
   const [email, setEmail] = useState(intake.email || "");
   const [emailSaved, setEmailSaved] = useState(false);
   const [followupLoading, setFollowupLoading] = useState(false);
   const [followupError, setFollowupError] = useState(null);
   const [checkInDateLabel, setCheckInDateLabel] = useState(null);
+  const [friendShareCopied, setFriendShareCopied] = useState(false);
 
   if (!result) return null;
 
   const resourceTags = result.resource_tags ?? [];
   const sessionId = result.session_id;
+
+  useEffect(() => {
+    if (sessionId) rememberProfileSession(sessionId);
+  }, [sessionId]);
+
+  const severityRaw = String(result.severity ?? "").toLowerCase();
+  const severityKey = ["green", "yellow", "red"].includes(severityRaw)
+    ? severityRaw
+    : "yellow";
+
+  const shareHeadlineParts = [];
+  if (intake.dog_name?.trim()) shareHeadlineParts.push(intake.dog_name.trim());
+  if (result.behavior_classification)
+    shareHeadlineParts.push(result.behavior_classification);
+  const shareHeadline =
+    shareHeadlineParts.join(" — ") || result.behavior_classification || "Stay";
+
+  const handleShareResults = async () => {
+    const el = shareCaptureRef.current;
+    if (!el || shareBusy) return;
+    setShareBusy(true);
+    try {
+      const canvas = await html2canvas(el, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/png", 1)
+      );
+      if (!blob) throw new Error("Could not create image");
+
+      const file = new File([blob], "stay-triage.png", { type: "image/png" });
+
+      if (navigator.share) {
+        try {
+          const payload = { files: [file], title: "Stay triage" };
+          if (!navigator.canShare || navigator.canShare(payload)) {
+            await navigator.share(payload);
+            return;
+          }
+        } catch (shareErr) {
+          if (shareErr?.name === "AbortError") return;
+          console.warn("navigator.share failed, falling back to download", shareErr);
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "stay-triage.png";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShareBusy(false);
+    }
+  };
+
+  const handleSendToFriend = async () => {
+    if (prefersMobileShare()) {
+      try {
+        await navigator.share({
+          title: FRIEND_SHARE_TITLE,
+          text: FRIEND_SHARE_TEXT,
+          url: FRIEND_SHARE_URL,
+        });
+        return;
+      } catch (e) {
+        if (e?.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(
+        `${FRIEND_SHARE_TEXT}\n${FRIEND_SHARE_URL}`
+      );
+      setFriendShareCopied(true);
+      window.setTimeout(() => setFriendShareCopied(false), 2500);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleFollowupSubmit = async () => {
     if (!sessionId) {
@@ -78,6 +186,16 @@ export default function TriageResult({
       </div>
 
       <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
+
+      {sessionId ? (
+        <p className="dog-profile-link-wrap">
+          <Link to={`/profile/${sessionId}`}>
+            {intake.dog_name?.trim()
+              ? `${intake.dog_name.trim()}'s profile`
+              : "Dog profile"}
+          </Link>
+        </p>
+      ) : null}
 
       <section className="result-card" aria-labelledby="label-root-cause">
         <p id="label-root-cause" className="result-card-label">
@@ -123,6 +241,44 @@ export default function TriageResult({
         </div>
       )}
 
+      <div className="result-share-row">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          style={{ width: "100%" }}
+          disabled={shareBusy}
+          onClick={handleShareResults}
+        >
+          {shareBusy ? "Preparing image…" : "Share your results"}
+        </button>
+      </div>
+
+      <div
+        ref={shareCaptureRef}
+        className="share-result-capture"
+        aria-hidden="true"
+      >
+        <div className="share-result-capture__row">
+          <img
+            className="share-result-capture__logo"
+            src={logoUrl}
+            alt=""
+            width={44}
+            height={44}
+          />
+          <h1 className="share-result-capture__headline">{shareHeadline}</h1>
+        </div>
+        <div>
+          <span className={`share-badge-capture ${severityKey}`}>
+            {result.severity_label}
+          </span>
+        </div>
+        <p className="share-result-capture__note">
+          {result.honest_note?.trim() || "—"}
+        </p>
+        <p className="share-result-capture__url">{SHARE_DISPLAY_URL}</p>
+      </div>
+
       {!emailSaved ? (
         <div className="followup-section">
           <h3>Get a check-in in 30 days</h3>
@@ -164,6 +320,9 @@ export default function TriageResult({
             You&apos;re signed up — we&apos;ll check in on{" "}
             <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
           </p>
+          <p className="followup-success-7day">
+            We&apos;ll also check in after 7 days to see if things are improving.
+          </p>
         </div>
       )}
 
@@ -186,6 +345,27 @@ export default function TriageResult({
           Start Over
         </button>
       </div>
+
+      <section
+        className="friend-share-section"
+        aria-labelledby="friend-share-heading"
+      >
+        <h3 id="friend-share-heading" className="friend-share-heading">
+          Know someone who needs this?
+        </h3>
+        <button
+          type="button"
+          className="btn btn-secondary friend-share-btn"
+          onClick={handleSendToFriend}
+        >
+          Send to a friend
+        </button>
+        {friendShareCopied ? (
+          <p className="friend-share-copied" role="status">
+            Copied to clipboard
+          </p>
+        ) : null}
+      </section>
     </div>
   );
 }

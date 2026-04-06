@@ -7,6 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes.triage import router as triage_router
 from routes.followup import router as followup_router
+from routes.referrals import router as referrals_router
+from routes.profile import router as profile_router
+from routes.stories import router as stories_router
 
 app = FastAPI(title="Stay — Dog Behavior Triage")
 
@@ -20,6 +23,9 @@ app.add_middleware(
 
 app.include_router(triage_router)
 app.include_router(followup_router)
+app.include_router(referrals_router)
+app.include_router(profile_router)
+app.include_router(stories_router)
 
 
 @app.get("/health")

@@ -64,14 +64,17 @@ async def triage(intake: TriageIntake) -> TriageWithSession:
     session_id: str | None = None
     try:
         supabase = get_supabase()
+        now = datetime.now()
         insert_res = supabase.table("triage_sessions").insert(
             {
-                "intake": intake.dict(),
-                "result": result.dict(),
+                "intake": intake.model_dump(),
+                "result": result.model_dump(),
                 "email": None,
-                "follow_up_send_at": (
-                    datetime.now() + timedelta(days=30)
-                ).isoformat(),
+                "follow_up_send_at": (now + timedelta(days=30)).isoformat(),
+                "follow_up_7_day_at": (now + timedelta(days=7)).isoformat(),
+                "referral_source": intake.referral_source,
+                "dog_name": intake.dog_name,
+                "photo_url": None,
             }
         ).execute()
         if insert_res.data and len(insert_res.data) > 0:
