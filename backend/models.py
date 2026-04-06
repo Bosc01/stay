@@ -6,6 +6,8 @@ class TriageIntake(BaseModel):
     behavior_intensity: int | None = Field(default=None, ge=1, le=3)
     behavior_description: str | None = None
     dog_name: str | None = None
+    owner_experience: str | None = None
+    prior_training: str | None = None
     referral_source: str | None = None
     triggers: list[str]
     duration: str
@@ -41,6 +43,13 @@ class CheckInRequest(BaseModel):
     improvement_score: int = Field(..., ge=1, le=5)
 
 
+class WeeklyCheckInRequest(BaseModel):
+    session_id: str
+    week_number: int = Field(..., ge=1, le=4)
+    score: int = Field(..., ge=1, le=5)
+    note: str | None = Field(default=None, max_length=4000)
+
+
 class ProfileSessionUpdate(BaseModel):
     photo_url: str | None = None
     dog_name: str | None = None
@@ -59,3 +68,9 @@ class SessionHistoryRequest(BaseModel):
 class JournalEntryCreate(BaseModel):
     session_id: str
     body: str = Field(..., min_length=1, max_length=8000)
+
+
+class FollowupQuestionRequest(BaseModel):
+    session_id: str
+    question: str = Field(..., min_length=1, max_length=3000)
+    original_triage: dict

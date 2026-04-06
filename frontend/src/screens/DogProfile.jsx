@@ -36,6 +36,18 @@ function formatJournalDate(iso) {
   }
 }
 
+function formatShortDate(iso) {
+  if (!iso) return "—";
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 export default function DogProfile() {
   const { sessionId } = useParams();
   const [session, setSession] = useState(null);
@@ -97,6 +109,60 @@ export default function DogProfile() {
     }
     return null;
   }, [historyRows, session]);
+
+  const severityTimeline = useMemo(() => {
+    const severityToY = { green: 1, yellow: 2, red: 3 };
+    const rows = historyRows
+      .filter((row) => {
+        const key = String(row?.severity || "").toLowerCase();
+        return row?.created_at && typeof severityToY[key] === "number";
+      })
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )
+      .map((row) => {
+        const key = String(row.severity || "").toLowerCase();
+        return {
+          id: row.id,
+          date: row.created_at,
+          severity: key,
+          yValue: severityToY[key],
+        };
+      });
+
+    if (rows.length < 2) return null;
+
+    const width = 320;
+    const height = 120;
+    const padX = 18;
+    const padY = 14;
+    const innerW = width - padX * 2;
+    const innerH = height - padY * 2;
+    const colorBySeverity = {
+      green: "#22c55e",
+      yellow: "#facc15",
+      red: "#f87171",
+    };
+
+    const points = rows.map((row, idx) => {
+      const x =
+        rows.length === 1
+          ? padX + innerW / 2
+          : padX + (idx / (rows.length - 1)) * innerW;
+      const y = padY + ((row.yValue - 1) / 2) * innerH;
+      return {
+        ...row,
+        x,
+        y,
+        color: colorBySeverity[row.severity] || "#a3a3a3",
+      };
+    });
+
+    const polyline = points.map((p) => `${p.x},${p.y}`).join(" ");
+    return { width, height, points, polyline };
+  }, [historyRows]);
 
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0];
@@ -261,6 +327,72 @@ export default function DogProfile() {
               <h2 id="history-heading" className="dog-profile-section-title">
                 Triage history
               </h2>
+              {severityTimeline ? (
+                <div style={{ marginBottom: 14 }}>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "var(--fg-muted)",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    Severity over time
+                  </p>
+                  <svg
+                    viewBox={`0 0 ${severityTimeline.width} ${severityTimeline.height}`}
+                    width="100%"
+                    height="120"
+                    role="img"
+                    aria-label="Severity over time chart"
+                  >
+                    <line
+                      x1="18"
+                      y1="14"
+                      x2="18"
+                      y2={severityTimeline.height - 14}
+                      stroke="rgba(255,255,255,0.18)"
+                      strokeWidth="1"
+                    />
+                    <line
+                      x1="18"
+                      y1={severityTimeline.height - 14}
+                      x2={severityTimeline.width - 18}
+                      y2={severityTimeline.height - 14}
+                      stroke="rgba(255,255,255,0.18)"
+                      strokeWidth="1"
+                    />
+                    <polyline
+                      points={severityTimeline.polyline}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.4)"
+                      strokeWidth="2"
+                    />
+                    {severityTimeline.points.map((p) => (
+                      <circle
+                        key={p.id}
+                        cx={p.x}
+                        cy={p.y}
+                        r="4"
+                        fill={p.color}
+                        stroke="#0a0a0a"
+                        strokeWidth="1"
+                      />
+                    ))}
+                    {severityTimeline.points.map((p) => (
+                      <text
+                        key={`${p.id}-label`}
+                        x={p.x}
+                        y={severityTimeline.height - 2}
+                        textAnchor="middle"
+                        fontSize="10"
+                        fill="rgba(255,255,255,0.6)"
+                      >
+                        {formatShortDate(p.date)}
+                      </text>
+                    ))}
+                  </svg>
+                </div>
+              ) : null}
               {historyRows.length === 0 ? (
                 <p className="dog-profile-muted">No past triages in this browser.</p>
               ) : (
