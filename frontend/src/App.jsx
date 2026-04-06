@@ -73,7 +73,8 @@ export default function App() {
       {showIosInstallBanner ? (
         <div className="ios-install-banner" role="region" aria-label="Install app">
           <p className="ios-install-banner__text">
-            Add Stay to your home screen for quick access
+            <span aria-hidden="true">⬆ </span>
+            Tap the share button below, then "Add to Home Screen"
           </p>
           <button
             type="button"
