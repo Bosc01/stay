@@ -1,8 +1,8 @@
-const API_BASE = String(import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 function apiUrl(path) {
   const p = path.startsWith("/") ? path : `/${path}`;
-  return API_BASE ? `${API_BASE}${p}` : p;
+  return `${API_BASE}${p}`;
 }
 
 export async function submitTriage(intake) {
