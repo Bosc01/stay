@@ -5,8 +5,8 @@ load_dotenv("backend/.env")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routes.triage import router as triage_router
-from backend.routes.followup import router as followup_router
+from routes.triage import router as triage_router
+from routes.followup import router as followup_router
 
 app = FastAPI(title="Stay — Dog Behavior Triage")
 

@@ -1,5 +1,12 @@
+const API_BASE = String(import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
+function apiUrl(path) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE ? `${API_BASE}${p}` : p;
+}
+
 export async function submitTriage(intake) {
-  const res = await fetch("/triage", {
+  const res = await fetch(apiUrl("/triage"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(intake),
@@ -14,7 +21,7 @@ export async function submitTriage(intake) {
 }
 
 export async function submitFollowup({ session_id, email }) {
-  const res = await fetch("/followup", {
+  const res = await fetch(apiUrl("/followup"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id, email }),
