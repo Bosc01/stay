@@ -74,6 +74,59 @@ body {
   background: var(--bg);
 }
 
+.ios-install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.ios-install-banner__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.ios-install-banner__dismiss {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-install-banner__dismiss:hover,
+.ios-install-banner__dismiss:focus-visible {
+  opacity: 1;
+}
+
+.ios-install-banner__dismiss:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
 .app-frame {
   width: 100%;
   max-width: var(--app-max-width);
