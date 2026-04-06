@@ -65,6 +65,19 @@ export default function Question3({
           {loading ? "Analyzing..." : "Get My Triage"}
         </button>
       </div>
+
+      {loading && (
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-secondary)",
+            textAlign: "center",
+            marginTop: 12,
+          }}
+        >
+          This usually takes 10–15 seconds.
+        </p>
+      )}
     </div>
   );
 }

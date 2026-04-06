@@ -167,6 +167,20 @@ export default function TriageResult({
         </div>
       )}
 
+      <p
+        style={{
+          fontSize: 12,
+          color: "var(--color-text-tertiary)",
+          textAlign: "center",
+          padding: "0 16px",
+          lineHeight: 1.5,
+        }}
+      >
+        Stay provides educational information only, not professional behavioral
+        consultation. For dogs with a bite history, contact a certified
+        professional directly.
+      </p>
+
       <div className="nav-row">
         <button type="button" className="btn btn-secondary" onClick={resetToStart}>
           Start Over
