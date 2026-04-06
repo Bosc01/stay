@@ -33,17 +33,29 @@ export default function Landing({ setScreen }) {
 
   return (
     <div className="screen landing-hero">
-      <img
-        src={logo}
-        alt="Stay"
+      <div
         style={{
-          width: 80,
-          height: 80,
-          display: "block",
+          width: 90,
+          height: 90,
+          borderRadius: "50%",
+          background: "#111111",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           margin: "0 auto 24px",
-          objectFit: "contain",
+          overflow: "hidden",
         }}
-      />
+      >
+        <img
+          src={logo}
+          alt="Stay"
+          style={{
+            width: 75,
+            height: 75,
+            objectFit: "contain",
+          }}
+        />
+      </div>
       <h2>Something happened with your dog.</h2>
       <p className="subtitle">
         Tell us what's going on. We'll help you understand what it means and what
