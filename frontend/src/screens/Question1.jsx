@@ -18,6 +18,15 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
       <h2>What's going on?</h2>
       <p className="subtitle">Select the behavior you're most concerned about.</p>
 
+      <input
+        type="text"
+        className="email-input"
+        placeholder="Your dog's name (optional)"
+        value={intake.dog_name ?? ""}
+        onChange={(e) => update({ dog_name: e.target.value || null })}
+        style={{ width: "100%", marginBottom: 16 }}
+      />
+
       <div className="option-grid">
         {BEHAVIOR_TYPES.map((type) => (
           <OptionButton

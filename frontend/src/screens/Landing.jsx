@@ -1,4 +1,4 @@
-import logo from "../assets/stay-logo.png";
+import logo from '../assets/stay-logo.png';
 
 export default function Landing({ setScreen }) {
   return (
@@ -11,6 +11,7 @@ export default function Landing({ setScreen }) {
           height: 80,
           display: "block",
           margin: "0 auto 24px",
+          objectFit: "contain",
         }}
       />
       <h2>Something happened with your dog.</h2>

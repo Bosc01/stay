@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class TriageIntake(BaseModel):
     behavior_type: str
     behavior_description: str | None = None
+    dog_name: str | None = None
     triggers: list[str]
     duration: str
     already_tried: str
