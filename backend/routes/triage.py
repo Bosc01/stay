@@ -65,22 +65,23 @@ async def triage(intake: TriageIntake):
             detail=f"Claude JSON could not be validated as TriageResult: {e}",
         )
 
-    # Save to Supabase (email filled later via POST /followup)
-    # Generate ID before insert so we always have it
-    session_id: str | None = str(uuid.uuid4())
+    session_id = str(uuid.uuid4())
+
     try:
         supabase = get_supabase()
         now = datetime.now()
-        intake_dict = intake.model_dump()
-        result_dict = result.model_dump()
-        if intake_dict is None or result_dict is None:
-            raise ValueError("intake_dict/result_dict cannot be None")
+
+        intake_data = json.loads(json.dumps(intake.model_dump(), default=str))
+        result_data = json.loads(json.dumps(result.model_dump(), default=str))
+
+        print(f"[triage] intake_data: {intake_data}")
+        print(f"[triage] result_data: {result_data}")
 
         insert_res = supabase.table("triage_sessions").insert(
             {
                 "id": session_id,
-                "intake": intake_dict,
-                "result": result_dict,
+                "intake": intake_data,
+                "result": result_data,
                 "email": None,
                 "follow_up_send_at": (now + timedelta(days=30)).isoformat(),
                 "follow_up_7_day_at": (now + timedelta(days=7)).isoformat(),
@@ -89,11 +90,11 @@ async def triage(intake: TriageIntake):
                 "photo_url": None,
             }
         ).execute()
-        print(f"Insert result: {insert_res.data}")
-        print(f"Session saved: {insert_res.data}, ID: {session_id}")
-        print(f"[triage] Inserted session_id={session_id}")
+
+        print(f"[triage] Insert response: {insert_res.data}")
+
     except Exception as e:
-        print(f"Supabase insert error: {e}")
+        print(f"[triage] Supabase insert error: {e}")
         session_id = None
 
     print(f"[triage] Returning session_id={session_id}")
