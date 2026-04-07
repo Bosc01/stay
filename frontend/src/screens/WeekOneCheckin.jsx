@@ -18,7 +18,7 @@ const TRIED_OPTIONS = [
 ];
 
 const LOW_SCORE_FALLBACK =
-  "We could not generate a new suggestion just now. Your check-in was still saved — " +
+  "We could not generate a new suggestion just now. Your check-in was still saved - " +
   "try a smaller version of your original first step for a few days, and consider a " +
   "quick call with a certified trainer if things feel stuck or unsafe.";
 
@@ -238,7 +238,7 @@ export default function WeekOneCheckin() {
                 </h2>
                 {score >= 4 ? (
                   <p className="week-one-checkin__thanks-body">
-                    That&apos;s real progress. Keep going — we&apos;ll check in again at day
+                    That&apos;s real progress. Keep going - we&apos;ll check in again at day
                     30.
                   </p>
                 ) : null}

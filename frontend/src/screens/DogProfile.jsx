@@ -14,14 +14,14 @@ import SiteFooter from "../components/SiteFooter.jsx";
 const MAX_PHOTO_BYTES = 1.5 * 1024 * 1024;
 
 function formatHistoryDate(iso) {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   try {
     return new Date(iso).toLocaleString(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
     });
   } catch {
-    return "—";
+    return " - ";
   }
 }
 
@@ -38,14 +38,14 @@ function formatJournalDate(iso) {
 }
 
 function formatShortDate(iso) {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   try {
     return new Date(iso).toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
     });
   } catch {
-    return "—";
+    return " - ";
   }
 }
 
@@ -405,7 +405,7 @@ export default function DogProfile() {
                         {formatHistoryDate(row.created_at)}
                       </span>
                       <span className="dog-profile-history-class">
-                        {row.behavior_classification || "—"}
+                        {row.behavior_classification || " - "}
                       </span>
                     </li>
                   ))}

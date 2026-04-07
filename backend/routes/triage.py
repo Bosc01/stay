@@ -65,6 +65,7 @@ async def triage(intake: TriageIntake):
             detail=f"Claude JSON could not be validated as TriageResult: {e}",
         )
 
+    # v2 - json serialize fix active
     session_id = str(uuid.uuid4())
 
     try:

@@ -53,7 +53,7 @@ export default function AdminDashboard() {
         clearStoredPassword();
         setStoredPassword("");
         setStats(null);
-        setLoadError("Session expired — sign in again.");
+        setLoadError("Session expired - sign in again.");
         return;
       }
       setLoadError(e.message || "Failed to load stats");
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                   <p className="admin-metric-value">
                     {stats.week1_improvement_average != null
                       ? stats.week1_improvement_average
-                      : "—"}
+                      : " - "}
                   </p>
                   <p className="admin-metric-hint">
                     {stats.week1_scores_count != null
@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                   <p className="admin-metric-value">
                     {stats.dog_retention_rate != null
                       ? `${(stats.dog_retention_rate * 100).toFixed(1)}%`
-                      : "—"}
+                      : " - "}
                   </p>
                   <p className="admin-metric-hint">
                     {stats.dog_still_home_answered
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
                       <p className="admin-interview-card__meta">
                         {row.created_at
                           ? new Date(row.created_at).toLocaleString()
-                          : "—"}
+                          : " - "}
                         {row.session_id ? (
                           <>
                             {" · "}
@@ -296,15 +296,15 @@ export default function AdminDashboard() {
                       </p>
                       <p className="admin-interview-card__q">Before Stay</p>
                       <p className="admin-interview-card__a">
-                        {String(row.q1 || "").trim() || "—"}
+                        {String(row.q1 || "").trim() || " - "}
                       </p>
                       <p className="admin-interview-card__q">Almost stopped</p>
                       <p className="admin-interview-card__a">
-                        {String(row.q2 || "").trim() || "—"}
+                        {String(row.q2 || "").trim() || " - "}
                       </p>
                       <p className="admin-interview-card__q">Share with</p>
                       <p className="admin-interview-card__a">
-                        {String(row.q3 || "").trim() || "—"}
+                        {String(row.q3 || "").trim() || " - "}
                       </p>
                     </article>
                   ))
