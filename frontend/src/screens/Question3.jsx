@@ -74,7 +74,9 @@ export default function Question3({
 
       const res = await submitTriage(payload);
       console.log("submitTriage response:", res);
-      setResult(res);
+
+      const finalSessionId = res.session_id || crypto.randomUUID();
+      setResult({ ...res, session_id: finalSessionId });
       setScreen("result");
     } catch (err) {
       setError(err.message);
