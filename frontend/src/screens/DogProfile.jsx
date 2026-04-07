@@ -111,6 +111,15 @@ export default function DogProfile() {
     return null;
   }, [historyRows, session]);
 
+  const visibleHistoryRows = useMemo(
+    () =>
+      historyRows.filter((row) => {
+        const behavior = String(row?.behavior_classification ?? "").trim();
+        return behavior !== "" && behavior !== "-";
+      }),
+    [historyRows]
+  );
+
   const severityTimeline = useMemo(() => {
     const severityToY = { green: 1, yellow: 2, red: 3 };
     const rows = historyRows
@@ -395,17 +404,17 @@ export default function DogProfile() {
                   </svg>
                 </div>
               ) : null}
-              {historyRows.length === 0 ? (
+              {visibleHistoryRows.length === 0 ? (
                 <p className="dog-profile-muted">No past triages in this browser.</p>
               ) : (
                 <ul className="dog-profile-history">
-                  {historyRows.map((row) => (
+                  {visibleHistoryRows.map((row) => (
                     <li key={row.id} className="dog-profile-history-item">
                       <span className="dog-profile-history-date">
                         {formatHistoryDate(row.created_at)}
                       </span>
                       <span className="dog-profile-history-class">
-                        {row.behavior_classification || " - "}
+                        {row.behavior_classification}
                       </span>
                     </li>
                   ))}
