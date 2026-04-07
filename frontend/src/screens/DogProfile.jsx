@@ -76,6 +76,7 @@ export default function DogProfile() {
         (row.dog_name || row.intake?.dog_name || "").trim()
       );
       setJournalEntries(journalRes.entries || []);
+      console.log("DogProfile journal entries:", journalRes.entries || []);
 
       const stored = getProfileSessionIds();
       const idSet = new Set([sessionId, ...stored]);
@@ -454,7 +455,9 @@ export default function DogProfile() {
                       <time className="dog-profile-journal-time">
                         {formatJournalDate(ent.created_at)}
                       </time>
-                      <p className="dog-profile-journal-body">{ent.body}</p>
+                      <p className="dog-profile-journal-body">
+                        {ent.note || ent.body || "(no content)"}
+                      </p>
                     </li>
                   ))}
                 </ul>
