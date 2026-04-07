@@ -98,7 +98,7 @@ async def list_journal(session_id: str):
         res = (
             get_supabase()
             .table("journal_entries")
-            .select("id, body, created_at")
+            .select("id, note, created_at")
             .eq("triage_session_id", session_id)
             .order("created_at", desc=True)
             .execute()
@@ -118,7 +118,7 @@ async def create_journal(req: JournalEntryCreate):
             .insert(
                 {
                     "triage_session_id": req.session_id,
-                    "body": req.body,
+                    "note": req.body,
                 }
             )
             .execute()
