@@ -928,7 +928,7 @@ export default function TriageResult({
               disabled={shareBusy}
               onClick={handleShareResults}
             >
-              {shareBusy ? "Preparing image…" : "Share your results"}
+              {shareBusy ? "Preparing image…" : "Share your result"}
             </button>
           </div>
 

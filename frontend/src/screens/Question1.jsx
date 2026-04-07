@@ -17,7 +17,11 @@ const INTENSITY_LABELS = {
   3: "Severe",
 };
 
-const OWNER_EXPERIENCE_OPTIONS = ["First dog", "Had dogs before"];
+const OWNER_EXPERIENCE_OPTIONS = [
+  "First-time owner",
+  "Some experience",
+  "Experienced owner",
+];
 
 export default function Question1({ intake, update, setScreen, currentStep }) {
   const intensityValue =
@@ -26,21 +30,26 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
+      <label className="field-label" htmlFor="dog-name-input">
+        What&apos;s your dog&apos;s name?
+      </label>
       <h2>What's going on?</h2>
       <p className="subtitle">Select the behavior you're most concerned about.</p>
 
       <input
+        id="dog-name-input"
         type="text"
         className="email-input"
-        placeholder="Your dog's name (optional)"
+        placeholder="e.g. Bruno"
         value={intake.dog_name ?? ""}
         onChange={(e) => update({ dog_name: e.target.value || null })}
+        required
         style={{ width: "100%", marginBottom: 16 }}
       />
 
       <div style={{ marginBottom: 12 }}>
         <p className="field-label" style={{ marginBottom: 6 }}>
-          Have you had dogs before?
+          Owner experience
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {OWNER_EXPERIENCE_OPTIONS.map((opt) => {
@@ -137,7 +146,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         </button>
         <button
           className="btn btn-primary"
-          disabled={!intake.behavior_type}
+          disabled={!intake.behavior_type || !String(intake.dog_name || "").trim()}
           onClick={() => setScreen("q2")}
         >
           Next
