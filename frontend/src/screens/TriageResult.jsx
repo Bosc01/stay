@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
+import ReactMarkdown from "react-markdown";
 import TriageBadge from "../components/TriageBadge.jsx";
 import {
   fetchNearbyResources,
@@ -981,7 +982,31 @@ export default function TriageResult({
                   background: "rgba(255,255,255,0.02)",
                 }}
               >
-                <p className="result-card-body">{followupQuestionAnswer}</p>
+                <ReactMarkdown
+                  className="prose text-sm leading-relaxed"
+                  components={{
+                    strong: ({ node, ...props }) => (
+                      <strong
+                        {...props}
+                        style={{ fontWeight: 700 }}
+                      />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul
+                        {...props}
+                        style={{ margin: "0.5rem 0 0.5rem 1.25rem", listStyleType: "disc" }}
+                      />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li
+                        {...props}
+                        style={{ marginBottom: "0.25rem" }}
+                      />
+                    ),
+                  }}
+                >
+                  {followupQuestionAnswer}
+                </ReactMarkdown>
               </div>
             ) : null}
           </section>

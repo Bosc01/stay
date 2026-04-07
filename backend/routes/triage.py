@@ -71,11 +71,16 @@ async def triage(intake: TriageIntake):
     try:
         supabase = get_supabase()
         now = datetime.now()
+        intake_dict = intake.model_dump()
+        result_dict = result.model_dump()
+        if intake_dict is None or result_dict is None:
+            raise ValueError("intake_dict/result_dict cannot be None")
+
         insert_res = supabase.table("triage_sessions").insert(
             {
                 "id": session_id,
-                "intake": intake.model_dump(),
-                "result": result.model_dump(),
+                "intake": intake_dict,
+                "result": result_dict,
                 "email": None,
                 "follow_up_send_at": (now + timedelta(days=30)).isoformat(),
                 "follow_up_7_day_at": (now + timedelta(days=7)).isoformat(),
@@ -84,6 +89,7 @@ async def triage(intake: TriageIntake):
                 "photo_url": None,
             }
         ).execute()
+        print(f"Insert result: {insert_res.data}")
         print(f"Session saved: {insert_res.data}, ID: {session_id}")
         print(f"[triage] Inserted session_id={session_id}")
     except Exception as e:
