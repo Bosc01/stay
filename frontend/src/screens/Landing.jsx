@@ -1,10 +1,30 @@
 import { useEffect, useState } from "react";
 import { fetchRecentStories } from "../api.js";
-import logo from '../assets/stay-logo.png';
+import logo from "../assets/stay-logo.png";
+
+/** Normalize ?ref= value to the same slug shape as shelter partner links. */
+function refKeyFromParam(ref) {
+  return String(ref || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+const REF_TO_SHELTER_DISPLAY_NAME = {
+  "austin-pets-alive": "Austin Pets Alive",
+  "austin-animal-center": "Austin Animal Center",
+  "apa": "Austin Pets Alive",
+  "town-lake-animal-center": "Austin Animal Center",
+  "houston-spca": "Houston SPCA",
+  "san-antonio-animal-care-services": "San Antonio Animal Care Services",
+};
 
 export default function Landing({ setScreen }) {
   const [stories, setStories] = useState([]);
   const [isIOS, setIsIOS] = useState(false);
+  const [referralShelterDisplayName, setReferralShelterDisplayName] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,8 +62,37 @@ export default function Landing({ setScreen }) {
     }
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref")?.trim();
+    if (!ref) {
+      setReferralShelterDisplayName(null);
+      return;
+    }
+    const key = refKeyFromParam(ref);
+    setReferralShelterDisplayName(
+      REF_TO_SHELTER_DISPLAY_NAME[key] ?? "your shelter"
+    );
+  }, []);
+
   return (
     <div className="screen landing-hero">
+      {referralShelterDisplayName ? (
+        <div
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "0.5px solid rgba(255,255,255,0.1)",
+            borderRadius: 8,
+            padding: "8px 14px",
+            fontSize: 13,
+            color: "var(--color-text-secondary)",
+            textAlign: "center",
+            marginBottom: 20,
+          }}
+        >
+          Referred by {referralShelterDisplayName}
+        </div>
+      ) : null}
       <img
         src={logo}
         alt="Stay"

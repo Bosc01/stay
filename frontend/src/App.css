@@ -952,61 +952,276 @@ a.logo-link {
   color: var(--fg-muted);
 }
 
-.shelter-page__title {
-  font-size: 22px;
+/* Shelter partner portal */
+.shelter-portal {
+  padding-bottom: 32px;
+}
+
+.shelter-hero {
+  text-align: center;
+  padding: 8px 0 36px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.shelter-hero__title {
+  font-size: clamp(26px, 5vw, 34px);
   font-weight: 600;
-  line-height: 1.25;
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+  color: var(--fg);
 }
 
-.shelter-page__sub {
-  margin-bottom: 22px;
+.shelter-hero__sub {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 0 auto 22px;
+  max-width: 520px;
 }
 
-.shelter-page__link-box {
-  padding: 16px;
-  margin-bottom: 20px;
+.shelter-hero__cta {
+  min-width: 240px;
+}
+
+.shelter-section {
+  margin-bottom: 36px;
+}
+
+.shelter-section--card {
+  padding: 22px 20px;
   border: 0.5px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-muted);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.shelter-page__link-label {
-  font-size: 12px;
+.shelter-section__title {
+  font-size: 20px;
   font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  color: var(--fg);
+}
+
+.shelter-section__lede {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0 0 18px;
+}
+
+.shelter-mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.92em;
+}
+
+.shelter-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.shelter-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.shelter-step__num {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid var(--border);
+  color: var(--fg);
+}
+
+.shelter-step__headline {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--fg);
+}
+
+.shelter-step__text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.shelter-generate-btn {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.shelter-link-output {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 0.5px solid var(--border);
+}
+
+.shelter-link-output__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--fg-muted);
   margin: 0 0 8px;
 }
 
-.shelter-page__link-url {
-  font-size: 13px;
+.shelter-link-output__url {
+  font-size: 14px;
   line-height: 1.45;
   word-break: break-all;
-  margin: 0;
+  margin: 0 0 14px;
   color: var(--fg);
 }
 
-.shelter-page__stats {
-  margin-bottom: 24px;
-  text-align: center;
+.shelter-copy-btn {
+  width: 100%;
 }
 
-.shelter-page__stats-count {
-  font-size: 16px;
-  line-height: 1.45;
-  color: var(--fg);
-  margin: 0;
+.shelter-template {
+  margin-bottom: 22px;
 }
 
-.shelter-page__stats-count strong {
+.shelter-template:last-child {
+  margin-bottom: 0;
+}
+
+.shelter-template__label {
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 8px;
+}
+
+.shelter-template__body {
+  margin: 0 0 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.shelter-template__copy {
+  width: 100%;
+  max-width: 200px;
+}
+
+.shelter-impact__ref {
+  margin-bottom: 16px;
+}
+
+.shelter-impact__loading {
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+.shelter-impact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .shelter-impact-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.shelter-impact-card {
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 0.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 0;
+}
+
+.shelter-impact-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 8px;
+}
+
+.shelter-impact-card__value {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--fg);
+  line-height: 1.2;
+}
+
+.shelter-impact-card__suffix {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg-muted);
+}
+
+.shelter-impact-card__hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--fg-muted);
+  margin: 10px 0 0;
+}
+
+.shelter-demo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shelter-demo-form .field-label {
+  margin-top: 10px;
+}
+
+.shelter-demo-form .field-label:first-of-type {
+  margin-top: 0;
+}
+
+.shelter-demo-form .btn {
+  margin-top: 16px;
+}
+
+.shelter-optional {
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.shelter-demo-success {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 8px 0 0;
 }
 
 .shelter-page__back {
-  margin-top: 8px;
+  margin-top: 28px;
   font-size: 14px;
   text-align: center;
 }
@@ -1018,6 +1233,157 @@ a.logo-link {
 
 .shelter-page__back a:hover {
   text-decoration: underline;
+}
+
+/* Printable referral card (/print?ref=) */
+.print-page {
+  min-height: 100vh;
+  background: #e8e8e8;
+  padding: 20px 16px 40px;
+  box-sizing: border-box;
+}
+
+.print-page__toolbar {
+  max-width: 420px;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.print-page__back {
+  font-size: 14px;
+  color: var(--fg-muted, #666);
+  text-decoration: none;
+}
+
+.print-page__back:hover {
+  text-decoration: underline;
+}
+
+.print-page__print-btn {
+  flex-shrink: 0;
+}
+
+.print-card {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 32px 28px 28px;
+  background: #ffffff;
+  color: #111111;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e5e5;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.print-card__logo {
+  display: block;
+  margin: 0 auto 16px;
+  height: 44px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+.print-card__qr {
+  display: block;
+  margin: 0 auto 20px;
+  width: 200px;
+  height: 200px;
+  image-rendering: pixelated;
+}
+
+.print-card__qr-placeholder {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 20px;
+  background: #f3f3f3;
+  border-radius: 8px;
+}
+
+.print-card__qr-fallback {
+  font-size: 13px;
+  color: #666;
+  margin: 0 auto 20px;
+  max-width: 200px;
+}
+
+.print-card__headline {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: #111111;
+}
+
+.print-card__sub {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #444444;
+  margin: 0 0 18px;
+}
+
+.print-card__url {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0 0 20px;
+  color: #111111;
+}
+
+.print-card__sponsor {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  @page {
+    margin: 14mm;
+    size: auto;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .print-page {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .print-card {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 24px 20px;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-decoration-break: clone;
+  }
+
+  .print-card__logo {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-card__qr {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 .section-heading {
