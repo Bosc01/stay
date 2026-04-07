@@ -1,8 +1,8 @@
-# Stay — AI Dog Surrender Prevention
+# Stay - AI Dog Surrender Prevention
 
 Stay is a free AI-powered behavior triage tool 
-that helps dog owners understand what's driving 
-their dog's behavior and what to do about it — 
+that helps dog owners understand what is driving 
+their dog's behavior and what to do about it
 before they reach the point of surrender.
 
 ## The problem
@@ -12,7 +12,7 @@ accessible guidance. No product exists that
 intercepts owners before they walk into a shelter.
 
 ## What it does
-1. Owner describes their dog's behavior (2 min)
+1. Owner describes their dog's behavior (1 min)
 2. Claude AI diagnoses the root cause
 3. Owner gets a plain-language explanation + 
    one specific step to try today
