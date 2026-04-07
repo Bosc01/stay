@@ -119,6 +119,7 @@ async def create_journal(req: JournalEntryCreate):
                 {
                     "triage_session_id": req.session_id,
                     "note": req.body,
+                    "body": req.body,
                 }
             )
             .execute()
