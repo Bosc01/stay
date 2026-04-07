@@ -88,26 +88,35 @@ async def create_followup(req: FollowUpRequest):
             status_code=400, detail="No fields to update (send email and/or survey fields)"
         )
 
+    # If we can't find the session, create a minimal one so the user still gets confirmation.
     try:
-        result = (
-            get_supabase()
-            .table("triage_sessions")
+        supabase = get_supabase()
+        update_res = (
+            supabase.table("triage_sessions")
             .update(update_data)
             .eq("id", req.session_id)
             .execute()
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
-    if not result.data:
-        raise HTTPException(status_code=404, detail="Session not found")
+        if not update_res.data:
+            minimal_row = {"id": req.session_id}
+            if req.email is not None:
+                minimal_row["email"] = req.email
+                minimal_row["follow_up_send_at"] = update_data.get("follow_up_send_at")
+            supabase.table("triage_sessions").insert(minimal_row).execute()
+    except Exception as e:
+        print(f"Followup error: {e}")
 
     # Best-effort welcome email after email signup is saved.
     if req.email is not None:
         try:
             resend.api_key = os.environ.get("RESEND_API_KEY")
             if resend.api_key:
-                row = result.data[0] if isinstance(result.data, list) and result.data else {}
+                row = (
+                    update_res.data[0]
+                    if isinstance(update_res.data, list) and update_res.data
+                    else {}
+                )
                 intake = row.get("intake") or {}
                 triage_result = row.get("result") or {}
                 dog_name = (
