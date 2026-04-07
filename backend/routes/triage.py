@@ -86,7 +86,6 @@ async def triage(intake: TriageIntake):
                 "email": None,
                 "referral_source": intake.referral_source,
                 "dog_name": intake.dog_name,
-                "photo_url": None,
             }
         ).execute()
 
