@@ -1,7 +1,26 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProgressBar from "../components/ProgressBar.jsx";
 import TriageSkeleton from "../components/TriageSkeleton.jsx";
 import { submitTriage } from "../api.js";
+
+const ALREADY_TRIED_SUPPORT_KEYWORDS = [
+  "surrender",
+  "give up",
+  "rehome",
+  "can't do this",
+  "giving up",
+  "last resort",
+  "run out of options",
+  "don't know what to do",
+];
+
+function alreadyTriedHasSupportKeyword(text) {
+  const lower = String(text || "").toLowerCase();
+  return ALREADY_TRIED_SUPPORT_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()));
+}
+
+/** Once set in-session, support banner stays eligible for this tab until cleared (e.g. Start Over). */
+const Q3_SUPPORT_BANNER_SESSION_KEY = "stay_q3_support_banner";
 
 const PRIOR_TRAINING_OPTIONS = [
   "Never",
@@ -18,6 +37,31 @@ export default function Question3({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showSupportBanner, setShowSupportBanner] = useState(false);
+  const supportBannerLockedRef = useRef(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(Q3_SUPPORT_BANNER_SESSION_KEY) === "1") {
+        supportBannerLockedRef.current = true;
+        setShowSupportBanner(true);
+      }
+    } catch {
+      /* private mode */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (supportBannerLockedRef.current) return;
+    if (!alreadyTriedHasSupportKeyword(intake.already_tried)) return;
+    supportBannerLockedRef.current = true;
+    setShowSupportBanner(true);
+    try {
+      sessionStorage.setItem(Q3_SUPPORT_BANNER_SESSION_KEY, "1");
+    } catch {
+      /* private mode */
+    }
+  }, [intake.already_tried]);
 
   const handleSubmit = async () => {
     if (loading) return;
@@ -96,6 +140,26 @@ export default function Question3({
               })}
             </div>
           </div>
+
+          {showSupportBanner ? (
+            <div
+              role="note"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "0.5px solid rgba(255,255,255,0.12)",
+                borderLeft: "3px solid #4ade80",
+                borderRadius: 8,
+                padding: "12px 14px",
+                marginBottom: 12,
+                fontSize: 13,
+                color: "var(--color-text-secondary)",
+                lineHeight: 1.6,
+              }}
+            >
+              You&apos;re not out of options. Most behavioral issues are more workable than they
+              feel in the moment. Let&apos;s figure out what&apos;s actually going on.
+            </div>
+          ) : null}
 
           <textarea
             className="text-input"

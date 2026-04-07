@@ -247,6 +247,19 @@ async def admin_stats(
         round(dog_still_home_true / dog_home_answered, 4) if dog_home_answered else None
     )
 
+    recent_user_interviews: list[dict] = []
+    try:
+        iv_res = (
+            supabase.table("user_interviews")
+            .select("id,session_id,q1,q2,q3,created_at")
+            .order("created_at", desc=True)
+            .limit(5)
+            .execute()
+        )
+        recent_user_interviews = list(iv_res.data or [])
+    except Exception as e:
+        print(f"[admin] user_interviews fetch skipped: {e}")
+
     return {
         "total_triages": total_triages,
         "triages_today": triages_today,
@@ -259,5 +272,6 @@ async def admin_stats(
         "dog_retention_rate": dog_retention_rate,
         "dog_still_home_answered": dog_home_answered,
         "dog_still_home_true": dog_still_home_true,
+        "recent_user_interviews": recent_user_interviews,
         "updated_at": now.isoformat(),
     }

@@ -5,6 +5,15 @@ function apiUrl(path) {
   return `${API_BASE}${p}`;
 }
 
+export async function fetchImpactPublic() {
+  const res = await fetch(apiUrl("/impact/public"));
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Impact data request failed");
+  }
+  return res.json();
+}
+
 export async function fetchRecentStories() {
   const res = await fetch(apiUrl("/stories/recent"));
   if (!res.ok) {
@@ -53,6 +62,31 @@ export async function submitTriage(intake) {
   return { ...data, session_id: data?.session_id ?? null };
 }
 
+export async function submitUserInterview({ session_id, q1, q2, q3 }) {
+  const res = await fetch(apiUrl("/user-interview"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      session_id,
+      q1: q1 ?? "",
+      q2: q2 ?? "",
+      q3: q3 ?? "",
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const detail = err.detail;
+    const msg =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d) => d.msg || d).join(", ")
+          : "Could not save your responses";
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
 export async function submitFollowup({ session_id, email }) {
   const res = await fetch(apiUrl("/followup"), {
     method: "POST",
@@ -84,15 +118,34 @@ export async function fetchFollowupSession(sessionId) {
   return res.json();
 }
 
-export async function submitWeeklyCheckin({ session_id, week_number, score, note }) {
+export async function submitWeeklyCheckin({
+  session_id,
+  week_number,
+  score,
+  tried_first_step,
+  note,
+}) {
   const res = await fetch(apiUrl("/checkin/weekly"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session_id, week_number, score, note }),
+    body: JSON.stringify({
+      session_id,
+      week_number,
+      score,
+      tried_first_step,
+      note,
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to save weekly check-in");
+    const detail = err.detail;
+    const msg =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d) => d.msg || d).join(", ")
+          : "Failed to save weekly check-in";
+    throw new Error(msg);
   }
   return res.json();
 }

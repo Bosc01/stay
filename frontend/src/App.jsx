@@ -5,6 +5,7 @@ import Question1 from "./screens/Question1.jsx";
 import Question2 from "./screens/Question2.jsx";
 import Question3 from "./screens/Question3.jsx";
 import TriageResult from "./screens/TriageResult.jsx";
+import SiteFooter from "./components/SiteFooter.jsx";
 
 const SCREENS = ["landing", "q1", "q2", "q3", "result"];
 
@@ -16,6 +17,7 @@ const INITIAL_INTAKE = {
   owner_experience: null,
   prior_training: null,
   referral_source: null,
+  sudden_onset: false,
   triggers: [],
   duration: "",
   already_tried: "",
@@ -58,6 +60,11 @@ export default function App() {
     setIntake({ ...INITIAL_INTAKE, referral_source: ref });
     setResult(null);
     setScreen("landing");
+    try {
+      sessionStorage.removeItem("stay_q3_support_banner");
+    } catch {
+      /* ignore */
+    }
   };
 
   const props = { intake, update, setScreen, result, setResult, currentStep };
@@ -114,6 +121,7 @@ export default function App() {
             />
           )}
         </main>
+        <SiteFooter />
       </div>
     </div>
   );

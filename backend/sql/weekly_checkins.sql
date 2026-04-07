@@ -10,6 +10,8 @@ create table if not exists public.weekly_checkins (
   session_id text not null,
   week_number integer not null,
   score integer not null,
+  tried_first_step text,
+  revised_first_step text,
   note text,
   created_at timestamptz not null default now()
 );
