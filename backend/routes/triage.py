@@ -83,8 +83,6 @@ async def triage(intake: TriageIntake):
                 "intake": intake_data,
                 "result": result_data,
                 "email": None,
-                "follow_up_send_at": (now + timedelta(days=30)).isoformat(),
-                "follow_up_7_day_at": (now + timedelta(days=7)).isoformat(),
                 "referral_source": intake.referral_source,
                 "dog_name": intake.dog_name,
                 "photo_url": None,
