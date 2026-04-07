@@ -69,7 +69,8 @@ async def triage(intake: TriageIntake):
     try:
         supabase = get_supabase()
         now = datetime.now()
-        insert_res = supabase.table("triage_sessions").insert(
+        # Insert first (may return no rows depending on RLS/returning behavior)
+        supabase.table("triage_sessions").insert(
             {
                 "intake": intake.model_dump(),
                 "result": result.model_dump(),
@@ -81,12 +82,21 @@ async def triage(intake: TriageIntake):
                 "photo_url": None,
             }
         ).execute()
-        print(f"Session saved: {insert_res.data}")
-        if insert_res.data and len(insert_res.data) > 0:
-            session_id = insert_res.data[0]["id"]
-            print(f"[triage] Saved triage session_id={session_id}")
+
+        # Then fetch the most recent session to get its id
+        fetch_res = (
+            supabase.table("triage_sessions")
+            .select("id")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        print(f"Session fetched: {fetch_res.data}")
+        if fetch_res.data and len(fetch_res.data) > 0:
+            session_id = fetch_res.data[0]["id"]
+            print(f"[triage] Got session_id={session_id}")
         else:
-            print("[triage] Supabase insert returned no data")
+            print("[triage] Supabase fetch returned no data")
     except Exception as e:
         # Log but don't fail the request — the user still gets their result
         print(f"Supabase insert error: {e}")
