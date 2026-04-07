@@ -33,11 +33,11 @@ export default function ImpactPage() {
   const topBehavior =
     data?.top_behavior && String(data.top_behavior).trim()
       ? String(data.top_behavior).trim()
-      : "—";
+      : " - ";
 
   const updatedLabel = data?.updated_at
     ? new Date(data.updated_at).toLocaleString()
-    : "—";
+    : " - ";
 
   return (
     <div className="app">

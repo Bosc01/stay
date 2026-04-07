@@ -16,7 +16,7 @@ import logoUrl from "../assets/stay-logo.png";
 const SHARE_DISPLAY_URL = "trystay.org";
 
 const FRIEND_SHARE_URL = "https://trystay.org";
-const FRIEND_SHARE_TITLE = "Stay — free dog behavior triage";
+const FRIEND_SHARE_TITLE = "Stay - free dog behavior triage";
 
 function prefersMobileShare() {
   if (typeof navigator.share !== "function") return false;
@@ -266,7 +266,7 @@ export default function TriageResult({
   if (result.behavior_classification)
     shareHeadlineParts.push(result.behavior_classification);
   const shareHeadline =
-    shareHeadlineParts.join(" — ") || result.behavior_classification || "Stay";
+    shareHeadlineParts.join(" - ") || result.behavior_classification || "Stay";
 
   const handleShareResults = async () => {
     const el = shareCaptureRef.current;
@@ -317,11 +317,11 @@ export default function TriageResult({
 
   const handleSendToFriend = async () => {
     const dogName = intake.dog_name?.trim();
-    const friendShareText = `I just used Stay to understand ${dogName || "my dog"}'s behavior. It's free and takes 2 minutes — no judgment.`;
+    const friendShareText = `I just used Stay to understand ${dogName || "my dog"}'s behavior. It's free and takes 2 minutes - no judgment.`;
     if (prefersMobileShare()) {
       try {
         await navigator.share({
-          title: "Stay — free dog behavior triage",
+          title: "Stay - free dog behavior triage",
           text: friendShareText,
           url: "https://trystay.org",
         });
@@ -537,12 +537,12 @@ export default function TriageResult({
             >
               What you&apos;re describing goes beyond what any app should advise
               on. The most important thing you can do right now is contact a
-              certified professional — not because your dog can&apos;t be helped,
+              certified professional - not because your dog can&apos;t be helped,
               but because they can.
             </p>
             <a
               className="btn btn-primary"
-              href="https://dacvb.org/find-a-diplomate"
+              href="https://www.dacvb.org/search/custom.asp?id=4803"
               target="_blank"
               rel="noopener noreferrer"
               style={{ width: "100%", boxSizing: "border-box" }}
@@ -587,7 +587,7 @@ export default function TriageResult({
           }}
           title={CONFIDENCE_TOOLTIPS[confidenceLevel]}
         >
-          Confidence: {confidenceLabel} — based on {confidenceSignals} signals
+          Confidence: {confidenceLabel} - based on {confidenceSignals} signals
         </p>
         <p
           style={{
@@ -706,7 +706,7 @@ export default function TriageResult({
                     color: "var(--fg)",
                   }}
                 >
-                  {`${story.dog_name || "Another dog"} — ${
+                  {`${story.dog_name || "Another dog"} - ${
                     story.behavior_classification || result.behavior_classification
                   }`}
                 </p>
@@ -840,7 +840,7 @@ export default function TriageResult({
             >
               Try the step above for one week. Sign up below and we&apos;ll check
               in at day 7 to see how things are going, and again at day 30. No
-              spam — just two emails.
+              spam - just two emails.
             </p>
           </div>
 
@@ -883,7 +883,7 @@ export default function TriageResult({
           ) : (
             <div className="followup-section followup-section--success">
               <p className="followup-success-message">
-                You&apos;re signed up — we&apos;ll check in on{" "}
+                You&apos;re signed up - we&apos;ll check in on{" "}
                 <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
               </p>
               <p className="followup-success-7day">
@@ -1055,7 +1055,7 @@ export default function TriageResult({
           </span>
         </div>
         <p className="share-result-capture__note">
-          {result.honest_note?.trim() || "—"}
+          {result.honest_note?.trim() || " - "}
         </p>
         <p className="share-result-capture__url">{SHARE_DISPLAY_URL}</p>
       </div>
@@ -1066,7 +1066,7 @@ export default function TriageResult({
         <div className="result-interview-float" role="region" aria-label="Research invite">
           <div className="result-interview-float__card">
             <p className="result-interview-float__text">
-              Help us improve Stay — 3 questions, 2 minutes. We read every response.
+              Help us improve Stay - 3 questions, 2 minutes. We read every response.
             </p>
             <div className="result-interview-float__actions">
               <button

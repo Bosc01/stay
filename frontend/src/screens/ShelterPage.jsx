@@ -56,13 +56,13 @@ export default function ShelterPage() {
 
   const emailTemplateBody = useMemo(
     () =>
-      `Before your appointment, we'd like to offer you a free resource. Stay is a free AI behavior triage that takes 2 minutes — it can help you understand what's driving your dog's behavior and give you one specific thing to try today. Many owners find that with the right approach, the behavior that felt overwhelming becomes manageable.\n\nTry it before your appointment: ${linkForTemplates}`,
+      `Before your appointment, we'd like to offer you a free resource. Stay is a free AI behavior triage that takes 2 minutes - it can help you understand what's driving your dog's behavior and give you one specific thing to try today. Many owners find that with the right approach, the behavior that felt overwhelming becomes manageable.\n\nTry it before your appointment: ${linkForTemplates}`,
     [linkForTemplates]
   );
 
   const textTemplateBody = useMemo(
     () =>
-      `Before your surrender appt — try this free 2-min dog behavior tool: ${linkForTemplates}. Many owners find it changes things.`,
+      `Before your surrender appt - try this free 2-min dog behavior tool: ${linkForTemplates}. Many owners find it changes things.`,
     [linkForTemplates]
   );
 
@@ -348,7 +348,7 @@ export default function ShelterPage() {
                   <div className="shelter-impact-card">
                     <p className="shelter-impact-card__label">Average severity</p>
                     <p className="shelter-impact-card__value">
-                      {impact.average_severity_label ?? "—"}
+                      {impact.average_severity_label ?? " - "}
                     </p>
                     {impact.average_severity_score != null ? (
                       <p className="shelter-impact-card__hint">
@@ -375,7 +375,7 @@ export default function ShelterPage() {
                       </>
                     ) : (
                       <>
-                        <p className="shelter-impact-card__value">—</p>
+                        <p className="shelter-impact-card__value"> - </p>
                         <p className="shelter-impact-card__hint">
                           No follow-up data yet for this referral code
                         </p>
@@ -449,7 +449,7 @@ export default function ShelterPage() {
               {demoError ? <p className="error-text">{demoError}</p> : null}
               {demoSuccess ? (
                 <p className="shelter-demo-success" role="status">
-                  Thanks — we received your request.
+                  Thanks - we received your request.
                 </p>
               ) : null}
               <button type="submit" className="btn btn-primary" disabled={demoLoading}>
