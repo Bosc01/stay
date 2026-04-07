@@ -34,6 +34,9 @@ export default function ImpactPage() {
     data?.top_behavior && String(data.top_behavior).trim()
       ? String(data.top_behavior).trim()
       : " - ";
+  const behaviorBreakdown = Array.isArray(data?.behavior_breakdown)
+    ? data.behavior_breakdown
+    : [];
 
   const updatedLabel = data?.updated_at
     ? new Date(data.updated_at).toLocaleString()
@@ -75,6 +78,15 @@ export default function ImpactPage() {
                   <p className="impact-card__value impact-card__value--text">
                     Most common: {topBehavior}
                   </p>
+                  {behaviorBreakdown.length > 0 ? (
+                    <ul style={{ marginTop: 10, paddingLeft: 18 }}>
+                      {behaviorBreakdown.map((item) => (
+                        <li key={item.behavior_classification}>
+                          {item.behavior_classification}: {item.count}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </article>
               </div>
               {data.avg_improvement != null ? (

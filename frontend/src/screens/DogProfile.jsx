@@ -116,7 +116,7 @@ export default function DogProfile() {
     () =>
       historyRows.filter((row) => {
         const behavior = String(row?.behavior_classification ?? "").trim();
-        return behavior !== "" && behavior !== "-";
+        return behavior !== "";
       }),
     [historyRows]
   );
@@ -140,6 +140,7 @@ export default function DogProfile() {
           date: row.created_at,
           severity: key,
           yValue: severityToY[key],
+          behaviorClassification: String(row.behavior_classification || "").trim(),
         };
       });
 
@@ -163,10 +164,11 @@ export default function DogProfile() {
           ? padX + innerW / 2
           : padX + (idx / (rows.length - 1)) * innerW;
       const y = padY + ((row.yValue - 1) / 2) * innerH;
+      const invertedY = padY + ((3 - row.yValue) / 2) * innerH;
       return {
         ...row,
         x,
-        y,
+        y: invertedY,
         color: colorBySeverity[row.severity] || "#a3a3a3",
       };
     });
@@ -357,6 +359,35 @@ export default function DogProfile() {
                     role="img"
                     aria-label="Severity over time chart"
                   >
+                    <text
+                      x="14"
+                      y="14"
+                      textAnchor="end"
+                      fontSize="10"
+                      fill="rgba(255,255,255,0.7)"
+                    >
+                      Red
+                    </text>
+                    <text
+                      x="14"
+                      y={severityTimeline.height / 2}
+                      textAnchor="end"
+                      dominantBaseline="middle"
+                      fontSize="10"
+                      fill="rgba(255,255,255,0.7)"
+                    >
+                      Yellow
+                    </text>
+                    <text
+                      x="14"
+                      y={severityTimeline.height - 14}
+                      textAnchor="end"
+                      dominantBaseline="hanging"
+                      fontSize="10"
+                      fill="rgba(255,255,255,0.7)"
+                    >
+                      Green
+                    </text>
                     <line
                       x1="18"
                       y1="14"
@@ -388,7 +419,11 @@ export default function DogProfile() {
                         fill={p.color}
                         stroke="#0a0a0a"
                         strokeWidth="1"
-                      />
+                      >
+                        <title>
+                          {p.behaviorClassification || "Behavior classification unavailable"}
+                        </title>
+                      </circle>
                     ))}
                     {severityTimeline.points.map((p) => (
                       <text

@@ -52,6 +52,10 @@ async def impact_public():
 
     top_common = Counter(behaviors).most_common(1)
     top_behavior = top_common[0][0] if top_common else None
+    behavior_breakdown = [
+        {"behavior_classification": behavior, "count": count}
+        for behavior, count in Counter(behaviors).most_common()
+    ]
 
     avg_improvement = (
         round(sum(week1_scores) / len(week1_scores), 2) if week1_scores else None
@@ -66,6 +70,7 @@ async def impact_public():
         "dogs_helped": dogs_helped,
         "retention_rate": retention_rate,
         "top_behavior": top_behavior,
+        "behavior_breakdown": behavior_breakdown,
         "avg_improvement": avg_improvement,
         "updated_at": now.isoformat(),
     }
