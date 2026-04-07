@@ -26,6 +26,8 @@ Always:
 
 - Give exactly one concrete, specific action they can take today
 
+- Include week_ahead as exactly 3 short bullet-style strings describing realistic progress in the next 7 days if they follow first_step
+
 - Be honest about severity without being alarmist
 
 ## Triage severity levels
@@ -65,6 +67,8 @@ Return valid JSON only. No preamble, no explanation outside the JSON structure.
   "root_cause": string,
 
   "first_step": string,
+
+  "week_ahead": string[],
 
   "honest_note": string,
 

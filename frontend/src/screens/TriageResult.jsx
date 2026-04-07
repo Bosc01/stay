@@ -124,6 +124,8 @@ export default function TriageResult({
     ? severityRaw
     : "yellow";
   const hasSessionId = sessionId !== null && sessionId !== undefined;
+  const dogName = String(intake?.dog_name || "").trim();
+  const hasDogName = dogName.length > 0;
 
   useEffect(() => {
     setSessionId(sessionIdProp ?? result?.session_id ?? null);
@@ -524,7 +526,9 @@ export default function TriageResult({
                 color: "var(--fg)",
               }}
             >
-              Your dog needs professional support before anything else.
+              {hasDogName
+                ? `${dogName} needs professional support before anything else.`
+                : "Your dog needs professional support before anything else."}
             </h2>
             <p
               id="red-gate-body"
@@ -537,7 +541,8 @@ export default function TriageResult({
             >
               What you&apos;re describing goes beyond what any app should advise
               on. The most important thing you can do right now is contact a
-              certified professional - not because your dog can&apos;t be helped,
+              certified professional - not because{" "}
+              {hasDogName ? `${dogName} can&apos;t be helped,` : "your dog can&apos;t be helped,"}
               but because they can.
             </p>
             <a
@@ -616,6 +621,28 @@ export default function TriageResult({
         </p>
         <p className="result-card-body">{result.first_step}</p>
       </section>
+
+      {Array.isArray(result.week_ahead) && result.week_ahead.length > 0 ? (
+        <section className="result-card" aria-labelledby="label-week-ahead">
+          <p id="label-week-ahead" className="result-card-label">
+            <span role="img" aria-label="calendar" style={{ marginRight: 6 }}>
+              📅
+            </span>
+            What the next 7 days might look like
+          </p>
+          <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
+            {result.week_ahead.map((item, idx) => (
+              <li
+                key={`week-ahead-${idx}`}
+                className="result-card-body"
+                style={{ marginBottom: 8 }}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {result.honest_note && (
         <section className="result-card result-card--honest" aria-labelledby="label-honest">
@@ -1111,7 +1138,8 @@ export default function TriageResult({
                   Question 1 of 3
                 </p>
                 <p id="result-interview-dialog-desc" className="result-interview-modal__question">
-                  Before you found Stay, what did you try when your dog had this behavior?
+                  Before you found Stay, what did you try when{" "}
+                  {hasDogName ? `${dogName} had this behavior?` : "your dog had this behavior?"}
                 </p>
                 <textarea
                   className="text-input result-interview-modal__textarea"
