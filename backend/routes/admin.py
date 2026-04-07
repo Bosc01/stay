@@ -3,7 +3,7 @@ import os
 from collections import Counter
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Query
 
 from db import get_supabase
 
@@ -69,6 +69,90 @@ def _paginate_select(supabase, columns: str):
     return rows
 
 
+def _count_by_ref(supabase, ref: str) -> int:
+    res = (
+        supabase.table("triage_sessions")
+        .select("id", count="exact")
+        .eq("referral_source", ref)
+        .limit(1)
+        .execute()
+    )
+    return int(res.count or 0)
+
+
+def _paginate_select_by_ref(supabase, ref: str, columns: str):
+    rows = []
+    start = 0
+    while True:
+        res = (
+            supabase.table("triage_sessions")
+            .select(columns)
+            .eq("referral_source", ref)
+            .range(start, start + PAGE_SIZE - 1)
+            .execute()
+        )
+        batch = res.data or []
+        rows.extend(batch)
+        if len(batch) < PAGE_SIZE:
+            break
+        start += PAGE_SIZE
+    return rows
+
+
+def _severity_numeric(sev: str) -> int | None:
+    s = str(sev or "").lower().strip()
+    if s == "green":
+        return 1
+    if s == "yellow":
+        return 2
+    if s == "red":
+        return 3
+    return None
+
+
+def _average_severity_label(avg: float) -> str:
+    if avg < 1.67:
+        return "Low"
+    if avg < 2.34:
+        return "Moderate"
+    return "High"
+
+
+def _shelter_impact_stats(ref: str) -> dict:
+    supabase = get_supabase()
+    owners_helped = _count_by_ref(supabase, ref)
+    rows = _paginate_select_by_ref(supabase, ref, "result,dog_still_home")
+
+    scores: list[int] = []
+    dogs_still_home = 0
+    follow_up_answered = 0
+
+    for row in rows:
+        r = _parse_result(row.get("result"))
+        n = _severity_numeric(r.get("severity"))
+        if n is not None:
+            scores.append(n)
+
+        dsh = row.get("dog_still_home")
+        if dsh is not None:
+            follow_up_answered += 1
+            if dsh is True:
+                dogs_still_home += 1
+
+    avg_score = round(sum(scores) / len(scores), 2) if scores else None
+    avg_label = _average_severity_label(avg_score) if avg_score is not None else None
+
+    return {
+        "ref": ref,
+        "owners_helped": owners_helped,
+        "average_severity_score": avg_score,
+        "average_severity_label": avg_label,
+        "dogs_still_home": dogs_still_home,
+        "follow_up_answered": follow_up_answered,
+        "has_follow_up_data": follow_up_answered > 0,
+    }
+
+
 def _parse_result(raw):
     if raw is None:
         return {}
@@ -83,7 +167,14 @@ def _parse_result(raw):
 
 
 @router.get("/stats")
-async def admin_stats(x_admin_password: str | None = Header(None)):
+async def admin_stats(
+    ref: str | None = Query(None, max_length=128),
+    x_admin_password: str | None = Header(None),
+):
+    ref_clean = (ref or "").strip()
+    if ref_clean:
+        return _shelter_impact_stats(ref_clean)
+
     _require_admin(x_admin_password)
 
     supabase = get_supabase()

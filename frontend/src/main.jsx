@@ -6,6 +6,7 @@ import CheckInPage from "./screens/CheckInPage.jsx";
 import DogProfile from "./screens/DogProfile.jsx";
 import ShelterPage from "./screens/ShelterPage.jsx";
 import AdminDashboard from "./screens/AdminDashboard.jsx";
+import PrintCard from "./screens/PrintCard.jsx";
 import "./App.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/checkin" element={<CheckInPage />} />
         <Route path="/profile/:sessionId" element={<DogProfile />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/print" element={<PrintCard />} />
         <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>

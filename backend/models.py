@@ -74,3 +74,10 @@ class FollowupQuestionRequest(BaseModel):
     session_id: str
     question: str = Field(..., min_length=1, max_length=3000)
     original_triage: dict
+
+
+class ShelterInquiryCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    shelter_name: str = Field(..., min_length=1, max_length=200)
+    email: str = Field(..., min_length=3, max_length=320)
+    role: str | None = Field(default=None, max_length=200)

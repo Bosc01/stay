@@ -13,6 +13,7 @@ from routes.stories import router as stories_router
 from routes.resources import router as resources_router
 from routes.followup_question import router as followup_question_router
 from routes.admin import router as admin_router
+from routes.shelter import router as shelter_router
 
 app = FastAPI(title="Stay — Dog Behavior Triage")
 
@@ -32,6 +33,7 @@ app.include_router(stories_router)
 app.include_router(resources_router)
 app.include_router(followup_question_router)
 app.include_router(admin_router)
+app.include_router(shelter_router)
 
 
 @app.get("/health")

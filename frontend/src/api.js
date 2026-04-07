@@ -116,13 +116,41 @@ export async function submitFollowupQuestion({
   return res.json();
 }
 
-export async function fetchReferralStats(ref) {
+/** Public shelter impact metrics (no admin password). */
+export async function fetchShelterImpactStats(ref) {
   const q = new URLSearchParams({ ref });
-  const res = await fetch(`${apiUrl("/referral-stats")}?${q.toString()}`);
+  const res = await fetch(`${apiUrl("/admin/stats")}?${q.toString()}`);
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to load referral stats");
+    throw new Error(err.detail || "Failed to load impact stats");
+  }
+
+  return res.json();
+}
+
+export async function submitShelterInquiry({ name, shelter_name, email, role }) {
+  const res = await fetch(apiUrl("/shelter/inquiry"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      shelter_name,
+      email,
+      role: role || null,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const d = err.detail;
+    const msg =
+      typeof d === "string"
+        ? d
+        : Array.isArray(d)
+          ? d.map((x) => x?.msg || x).join(", ")
+          : "Could not send request";
+    throw new Error(msg);
   }
 
   return res.json();
