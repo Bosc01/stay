@@ -130,6 +130,12 @@ export default function TriageResult({
   }, [result, sessionIdProp]);
 
   useEffect(() => {
+    if (!result) return;
+    const data = result;
+    console.log("Triage response:", data);
+  }, [result]);
+
+  useEffect(() => {
     if (hasSessionId) rememberProfileSession(sessionId);
   }, [hasSessionId, sessionId]);
 
@@ -449,6 +455,25 @@ export default function TriageResult({
     !interviewEverHandled &&
     interviewFlowPhase === null;
   const showUserInterviewModal = interviewFlowPhase !== null;
+
+  if (!hasSessionId) {
+    return (
+      <div className="screen result-screen">
+        <div className="result-card" role="alert" aria-live="polite">
+          <p className="result-card-label">Session error</p>
+          <p className="result-card-body">
+            We could not save your session ID, so this result cannot be continued.
+            Please start over and try again.
+          </p>
+        </div>
+        <div className="nav-row">
+          <button type="button" className="btn btn-secondary" onClick={resetToStart}>
+            Start Over
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen result-screen">

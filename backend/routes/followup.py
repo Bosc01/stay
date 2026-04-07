@@ -189,7 +189,6 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
             .table("triage_sessions")
             .select("id, intake, result")
             .eq("id", req.session_id)
-            .single()
             .execute()
         )
     except Exception as e:
@@ -198,10 +197,12 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
     if not session_row.data:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    original_triage = session_row.data.get("result") or {}
+    session = session_row.data[0]
+
+    original_triage = session.get("result") or {}
     if not isinstance(original_triage, dict):
         original_triage = {}
-    intake = session_row.data.get("intake") or {}
+    intake = session.get("intake") or {}
     if not isinstance(intake, dict):
         intake = {}
 
@@ -249,7 +250,6 @@ async def get_followup(session_id: str):
             .table("triage_sessions")
             .select("*")
             .eq("id", session_id)
-            .single()
             .execute()
         )
     except Exception as e:
@@ -258,4 +258,5 @@ async def get_followup(session_id: str):
     if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    return result.data
+    session = result.data[0]
+    return session
