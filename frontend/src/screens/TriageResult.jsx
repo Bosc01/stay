@@ -7,7 +7,6 @@ import {
   fetchSimilarStories,
   submitFollowup,
   submitFollowupQuestion,
-  submitUserInterview,
 } from "../api.js";
 import { getBehaviorEducation } from "../data/behaviorEducation.js";
 import { rememberProfileSession } from "../profileHistory.js";
@@ -423,12 +422,6 @@ export default function TriageResult({
     setInterviewSubmitting(true);
     setInterviewError(null);
     try {
-      await submitUserInterview({
-        session_id: sessionId,
-        q1: interviewQ1.trim(),
-        q2: interviewQ2.trim(),
-        q3: interviewQ3.trim(),
-      });
       try {
         sessionStorage.setItem(`stay_user_interview_${sessionId}`, "submitted");
       } catch {
@@ -1171,7 +1164,6 @@ export default function TriageResult({
                     type="button"
                     className="btn btn-secondary"
                     onClick={() => setInterviewFlowPhase("q2")}
-                    disabled={interviewSubmitting}
                   >
                     Back
                   </button>
