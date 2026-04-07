@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import datetime, timedelta
 
 import anthropic
@@ -65,13 +66,14 @@ async def triage(intake: TriageIntake):
         )
 
     # Save to Supabase (email filled later via POST /followup)
-    session_id: str | None = None
+    # Generate ID before insert so we always have it
+    session_id: str | None = str(uuid.uuid4())
     try:
         supabase = get_supabase()
         now = datetime.now()
-        # Insert first (may return no rows depending on RLS/returning behavior)
         supabase.table("triage_sessions").insert(
             {
+                "id": session_id,
                 "intake": intake.model_dump(),
                 "result": result.model_dump(),
                 "email": None,
@@ -82,24 +84,10 @@ async def triage(intake: TriageIntake):
                 "photo_url": None,
             }
         ).execute()
-
-        # Then fetch the most recent session to get its id
-        fetch_res = (
-            supabase.table("triage_sessions")
-            .select("id")
-            .order("created_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        print(f"Session fetched: {fetch_res.data}")
-        if fetch_res.data and len(fetch_res.data) > 0:
-            session_id = fetch_res.data[0]["id"]
-            print(f"[triage] Got session_id={session_id}")
-        else:
-            print("[triage] Supabase fetch returned no data")
+        print(f"[triage] Inserted session_id={session_id}")
     except Exception as e:
-        # Log but don't fail the request — the user still gets their result
         print(f"Supabase insert error: {e}")
+        session_id = None
 
     print(f"[triage] Returning session_id={session_id}")
     return {**result.dict(), "session_id": session_id}
