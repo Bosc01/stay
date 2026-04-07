@@ -27,6 +27,11 @@ const PRIOR_TRAINING_OPTIONS = [
   "Yes, didn't help",
   "Yes, it helped",
 ];
+const LOADING_MESSAGES = [
+  "Analyzing your dog's behavior...",
+  "Looking at triggers and patterns...",
+  "Building your personalized plan...",
+];
 
 export default function Question3({
   intake,
@@ -36,6 +41,7 @@ export default function Question3({
   currentStep,
 }) {
   const [loading, setLoading] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [error, setError] = useState(null);
   const [showSupportBanner, setShowSupportBanner] = useState(false);
   const supportBannerLockedRef = useRef(false);
@@ -62,6 +68,19 @@ export default function Question3({
       /* private mode */
     }
   }, [intake.already_tried]);
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loading]);
 
   const handleSubmit = async () => {
     if (loading) return;
@@ -98,9 +117,10 @@ export default function Question3({
               color: "var(--color-text-secondary)",
               textAlign: "center",
               marginTop: 4,
+              animation: "pulse 1.8s ease-in-out infinite",
             }}
           >
-            This usually takes 10–15 seconds.
+            {LOADING_MESSAGES[loadingMessageIndex]}
           </p>
         </div>
       ) : (

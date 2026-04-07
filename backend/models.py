@@ -22,6 +22,7 @@ class TriageResult(BaseModel):
     behavior_classification: str
     root_cause: str
     first_step: str
+    week_ahead: list[str] = Field(default_factory=list)
     honest_note: str
     escalation_needed: bool
     escalation_reason: str | None

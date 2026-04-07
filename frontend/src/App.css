@@ -344,21 +344,21 @@ a.logo-link {
 }
 
 .triage-badge.green {
-  background: #0a2e1a;
+  background: #1a3a2a;
   color: #4ade80;
-  border: 1px solid #166534;
+  border: 1px solid #4ade80;
 }
 
 .triage-badge.yellow {
-  background: #2e1f00;
-  color: #fbbf24;
-  border: 1px solid #92400e;
+  background: #3a2e0a;
+  color: #facc15;
+  border: 1px solid #facc15;
 }
 
 .triage-badge.red {
-  background: #2e0a0a;
+  background: #3a0a0a;
   color: #f87171;
-  border: 1px solid #991b1b;
+  border: 1px solid #f87171;
 }
 
 .result-badge-row {
