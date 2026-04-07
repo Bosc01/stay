@@ -1,14 +1,68 @@
-from datetime import datetime, timedelta
+import json
 import os
+from datetime import datetime, timedelta
 from html import escape
 
-from fastapi import APIRouter, HTTPException
+import anthropic
 import resend
+from fastapi import APIRouter, HTTPException
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
 
 router = APIRouter()
+_claude = anthropic.Anthropic()
+
+
+def _generate_revised_first_step(
+    *,
+    original_triage: dict,
+    intake: dict,
+    score: int,
+    tried_first_step: str,
+    note: str | None,
+) -> str | None:
+    payload = {
+        "instruction": (
+            "The dog owner completed a day-7 check-in. Score meaning: "
+            "1 = much worse, 2 = about the same, 3 = slightly better, "
+            "4 = noticeably better, 5 = a lot better. "
+            "Their score is low, so things are not improving or got worse.\n\n"
+            "They were asked if they tried the first step from triage: "
+            f"{tried_first_step}.\n\n"
+            "Write ONE revised first step only: 2–4 short sentences, actionable, "
+            "kind, and safety-aware. Do not diagnose or shame. "
+            "Plain text only — no markdown, no bullet list. "
+            "If the owner's note mentions bites, aggression, or safety risk, "
+            "prioritize professional help and safety."
+        ),
+        "original_triage": original_triage,
+        "intake_summary": {
+            "dog_name": intake.get("dog_name"),
+            "behavior_type": intake.get("behavior_type"),
+            "behavior_description": intake.get("behavior_description"),
+            "triggers": intake.get("triggers"),
+            "duration": intake.get("duration"),
+            "already_tried": intake.get("already_tried"),
+        },
+        "week1_score": score,
+        "week1_note": (note or "").strip() or None,
+    }
+    try:
+        response = _claude.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=500,
+            system=(
+                "You are Stay's triage assistant. You only output the revised "
+                "first step as plain prose — nothing else."
+            ),
+            messages=[{"role": "user", "content": json.dumps(payload, indent=2)}],
+        )
+        text = response.content[0].text.strip()
+        return text if text else None
+    except Exception as e:
+        print(f"[weekly_checkin] revised first step Claude error: {e}")
+        return None
 
 
 @router.post("/followup")
@@ -121,10 +175,10 @@ async def week1_checkin(req: CheckInRequest):
 @router.post("/checkin/weekly")
 async def weekly_checkin(req: WeeklyCheckInRequest):
     try:
-        session_exists = (
+        session_row = (
             get_supabase()
             .table("triage_sessions")
-            .select("id")
+            .select("id, intake, result")
             .eq("id", req.session_id)
             .single()
             .execute()
@@ -132,21 +186,40 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
-    if not session_exists.data:
+    if not session_row.data:
         raise HTTPException(status_code=404, detail="Session not found")
+
+    original_triage = session_row.data.get("result") or {}
+    if not isinstance(original_triage, dict):
+        original_triage = {}
+    intake = session_row.data.get("intake") or {}
+    if not isinstance(intake, dict):
+        intake = {}
+
+    revised: str | None = None
+    if req.score <= 2:
+        revised = _generate_revised_first_step(
+            original_triage=original_triage,
+            intake=intake,
+            score=req.score,
+            tried_first_step=req.tried_first_step,
+            note=req.note,
+        )
+
+    row_payload = {
+        "session_id": req.session_id,
+        "week_number": req.week_number,
+        "score": req.score,
+        "tried_first_step": req.tried_first_step,
+        "note": req.note,
+        "revised_first_step": revised,
+    }
 
     try:
         insert_res = (
             get_supabase()
             .table("weekly_checkins")
-            .insert(
-                {
-                    "session_id": req.session_id,
-                    "week_number": req.week_number,
-                    "score": req.score,
-                    "note": req.note,
-                }
-            )
+            .insert(row_payload)
             .execute()
         )
     except Exception as e:
@@ -155,6 +228,7 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
     return {
         "status": "ok",
         "checkin": insert_res.data[0] if isinstance(insert_res.data, list) and insert_res.data else None,
+        "revised_first_step": revised,
     }
 
 

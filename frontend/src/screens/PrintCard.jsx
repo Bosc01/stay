@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import SiteFooter from "../components/SiteFooter.jsx";
 import logoUrl from "../assets/stay-logo.png";
 
 const QR_SCRIPT = "https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js";
@@ -156,6 +157,7 @@ export default function PrintCard() {
         <p className="print-card__url">{SITE_DISPLAY}</p>
         <p className="print-card__sponsor">Provided by {shelterName}</p>
       </div>
+      <SiteFooter className="no-print" />
     </div>
   );
 }

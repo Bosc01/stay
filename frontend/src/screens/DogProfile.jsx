@@ -9,6 +9,7 @@ import {
   patchProfileSession,
 } from "../api.js";
 import { getProfileSessionIds } from "../profileHistory.js";
+import SiteFooter from "../components/SiteFooter.jsx";
 
 const MAX_PHOTO_BYTES = 1.5 * 1024 * 1024;
 
@@ -232,6 +233,7 @@ export default function DogProfile() {
           <p className="dog-profile-back">
             <Link to="/">Back to Stay</Link>
           </p>
+          <SiteFooter />
         </div>
       </div>
     );
@@ -453,6 +455,7 @@ export default function DogProfile() {
         ) : (
           <p className="dog-profile-muted">Session not found.</p>
         )}
+        <SiteFooter />
       </div>
     </div>
   );

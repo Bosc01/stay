@@ -9,6 +9,7 @@ class TriageIntake(BaseModel):
     owner_experience: str | None = None
     prior_training: str | None = None
     referral_source: str | None = None
+    sudden_onset: bool = False
     triggers: list[str]
     duration: str
     already_tried: str
@@ -47,7 +48,17 @@ class WeeklyCheckInRequest(BaseModel):
     session_id: str
     week_number: int = Field(..., ge=1, le=4)
     score: int = Field(..., ge=1, le=5)
+    tried_first_step: str = Field(..., min_length=1, max_length=20)
     note: str | None = Field(default=None, max_length=4000)
+
+    @field_validator("tried_first_step")
+    @classmethod
+    def normalize_tried_first_step(cls, v: str) -> str:
+        allowed = {"yes", "partially", "no"}
+        key = (v or "").strip().lower()
+        if key not in allowed:
+            raise ValueError("tried_first_step must be one of: yes, partially, no")
+        return key
 
 
 class ProfileSessionUpdate(BaseModel):
@@ -81,3 +92,10 @@ class ShelterInquiryCreate(BaseModel):
     shelter_name: str = Field(..., min_length=1, max_length=200)
     email: str = Field(..., min_length=3, max_length=320)
     role: str | None = Field(default=None, max_length=200)
+
+
+class UserInterviewCreate(BaseModel):
+    session_id: str = Field(..., min_length=1, max_length=128)
+    q1: str = Field(default="", max_length=8000)
+    q2: str = Field(default="", max_length=8000)
+    q3: str = Field(default="", max_length=8000)

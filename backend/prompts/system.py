@@ -114,3 +114,10 @@ If experience is 'First dog', use plain language and explain any training concep
 If prior_training is 'Yes, didn't help', acknowledge what they tried and don't repeat it.
 If prior_training is 'Yes, it helped', build on that foundation.
 """
+
+# Appended to SYSTEM_PROMPT when intake.sudden_onset is true (see routes/triage.py).
+SUDDEN_ONSET_PRIORITY = """
+## Sudden onset (intake flag)
+
+PRIORITY: This owner has flagged sudden onset. Lead your root_cause with the possibility of a medical cause. Include low_cost_vet in resource_tags regardless of other factors. First step must reference a vet visit.
+"""

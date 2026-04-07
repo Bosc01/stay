@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../api.js";
+import SiteFooter from "../components/SiteFooter.jsx";
 
 const ADMIN_PASSWORD = "stay2026";
 const SESSION_STORAGE_KEY = "stay_admin_password";
@@ -119,6 +120,7 @@ export default function AdminDashboard() {
               </p>
             </div>
           </main>
+          <SiteFooter />
         </div>
       </div>
     );
@@ -270,6 +272,48 @@ export default function AdminDashboard() {
               </div>
             ) : null}
 
+            {stats ? (
+              <section className="admin-interviews" aria-labelledby="admin-interviews-heading">
+                <h3 id="admin-interviews-heading" className="admin-interviews__title">
+                  Recent user interviews
+                </h3>
+                <p className="admin-interviews__hint">
+                  Five most recent responses (help us improve Stay).
+                </p>
+                {(stats.recent_user_interviews || []).length > 0 ? (
+                  stats.recent_user_interviews.map((row) => (
+                    <article key={row.id} className="admin-interview-card">
+                      <p className="admin-interview-card__meta">
+                        {row.created_at
+                          ? new Date(row.created_at).toLocaleString()
+                          : "—"}
+                        {row.session_id ? (
+                          <>
+                            {" · "}
+                            <span style={{ wordBreak: "break-all" }}>{row.session_id}</span>
+                          </>
+                        ) : null}
+                      </p>
+                      <p className="admin-interview-card__q">Before Stay</p>
+                      <p className="admin-interview-card__a">
+                        {String(row.q1 || "").trim() || "—"}
+                      </p>
+                      <p className="admin-interview-card__q">Almost stopped</p>
+                      <p className="admin-interview-card__a">
+                        {String(row.q2 || "").trim() || "—"}
+                      </p>
+                      <p className="admin-interview-card__q">Share with</p>
+                      <p className="admin-interview-card__a">
+                        {String(row.q3 || "").trim() || "—"}
+                      </p>
+                    </article>
+                  ))
+                ) : (
+                  <p className="admin-interviews__hint">No interview responses yet.</p>
+                )}
+              </section>
+            ) : null}
+
             {stats?.updated_at ? (
               <p className="admin-updated">
                 Last updated: {new Date(stats.updated_at).toLocaleString()}
@@ -277,6 +321,7 @@ export default function AdminDashboard() {
             ) : null}
           </div>
         </main>
+        <SiteFooter />
       </div>
     </div>
   );

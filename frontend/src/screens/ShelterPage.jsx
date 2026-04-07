@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchShelterImpactStats, submitShelterInquiry } from "../api.js";
+import SiteFooter from "../components/SiteFooter.jsx";
 
 const SITE_ORIGIN = "https://trystay.org";
 
@@ -461,6 +462,7 @@ export default function ShelterPage() {
             <Link to="/">← Back to Stay</Link>
           </p>
         </main>
+        <SiteFooter />
       </div>
     </div>
   );

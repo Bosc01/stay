@@ -80,6 +80,15 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         ))}
       </div>
 
+      <label className="sudden-onset-toggle">
+        <input
+          type="checkbox"
+          checked={Boolean(intake.sudden_onset)}
+          onChange={(e) => update({ sudden_onset: e.target.checked })}
+        />
+        <span>This started suddenly or my dog seems different lately</span>
+      </label>
+
       {intake.behavior_type && (
         <>
           <label className="field-label" htmlFor="behavior-intensity">

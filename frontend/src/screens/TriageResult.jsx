@@ -7,6 +7,7 @@ import {
   fetchSimilarStories,
   submitFollowup,
   submitFollowupQuestion,
+  submitUserInterview,
 } from "../api.js";
 import { getBehaviorEducation } from "../data/behaviorEducation.js";
 import { rememberProfileSession } from "../profileHistory.js";
@@ -49,6 +50,32 @@ function formatResourceTag(tag) {
     .join(" ");
 }
 
+function computeIntakeConfidenceSignals(intake) {
+  let signals = 0;
+  if (String(intake?.behavior_type || "").trim()) signals += 1;
+  if (String(intake?.behavior_description || "").trim()) signals += 1;
+  const triggers = Array.isArray(intake?.triggers) ? intake.triggers : [];
+  if (triggers.length > 0) signals += triggers.length;
+  if (String(intake?.duration || "").trim()) signals += 1;
+  if (String(intake?.already_tried || "").length > 20) signals += 1;
+  if (String(intake?.dog_name || "").trim()) signals += 1;
+  if (String(intake?.owner_experience || "").trim()) signals += 1;
+  return signals;
+}
+
+function confidenceLevelFromSignals(signals) {
+  if (signals <= 3) return "low";
+  if (signals <= 6) return "medium";
+  return "high";
+}
+
+const CONFIDENCE_TOOLTIPS = {
+  low: "Low: Add more detail about when it happens and what you've tried for a more accurate triage.",
+  medium:
+    "Medium: More detail about when it happens and what you've tried can improve triage accuracy.",
+  high: "High: You shared enough detail for a solid triage.",
+};
+
 export default function TriageResult({
   result,
   intake,
@@ -80,6 +107,15 @@ export default function TriageResult({
   const [redGateDismissed, setRedGateDismissed] = useState(false);
   const section2Ref = useRef(null);
 
+  const [interviewEverHandled, setInterviewEverHandled] = useState(false);
+  const [interviewDeadlinePassed, setInterviewDeadlinePassed] = useState(false);
+  const [interviewFlowPhase, setInterviewFlowPhase] = useState(null);
+  const [interviewQ1, setInterviewQ1] = useState("");
+  const [interviewQ2, setInterviewQ2] = useState("");
+  const [interviewQ3, setInterviewQ3] = useState("");
+  const [interviewSubmitting, setInterviewSubmitting] = useState(false);
+  const [interviewError, setInterviewError] = useState(null);
+
   if (!result) return null;
 
   const resourceTags = result.resource_tags ?? [];
@@ -100,6 +136,34 @@ export default function TriageResult({
   useEffect(() => {
     setRedGateDismissed(false);
   }, [result?.session_id]);
+
+  useEffect(() => {
+    if (!sessionId) {
+      setInterviewEverHandled(false);
+      return;
+    }
+    try {
+      const v = sessionStorage.getItem(`stay_user_interview_${sessionId}`);
+      setInterviewEverHandled(v === "dismissed" || v === "submitted");
+    } catch {
+      setInterviewEverHandled(false);
+    }
+  }, [sessionId]);
+
+  useEffect(() => {
+    setInterviewDeadlinePassed(false);
+    setInterviewFlowPhase(null);
+    setInterviewQ1("");
+    setInterviewQ2("");
+    setInterviewQ3("");
+    setInterviewError(null);
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (!hasSessionId || interviewEverHandled) return undefined;
+    const t = window.setTimeout(() => setInterviewDeadlinePassed(true), 60_000);
+    return () => window.clearTimeout(t);
+  }, [hasSessionId, sessionId, interviewEverHandled]);
 
   useEffect(() => {
     let cancelled = false;
@@ -185,6 +249,10 @@ export default function TriageResult({
     1 +
     (String(intake.behavior_description || "").trim() ? 1 : 0) +
     (String(intake.already_tried || "").trim() ? 1 : 0);
+  const confidenceSignals = computeIntakeConfidenceSignals(intake);
+  const confidenceLevel = confidenceLevelFromSignals(confidenceSignals);
+  const confidenceLabel =
+    confidenceLevel.charAt(0).toUpperCase() + confidenceLevel.slice(1);
   const behaviorEducation = getBehaviorEducation(result.behavior_classification);
 
   const shareHeadlineParts = [];
@@ -329,7 +397,58 @@ export default function TriageResult({
     });
   };
 
+  const handleUserInterviewDismiss = () => {
+    if (!sessionId) return;
+    try {
+      sessionStorage.setItem(`stay_user_interview_${sessionId}`, "dismissed");
+    } catch {
+      /* ignore */
+    }
+    setInterviewEverHandled(true);
+  };
+
+  const handleUserInterviewAccept = () => {
+    setInterviewFlowPhase("q1");
+    setInterviewError(null);
+  };
+
+  const handleUserInterviewSubmit = async () => {
+    if (!sessionId) return;
+    setInterviewSubmitting(true);
+    setInterviewError(null);
+    try {
+      await submitUserInterview({
+        session_id: sessionId,
+        q1: interviewQ1.trim(),
+        q2: interviewQ2.trim(),
+        q3: interviewQ3.trim(),
+      });
+      try {
+        sessionStorage.setItem(`stay_user_interview_${sessionId}`, "submitted");
+      } catch {
+        /* ignore */
+      }
+      setInterviewFlowPhase("thanks");
+    } catch (e) {
+      setInterviewError(e.message || "Something went wrong");
+    } finally {
+      setInterviewSubmitting(false);
+    }
+  };
+
+  const handleUserInterviewModalClose = () => {
+    setInterviewFlowPhase(null);
+    setInterviewEverHandled(true);
+  };
+
   const showRedGate = severityKey === "red" && !redGateDismissed;
+  const showUserInterviewFloat =
+    hasSessionId &&
+    interviewDeadlinePassed &&
+    !showRedGate &&
+    !interviewEverHandled &&
+    interviewFlowPhase === null;
+  const showUserInterviewModal = interviewFlowPhase !== null;
 
   return (
     <div className="screen result-screen">
@@ -443,7 +562,20 @@ export default function TriageResult({
           style={{
             margin: "8px 0 0",
             fontSize: 12,
+            color: "var(--color-text-secondary)",
+            textAlign: "center",
+            cursor: "help",
+          }}
+          title={CONFIDENCE_TOOLTIPS[confidenceLevel]}
+        >
+          Confidence: {confidenceLabel} — based on {confidenceSignals} signals
+        </p>
+        <p
+          style={{
+            margin: "4px 0 0",
+            fontSize: 12,
             color: "var(--color-text-tertiary)",
+            textAlign: "center",
           }}
         >
           Based on {signalCount} behavioral signals
@@ -885,6 +1017,171 @@ export default function TriageResult({
         <p className="share-result-capture__url">{SHARE_DISPLAY_URL}</p>
       </div>
         </>
+      ) : null}
+
+      {showUserInterviewFloat ? (
+        <div className="result-interview-float" role="region" aria-label="Research invite">
+          <div className="result-interview-float__card">
+            <p className="result-interview-float__text">
+              Help us improve Stay — 3 questions, 2 minutes. We read every response.
+            </p>
+            <div className="result-interview-float__actions">
+              <button
+                type="button"
+                className="btn btn-primary result-interview-float__btn-primary"
+                onClick={handleUserInterviewAccept}
+              >
+                Sure, I&apos;ll help
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary result-interview-float__btn-dismiss"
+                onClick={handleUserInterviewDismiss}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showUserInterviewModal ? (
+        <div
+          className="result-interview-modal__backdrop"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && interviewFlowPhase === "thanks") {
+              handleUserInterviewModalClose();
+            }
+          }}
+        >
+          <div
+            className="result-interview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="result-interview-dialog-title"
+            aria-describedby="result-interview-dialog-desc"
+          >
+            {interviewFlowPhase === "q1" ? (
+              <>
+                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                  Question 1 of 3
+                </p>
+                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
+                  Before you found Stay, what did you try when your dog had this behavior?
+                </p>
+                <textarea
+                  className="text-input result-interview-modal__textarea"
+                  rows={5}
+                  value={interviewQ1}
+                  onChange={(e) => setInterviewQ1(e.target.value)}
+                  autoFocus
+                  aria-label="Your answer"
+                />
+                <div className="result-interview-modal__nav">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setInterviewFlowPhase("q2")}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            ) : null}
+            {interviewFlowPhase === "q2" ? (
+              <>
+                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                  Question 2 of 3
+                </p>
+                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
+                  What almost stopped you from finishing the triage just now?
+                </p>
+                <textarea
+                  className="text-input result-interview-modal__textarea"
+                  rows={5}
+                  value={interviewQ2}
+                  onChange={(e) => setInterviewQ2(e.target.value)}
+                  autoFocus
+                  aria-label="Your answer"
+                />
+                <div className="result-interview-modal__nav">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setInterviewFlowPhase("q1")}
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setInterviewFlowPhase("q3")}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            ) : null}
+            {interviewFlowPhase === "q3" ? (
+              <>
+                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                  Question 3 of 3
+                </p>
+                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
+                  If this triage was helpful, who&apos;s the first person you&apos;d think to
+                  share it with?
+                </p>
+                <textarea
+                  className="text-input result-interview-modal__textarea"
+                  rows={5}
+                  value={interviewQ3}
+                  onChange={(e) => setInterviewQ3(e.target.value)}
+                  autoFocus
+                  aria-label="Your answer"
+                />
+                {interviewError ? <p className="error-text">{interviewError}</p> : null}
+                <div className="result-interview-modal__nav">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setInterviewFlowPhase("q2")}
+                    disabled={interviewSubmitting}
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleUserInterviewSubmit}
+                    disabled={interviewSubmitting}
+                  >
+                    {interviewSubmitting ? "Sending…" : "Submit"}
+                  </button>
+                </div>
+              </>
+            ) : null}
+            {interviewFlowPhase === "thanks" ? (
+              <>
+                <p id="result-interview-dialog-title" className="result-interview-modal__thanks-title">
+                  Thank you
+                </p>
+                <p id="result-interview-dialog-desc" className="result-interview-modal__thanks-body">
+                  We read every response.
+                </p>
+                <div className="result-interview-modal__nav">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleUserInterviewModalClose}
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
       ) : null}
     </div>
   );

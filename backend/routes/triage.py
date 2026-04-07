@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from db import get_supabase
 from models import TriageIntake, TriageResult
-from prompts.system import SYSTEM_PROMPT
+from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 
 router = APIRouter()
 client = anthropic.Anthropic()
@@ -17,11 +17,15 @@ client = anthropic.Anthropic()
 async def triage(intake: TriageIntake):
     user_message = json.dumps(intake.model_dump(), indent=2)
 
+    system_prompt = SYSTEM_PROMPT
+    if intake.sudden_onset:
+        system_prompt = f"{SYSTEM_PROMPT.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
+
     try:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
-            system=SYSTEM_PROMPT,
+            system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
     except anthropic.APIError as e:
