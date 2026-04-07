@@ -71,7 +71,7 @@ async def triage(intake: TriageIntake):
     try:
         supabase = get_supabase()
         now = datetime.now()
-        supabase.table("triage_sessions").insert(
+        insert_res = supabase.table("triage_sessions").insert(
             {
                 "id": session_id,
                 "intake": intake.model_dump(),
@@ -84,6 +84,7 @@ async def triage(intake: TriageIntake):
                 "photo_url": None,
             }
         ).execute()
+        print(f"Session saved: {insert_res.data}, ID: {session_id}")
         print(f"[triage] Inserted session_id={session_id}")
     except Exception as e:
         print(f"Supabase insert error: {e}")
