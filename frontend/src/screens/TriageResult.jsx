@@ -118,7 +118,6 @@ export default function TriageResult({
 
   if (!result) return null;
 
-  const resourceTags = result.resource_tags ?? [];
   const severityRaw = String(result.severity ?? "").toLowerCase();
   const severityKey = ["green", "yellow", "red"].includes(severityRaw)
     ? severityRaw
@@ -568,42 +567,21 @@ export default function TriageResult({
 
       {!showRedGate ? (
         <>
-      {intake.dog_name?.trim() ? (
-        <p
-          style={{
-            fontSize: 13,
-            color: "var(--color-text-secondary)",
-            textAlign: "center",
-            margin: "0 0 10px",
-          }}
-        >
-          {intake.dog_name.trim()}'s triage
-        </p>
-      ) : null}
-      <div className="result-badge-row">
+      <div className="result-badge-row" style={{ textAlign: "left" }}>
+        {hasDogName ? (
+          <p
+            style={{
+              margin: "0 0 6px",
+              fontSize: 12,
+              fontWeight: 500,
+              color: "var(--color-text-tertiary)",
+              letterSpacing: "0.01em",
+            }}
+          >
+            {dogName}
+          </p>
+        ) : null}
         <TriageBadge severity={result.severity} label={result.severity_label} />
-        <p
-          style={{
-            margin: "8px 0 0",
-            fontSize: 12,
-            color: "var(--color-text-secondary)",
-            textAlign: "center",
-            cursor: "help",
-          }}
-          title={CONFIDENCE_TOOLTIPS[confidenceLevel]}
-        >
-          Confidence: {confidenceLabel} - based on {confidenceSignals} signals
-        </p>
-        <p
-          style={{
-            margin: "4px 0 0",
-            fontSize: 12,
-            color: "var(--color-text-tertiary)",
-            textAlign: "center",
-          }}
-        >
-          Based on {signalCount} behavioral signals
-        </p>
       </div>
 
       <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
@@ -651,16 +629,6 @@ export default function TriageResult({
           </p>
           <p className="result-card-body result-card-body--muted">{result.honest_note}</p>
         </section>
-      )}
-
-      {resourceTags.length > 0 && (
-        <div className="resource-pills" aria-label="Resource tags">
-          {resourceTags.map((tag, i) => (
-            <span key={`${String(tag)}-${i}`} className="resource-pill">
-              {formatResourceTag(tag)}
-            </span>
-          ))}
-        </div>
       )}
 
       {behaviorEducation ? (
