@@ -64,11 +64,11 @@ export default function ImpactPage() {
               <div className="impact-page__grid">
                 <article className="impact-card">
                   <p className="impact-card__value">{triagedDisplay?.toLocaleString()}</p>
-                  <p className="impact-card__label">dogs triaged</p>
+                  <p className="impact-card__label">dogs helped</p>
                 </article>
                 <article className="impact-card">
                   <p className="impact-card__value">{signupDisplay?.toLocaleString()}</p>
-                  <p className="impact-card__label">owners signed up for follow-up</p>
+                  <p className="impact-card__label">owners staying in touch</p>
                 </article>
                 <article className="impact-card">
                   <p className="impact-card__value">100%</p>

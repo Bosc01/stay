@@ -30,6 +30,9 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
+      <p className="subtitle" style={{ marginTop: 8 }}>
+        First, a little about what you've already tried.
+      </p>
       <label className="field-label" htmlFor="dog-name-input">
         What&apos;s your dog&apos;s name?
       </label>

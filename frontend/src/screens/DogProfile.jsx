@@ -95,7 +95,7 @@ export default function DogProfile() {
 
   const pageTitle = useMemo(() => {
     const n = (session?.dog_name || session?.intake?.dog_name || "").trim();
-    return n || "Dog profile";
+    return n ? `${n}'s profile` : "Dog profile";
   }, [session]);
 
   const latestSeverity = useMemo(() => {
@@ -269,7 +269,7 @@ export default function DogProfile() {
           <>
             <section className="dog-profile-section" aria-labelledby="severity-heading">
               <h2 id="severity-heading" className="dog-profile-section-title">
-                Current severity
+                Right now
               </h2>
               {latestSeverity ? (
                 <div className="dog-profile-badge-wrap">
@@ -339,7 +339,7 @@ export default function DogProfile() {
 
             <section className="dog-profile-section" aria-labelledby="history-heading">
               <h2 id="history-heading" className="dog-profile-section-title">
-                Triage history
+                What we've seen
               </h2>
               {severityTimeline ? (
                 <div style={{ marginBottom: 14 }}>
@@ -460,12 +460,15 @@ export default function DogProfile() {
 
             <section className="dog-profile-section" aria-labelledby="journal-heading">
               <h2 id="journal-heading" className="dog-profile-section-title">
-                Journal
+                {(() => {
+                  const n = String(session?.dog_name || session?.intake?.dog_name || "").trim();
+                  return n ? `How has ${n} been doing?` : "How has your dog been doing?";
+                })()}
               </h2>
               <textarea
                 className="dog-profile-journal-input"
                 rows={4}
-                placeholder="How is your dog doing?"
+                placeholder="Write a note about today..."
                 value={journalBody}
                 onChange={(e) => setJournalBody(e.target.value)}
                 disabled={journalSaving}
