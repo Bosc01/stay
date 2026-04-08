@@ -512,7 +512,7 @@ export default function TriageResult({
                 border: "1px solid #991b1b",
               }}
             >
-              Immediate attention needed
+              We'd recommend getting some help
             </span>
             <h2
               id="red-gate-heading"
@@ -588,14 +588,14 @@ export default function TriageResult({
 
       <section className="result-card" aria-labelledby="label-root-cause">
         <p id="label-root-cause" className="result-card-label">
-          What&apos;s driving it
+          What's probably going on
         </p>
         <p className="result-card-body">{result.root_cause}</p>
       </section>
 
       <section className="result-card result-card--first-step" aria-labelledby="label-first-step">
         <p id="label-first-step" className="result-card-label">
-          Try this today
+          What to try today
         </p>
         <p className="result-card-body">{result.first_step}</p>
       </section>
@@ -625,7 +625,7 @@ export default function TriageResult({
       {result.honest_note && (
         <section className="result-card result-card--honest" aria-labelledby="label-honest">
           <p id="label-honest" className="result-card-label result-card-label--muted">
-            Honest assessment
+            One more thing
           </p>
           <p className="result-card-body result-card-body--muted">{result.honest_note}</p>
         </section>
@@ -841,7 +841,7 @@ export default function TriageResult({
 
           {!emailSaved ? (
             <div className="followup-section">
-              <h3>Get a check-in in 30 days</h3>
+              <h3>Want us to check in after 7 days?</h3>
               <p>
                 We&apos;ll email you to see how things are going and whether your
                 dog is still home.
@@ -1103,7 +1103,7 @@ export default function TriageResult({
             {interviewFlowPhase === "q1" ? (
               <>
                 <p id="result-interview-dialog-title" className="result-interview-modal__label">
-                  Question 1 of 3
+                  Step 1 of 3
                 </p>
                 <p id="result-interview-dialog-desc" className="result-interview-modal__question">
                   Before you found Stay, what did you try when{" "}
@@ -1131,7 +1131,7 @@ export default function TriageResult({
             {interviewFlowPhase === "q2" ? (
               <>
                 <p id="result-interview-dialog-title" className="result-interview-modal__label">
-                  Question 2 of 3
+                  Step 2 of 3
                 </p>
                 <p id="result-interview-dialog-desc" className="result-interview-modal__question">
                   What almost stopped you from finishing the triage just now?
@@ -1165,7 +1165,7 @@ export default function TriageResult({
             {interviewFlowPhase === "q3" ? (
               <>
                 <p id="result-interview-dialog-title" className="result-interview-modal__label">
-                  Question 3 of 3
+                  Step 3 of 3
                 </p>
                 <p id="result-interview-dialog-desc" className="result-interview-modal__question">
                   If this triage was helpful, who&apos;s the first person you&apos;d think to

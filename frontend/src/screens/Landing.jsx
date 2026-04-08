@@ -106,11 +106,11 @@ export default function Landing({ setScreen }) {
       />
       <h2>Something happened with your dog.</h2>
       <p className="subtitle">
-        Tell us what's going on. We'll help you understand what it means and what
-        to do first - no judgment.
+        Answer a few questions and we'll help you figure out what's driving it - and
+        what to try today.
       </p>
       <button className="btn btn-primary" onClick={() => setScreen("q1")}>
-        Tell us what happened
+        Tell us what's going on
       </button>
       <p className="landing-footnote">Free. No account required.</p>
       {isIOS ? (

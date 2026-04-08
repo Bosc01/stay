@@ -27,10 +27,11 @@ const PRIOR_TRAINING_OPTIONS = [
   "Yes, didn't help",
   "Yes, it helped",
 ];
-const LOADING_MESSAGES = [
-  "Analyzing your dog's behavior...",
-  "Looking at triggers and patterns...",
-  "Building your personalized plan...",
+const LOADING_MESSAGES = (dogName) => [
+  "Reading what you shared...",
+  `Thinking about ${dogName || "your dog"}'s situation...`,
+  "Putting together what we know...",
+  "Almost ready...",
 ];
 
 export default function Question3({
@@ -76,8 +77,8 @@ export default function Question3({
     }
 
     const intervalId = window.setInterval(() => {
-      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 2000);
+      setLoadingMessageIndex((prev) => (prev + 1) % 4);
+    }, 2500);
 
     return () => window.clearInterval(intervalId);
   }, [loading]);
@@ -120,11 +121,20 @@ export default function Question3({
               animation: "pulse 1.8s ease-in-out infinite",
             }}
           >
-            {LOADING_MESSAGES[loadingMessageIndex]}
+            {
+              LOADING_MESSAGES(String(intake?.dog_name || "").trim())[
+                loadingMessageIndex
+              ]
+            }
           </p>
         </div>
       ) : (
         <>
+          <p className="subtitle" style={{ marginTop: 8 }}>
+            Last thing - a bit about{" "}
+            {String(intake?.dog_name || "").trim() || "your dog"} and how long this has
+            been going on.
+          </p>
           <h2>What have you tried so far?</h2>
           <p className="subtitle">
             Tell us about any training, vet visits, or changes you&apos;ve already
