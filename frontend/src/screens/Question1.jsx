@@ -47,19 +47,13 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
-      <p className="subtitle" style={{ marginTop: 8 }}>
-        First, a little about what you've already tried.
-      </p>
       <label className="field-label" htmlFor="dog-name-input">
         What&apos;s your dog&apos;s name?
       </label>
-      <h2>What's going on?</h2>
-      <p className="subtitle">Select the behavior you're most concerned about.</p>
-
       <div
         key={dogShakeKey}
         className={dogShakeKey > 0 ? "field-shake-once" : undefined}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 24 }}
       >
         <input
           id="dog-name-input"
@@ -72,6 +66,9 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
           style={{ width: "100%" }}
         />
       </div>
+
+      <h2>What's going on?</h2>
+      <p className="subtitle">Select the behavior you're most concerned about.</p>
 
       <div style={{ marginBottom: 12 }}>
         <p className="field-label" style={{ marginBottom: 6 }}>

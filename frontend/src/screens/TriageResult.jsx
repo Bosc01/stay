@@ -19,12 +19,6 @@ const SHARE_DISPLAY_URL = "trystay.org";
 const FRIEND_SHARE_URL = "https://trystay.org";
 const FRIEND_SHARE_TITLE = "Stay - free dog behavior triage";
 
-const JOURNEY_STEP_LABELS = [
-  "Step 1 of 3: You got your triage",
-  "Step 2 of 3: Try the first step for 7 days",
-  "Step 3 of 3: Check back and tell us how it went",
-];
-
 function prefersMobileShare() {
   if (typeof navigator.share !== "function") return false;
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -57,19 +51,19 @@ function formatResourceTag(tag) {
     .join(" ");
 }
 
-/** Split on ". " so the first three segments are the collapsed preview. */
+/** Split on ". " so the first two segments are the collapsed preview. */
 function splitRootCauseSentences(text) {
   const raw = String(text ?? "").trim();
   if (!raw) {
     return { preview: "", rest: "", hasMore: false };
   }
   const segments = raw.split(". ");
-  if (segments.length <= 3) {
+  if (segments.length <= 2) {
     return { preview: raw, rest: "", hasMore: false };
   }
   return {
-    preview: segments.slice(0, 3).join(". "),
-    rest: segments.slice(3).join(". "),
+    preview: segments.slice(0, 2).join(". "),
+    rest: segments.slice(2).join(". "),
     hasMore: true,
   };
 }
@@ -127,9 +121,7 @@ export default function TriageResult({
   const [similarStories, setSimilarStories] = useState([]);
   const [nearbyResources, setNearbyResources] = useState([]);
   const [showEducation, setShowEducation] = useState(false);
-  const [showNextSteps, setShowNextSteps] = useState(false);
   const [redGateDismissed, setRedGateDismissed] = useState(false);
-  const section2Ref = useRef(null);
 
   const [interviewEverHandled, setInterviewEverHandled] = useState(false);
   const [interviewDeadlinePassed, setInterviewDeadlinePassed] = useState(false);
@@ -140,10 +132,15 @@ export default function TriageResult({
   const [interviewSubmitting, setInterviewSubmitting] = useState(false);
   const [interviewError, setInterviewError] = useState(null);
   const [rootCauseExpanded, setRootCauseExpanded] = useState(false);
+  const [honestNoteExpanded, setHonestNoteExpanded] = useState(false);
 
   useEffect(() => {
     setRootCauseExpanded(false);
   }, [result?.root_cause]);
+
+  useEffect(() => {
+    setHonestNoteExpanded(false);
+  }, [result?.honest_note, result?.session_id]);
 
   if (!result) return null;
 
@@ -151,12 +148,6 @@ export default function TriageResult({
   const severityKey = ["green", "yellow", "red"].includes(severityRaw)
     ? severityRaw
     : "yellow";
-  const severityWhatNextAccent =
-    severityKey === "green"
-      ? "#4ade80"
-      : severityKey === "red"
-        ? "#f87171"
-        : "#facc15";
   const hasSessionId = sessionId !== null && sessionId !== undefined;
   const dogName = String(intake?.dog_name || "").trim();
   const hasDogName = dogName.length > 0;
@@ -165,19 +156,6 @@ export default function TriageResult({
   const hasEmailSignup =
     emailSaved ||
     (intakeEmail.length > 2 && intakeEmail.includes("@"));
-
-  let week1CheckinDone = false;
-  if (sessionId) {
-    try {
-      week1CheckinDone =
-        typeof window !== "undefined" &&
-        sessionStorage.getItem(`stay_week1_checkin_done_${sessionId}`) === "1";
-    } catch {
-      week1CheckinDone = false;
-    }
-  }
-
-  const journeyStep = week1CheckinDone ? 3 : hasEmailSignup ? 2 : 1;
 
   useEffect(() => {
     setSessionId(sessionIdProp ?? result?.session_id ?? null);
@@ -454,18 +432,6 @@ export default function TriageResult({
     }
   };
 
-  const handleNextStepsClick = () => {
-    setShowNextSteps(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        section2Ref.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
-    });
-  };
-
   const handleUserInterviewDismiss = () => {
     if (!sessionId) return;
     try {
@@ -640,27 +606,6 @@ export default function TriageResult({
 
       {!showRedGate ? (
         <>
-      <div
-        className="result-journey-bar"
-        role="region"
-        aria-label="Your Stay journey"
-      >
-        <div className="result-journey-bar__track">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="result-journey-bar__seg"
-              style={{
-                background: i <= journeyStep ? "#f5f0e8" : "#333333",
-              }}
-            />
-          ))}
-        </div>
-        <p className="result-journey-bar__label">
-          {JOURNEY_STEP_LABELS[journeyStep - 1]}
-        </p>
-      </div>
-
       <div className="result-badge-row" style={{ textAlign: "left" }}>
         {hasDogName ? (
           <p
@@ -692,17 +637,20 @@ export default function TriageResult({
               {rootCauseSplit.rest}
             </>
           ) : null}
+          {rootCauseSplit.hasMore ? (
+            <>
+              {" "}
+              <button
+                type="button"
+                className="result-root-cause-toggle--inline"
+                onClick={() => setRootCauseExpanded((v) => !v)}
+                aria-expanded={rootCauseExpanded}
+              >
+                {rootCauseExpanded ? "Read less" : "Read more"}
+              </button>
+            </>
+          ) : null}
         </p>
-        {rootCauseSplit.hasMore ? (
-          <button
-            type="button"
-            className="result-root-cause-toggle"
-            onClick={() => setRootCauseExpanded((v) => !v)}
-            aria-expanded={rootCauseExpanded}
-          >
-            {rootCauseExpanded ? "Read less" : "Read more"}
-          </button>
-        ) : null}
       </section>
 
       <section className="result-card result-card--first-step" aria-labelledby="label-first-step">
@@ -710,42 +658,6 @@ export default function TriageResult({
           What to try today
         </p>
         <p className="result-card-body">{result.first_step}</p>
-      </section>
-
-      <section
-        className="result-what-next"
-        style={
-          {
-            "--result-what-next-accent": severityWhatNextAccent,
-          }
-        }
-        aria-labelledby="result-what-next-heading"
-      >
-        <h3 id="result-what-next-heading" className="result-what-next__title">
-          What happens next
-        </h3>
-        <ul className="result-what-next__list">
-          <li className="result-what-next__item">
-            <span className="result-what-next__dot" aria-hidden="true" />
-            <span>Try what we suggested for the next 7 days</span>
-          </li>
-          <li className="result-what-next__item">
-            <span className="result-what-next__dot" aria-hidden="true" />
-            <span>
-              {hasEmailSignup
-                ? `We'll check in to see how ${
-                    hasDogName ? dogName : "your dog"
-                  } is doing`
-                : "Sign up below and we'll check in after 7 days"}
-            </span>
-          </li>
-          <li className="result-what-next__item">
-            <span className="result-what-next__dot" aria-hidden="true" />
-            <span>
-              Come back and run another triage if something changes
-            </span>
-          </li>
-        </ul>
       </section>
 
       {Array.isArray(result.week_ahead) && result.week_ahead.length > 0 ? (
@@ -771,11 +683,27 @@ export default function TriageResult({
       ) : null}
 
       {result.honest_note && (
-        <section className="result-card result-card--honest" aria-labelledby="label-honest">
-          <p id="label-honest" className="result-card-label result-card-label--muted">
-            One more thing
-          </p>
-          <p className="result-card-body result-card-body--muted">{result.honest_note}</p>
+        <section className="result-card result-card--honest">
+          <button
+            type="button"
+            className="result-honest-toggle"
+            onClick={() => setHonestNoteExpanded((v) => !v)}
+            aria-expanded={honestNoteExpanded}
+            aria-controls="honest-note-content"
+          >
+            <span className="result-honest-toggle__label">One more thing</span>
+            <span aria-hidden="true" className="result-honest-toggle__chevron">
+              {honestNoteExpanded ? "−" : "+"}
+            </span>
+          </button>
+          {honestNoteExpanded ? (
+            <p
+              id="honest-note-content"
+              className="result-card-body result-card-body--muted result-honest-toggle__body"
+            >
+              {result.honest_note}
+            </p>
+          ) : null}
         </section>
       )}
 
@@ -825,27 +753,27 @@ export default function TriageResult({
         <section
           className="result-card"
           aria-labelledby="similar-stories-heading"
-          style={{ marginTop: 2 }}
+          style={{ marginTop: 10 }}
         >
           <p id="similar-stories-heading" className="result-card-label">
             Others with similar situations
           </p>
-          <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gap: 18 }}>
             {similarStories.map((story, i) => (
               <article
                 key={`${story.dog_name || "dog"}-${i}`}
                 style={{
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 12,
-                  padding: "12px 14px",
-                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid var(--card-border)",
+                  borderRadius: 16,
+                  padding: 20,
+                  background: "var(--card-bg)",
                 }}
               >
                 <p
                   style={{
                     margin: "0 0 6px",
-                    fontSize: 13,
-                    fontWeight: 500,
+                    fontSize: 15,
+                    fontWeight: 600,
                     color: "var(--fg)",
                   }}
                 >
@@ -856,9 +784,9 @@ export default function TriageResult({
                 <p
                   style={{
                     margin: "0 0 6px",
-                    fontSize: 13,
-                    lineHeight: 1.55,
-                    color: "var(--color-text-secondary)",
+                    fontSize: 15,
+                    lineHeight: 1.6,
+                    color: "var(--card-body)",
                   }}
                 >
                   {String(story.update_text || "").trim()}
@@ -894,26 +822,26 @@ export default function TriageResult({
           <p id="nearby-help-heading" className="result-card-label">
             Free help near you
           </p>
-          <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gap: 18 }}>
             {nearbyResources.map((r, i) => (
               <article
                 key={`${r.name || "resource"}-${i}`}
                 style={{
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 12,
-                  padding: "12px 14px",
-                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid var(--card-border)",
+                  borderRadius: 16,
+                  padding: 20,
+                  background: "var(--card-bg)",
                 }}
               >
-                <p style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 600 }}>
+                <p style={{ margin: "0 0 6px", fontSize: 15, fontWeight: 600 }}>
                   {r.name}
                 </p>
                 <p
                   style={{
                     margin: "0 0 10px",
-                    fontSize: 13,
-                    lineHeight: 1.5,
-                    color: "var(--color-text-secondary)",
+                    fontSize: 15,
+                    lineHeight: 1.6,
+                    color: "var(--card-body)",
                   }}
                 >
                   {r.description}
@@ -932,19 +860,8 @@ export default function TriageResult({
         </section>
       ) : null}
 
-      <button
-        type="button"
-        className="result-next-steps-toggle"
-        onClick={handleNextStepsClick}
-      >
-        What should I do next? →
-      </button>
-
-      <div
-        className={`result-section-2-wrap${showNextSteps ? " result-section-2-wrap--open" : ""}`}
-        inert={!showNextSteps}
-      >
-        <div ref={section2Ref} className="result-section-2-inner">
+      <div className="result-section-2-wrap">
+        <div className="result-section-2-inner">
           {hasSessionId ? (
             <p className="dog-profile-link-wrap">
               <Link to={`/profile/${sessionId}`}>
@@ -1003,6 +920,31 @@ export default function TriageResult({
               </p>
             </div>
           )}
+
+          <div
+            className="result-what-next-summary"
+            aria-labelledby="result-what-next-summary-heading"
+          >
+            <h3
+              id="result-what-next-summary-heading"
+              className="result-what-next-summary__title"
+            >
+              What happens next
+            </h3>
+            <p className="result-what-next-summary__line">
+              Try what we suggested for the next 7 days.
+            </p>
+            <p className="result-what-next-summary__line">
+              {hasEmailSignup
+                ? `We'll check in to see how ${
+                    hasDogName ? dogName : "your dog"
+                  } is doing.`
+                : "Add your email above if you'd like a check-in after 7 days."}
+            </p>
+            <p className="result-what-next-summary__line">
+              Come back and run another triage if something changes.
+            </p>
+          </div>
 
           <div className="result-share-row share-section">
             <button
@@ -1087,19 +1029,19 @@ export default function TriageResult({
               <div
                 style={{
                   marginTop: 12,
-                  padding: "12px 14px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 12,
-                  background: "rgba(255,255,255,0.02)",
+                  padding: 20,
+                  border: "1px solid var(--card-border)",
+                  borderRadius: 16,
+                  background: "var(--card-bg)",
                 }}
               >
                 <ReactMarkdown
-                  className="prose text-sm leading-relaxed"
+                  className="result-card-markdown"
                   components={{
                     strong: ({ node, ...props }) => (
                       <strong
                         {...props}
-                        style={{ fontWeight: 700 }}
+                        style={{ fontWeight: 600 }}
                       />
                     ),
                     ul: ({ node, ...props }) => (

@@ -422,7 +422,7 @@ export default function DogProfile() {
                         cy={p.y}
                         r="4"
                         fill={p.color}
-                        stroke="#0a0a0a"
+                        stroke="#0d0d0b"
                         strokeWidth="1"
                       >
                         <title>

@@ -50,9 +50,6 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
-      <p className="subtitle" style={{ marginTop: 8 }}>
-        Now tell us what's been happening.
-      </p>
 
       <h2>When does it happen?</h2>
       {selectedCount > 0 ? (

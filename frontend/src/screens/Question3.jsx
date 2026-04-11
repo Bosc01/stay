@@ -127,11 +127,6 @@ export default function Question3({
         </div>
       ) : (
         <>
-          <p className="subtitle" style={{ marginTop: 8 }}>
-            Last thing - a bit about{" "}
-            {String(intake?.dog_name || "").trim() || "your dog"} and how long this has
-            been going on.
-          </p>
           <h2>What have you tried so far?</h2>
           <p className="subtitle">
             Tell us about any training, vet visits, or changes you&apos;ve already
