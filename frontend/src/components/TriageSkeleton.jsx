@@ -6,7 +6,7 @@ export default function TriageSkeleton() {
       </div>
       <div className="triage-skeleton__heading" />
       <div className="triage-skeleton__card" />
-      <div className="triage-skeleton__card triage-skeleton__card--first-step" />
+      <div className="triage-skeleton__card" />
     </div>
   );
 }

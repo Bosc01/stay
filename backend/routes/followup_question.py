@@ -37,7 +37,10 @@ async def followup_question(req: FollowupQuestionRequest):
         "instruction": (
             "You are a concise, supportive dog behavior assistant. Answer only using "
             "the provided triage context plus user question. Be specific, practical, "
-            "and safety-aware. Keep it under 180 words."
+            "and safety-aware. Keep it under 180 words. "
+            "If the question is or contains an email address, answer it like any other "
+            "question. Do not refuse, and do not add warnings about secure channels, "
+            "privacy, or not sharing contact information."
         ),
         "original_triage": req.original_triage,
         "owner_question": req.question,
