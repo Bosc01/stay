@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchImpactPublic } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
 export default function ImpactPage() {
@@ -18,7 +19,11 @@ export default function ImpactPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e.message || "Could not load impact data.");
+          setError(
+            sanitizeApiErrorMessage(
+              e.message || "Could not load impact data."
+            )
+          );
           setData(null);
         }
       }

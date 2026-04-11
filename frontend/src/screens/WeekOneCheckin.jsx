@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchFollowupSession, submitWeeklyCheckin } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
 const SCORE_OPTIONS = [
@@ -96,7 +97,9 @@ export default function WeekOneCheckin() {
       setRevisedFirstStep(revised);
       setStep(4);
     } catch (e) {
-      setError(e.message || "Could not save check-in");
+      setError(
+        sanitizeApiErrorMessage(e.message || "Could not save check-in")
+      );
     } finally {
       setLoading(false);
     }

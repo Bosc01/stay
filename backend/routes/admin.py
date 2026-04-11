@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Header, HTTPException, Query
 
 from db import get_supabase
+from tasks.checkin import send_7day_checkins
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -166,6 +167,29 @@ def _parse_result(raw):
     return {}
 
 
+def _created_at_date_utc(value) -> str | None:
+    """Return YYYY-MM-DD in UTC for daily triage grouping."""
+    if value is None:
+        return None
+    try:
+        s = str(value).replace("Z", "+00:00")
+        dt = datetime.fromisoformat(s)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
+        return dt.date().isoformat()
+    except (TypeError, ValueError):
+        return None
+
+
+@router.get("/send-checkins")
+async def admin_send_checkins(x_admin_password: str | None = Header(None)):
+    """Manually trigger 7-day follow-up emails (due rows only)."""
+    _require_admin(x_admin_password)
+    return send_7day_checkins()
+
+
 @router.get("/stats")
 async def admin_stats(
     ref: str | None = Query(None, max_length=128),
@@ -188,10 +212,13 @@ async def admin_stats(
     with_email = _count_with_email(supabase)
     email_capture_rate = (with_email / total_triages) if total_triages else 0.0
 
-    all_rows = _paginate_select(supabase, "result,week1_improvement_score,dog_still_home")
+    all_rows = _paginate_select(
+        supabase, "result,week1_improvement_score,dog_still_home,created_at"
+    )
 
-    severities = []
-    behaviors = []
+    sev_counter: Counter = Counter()
+    behavior_counter: Counter = Counter()
+    daily_counter: Counter = Counter()
     week1_scores = []
     dog_home_answered = 0
     dog_still_home_true = 0
@@ -200,10 +227,14 @@ async def admin_stats(
         r = _parse_result(row.get("result"))
         sev = str(r.get("severity") or "").lower().strip()
         if sev in ("green", "yellow", "red"):
-            severities.append(sev)
+            sev_counter[sev] += 1
         bc = str(r.get("behavior_classification") or "").strip()
         if bc:
-            behaviors.append(bc)
+            behavior_counter[bc] += 1
+
+        day = _created_at_date_utc(row.get("created_at"))
+        if day:
+            daily_counter[day] += 1
 
         w1 = row.get("week1_improvement_score")
         if w1 is not None:
@@ -220,23 +251,19 @@ async def admin_stats(
             if dsh is True:
                 dog_still_home_true += 1
 
-    sev_counter = Counter(severities)
-    denom = max(total_triages, 1)
     severity_breakdown = {
-        "green": round(sev_counter["green"] / denom * 100, 1),
-        "yellow": round(sev_counter["yellow"] / denom * 100, 1),
-        "red": round(sev_counter["red"] / denom * 100, 1),
-        "counts": {
-            "green": sev_counter["green"],
-            "yellow": sev_counter["yellow"],
-            "red": sev_counter["red"],
-            "unknown": max(0, total_triages - sum(sev_counter.values())),
-        },
+        "green": int(sev_counter["green"]),
+        "yellow": int(sev_counter["yellow"]),
+        "red": int(sev_counter["red"]),
     }
 
-    top_behaviors = [
+    behavior_breakdown = [
         {"classification": name, "count": count}
-        for name, count in Counter(behaviors).most_common(5)
+        for name, count in behavior_counter.most_common()
+    ]
+
+    daily_triages = [
+        {"date": d, "count": c} for d, c in sorted(daily_counter.items())
     ]
 
     week1_improvement_average = (
@@ -265,8 +292,9 @@ async def admin_stats(
         "triages_today": triages_today,
         "email_capture_rate": round(email_capture_rate, 4),
         "email_captured_count": with_email,
+        "behavior_breakdown": behavior_breakdown,
         "severity_breakdown": severity_breakdown,
-        "top_behaviors": top_behaviors,
+        "daily_triages": daily_triages,
         "week1_improvement_average": week1_improvement_average,
         "week1_scores_count": len(week1_scores),
         "dog_retention_rate": dog_retention_rate,

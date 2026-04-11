@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
 const ADMIN_PASSWORD = "stay2026";
@@ -56,7 +57,9 @@ export default function AdminDashboard() {
         setLoadError("Session expired - sign in again.");
         return;
       }
-      setLoadError(e.message || "Failed to load stats");
+      setLoadError(
+        sanitizeApiErrorMessage(e.message || "Failed to load stats")
+      );
     } finally {
       setLoading(false);
     }
@@ -126,20 +129,25 @@ export default function AdminDashboard() {
     );
   }
 
-  const rawSb = stats?.severity_breakdown;
-  const sb = {
-    green: rawSb?.green ?? 0,
-    yellow: rawSb?.yellow ?? 0,
-    red: rawSb?.red ?? 0,
-    counts: {
-      green: 0,
-      yellow: 0,
-      red: 0,
-      unknown: 0,
-      ...(rawSb?.counts && typeof rawSb.counts === "object" ? rawSb.counts : {}),
-    },
-  };
-  const counts = sb.counts;
+  const sev = stats?.severity_breakdown || {};
+  const sevGreen = Number(sev.green) || 0;
+  const sevYellow = Number(sev.yellow) || 0;
+  const sevRed = Number(sev.red) || 0;
+  const sevSum = sevGreen + sevYellow + sevRed;
+  const sevUnknown = Math.max(
+    0,
+    (stats?.total_triages ?? 0) - sevSum
+  );
+  const pctOfTotal = (n) =>
+    stats?.total_triages
+      ? Math.round((n / stats.total_triages) * 1000) / 10
+      : 0;
+  const stackedPct = (n) =>
+    sevSum > 0 ? Math.round((n / sevSum) * 10000) / 100 : 0;
+
+  const behaviorRows = stats?.behavior_breakdown || [];
+  const dailyRows = stats?.daily_triages || [];
+  const maxDailyCount = Math.max(1, ...dailyRows.map((d) => d.count || 0));
 
   return (
     <div className="app">
@@ -188,61 +196,6 @@ export default function AdminDashboard() {
                     {stats.total_triages?.toLocaleString()} total
                   </p>
                 </div>
-                <div className="admin-metric-card admin-metric-card--wide">
-                  <p className="admin-metric-label">Severity breakdown</p>
-                  <p className="admin-metric-hint admin-metric-hint--below-label">
-                    % of all triages (green / yellow / red)
-                  </p>
-                  <div className="admin-severity-bar" aria-hidden="true">
-                    <div
-                      className="admin-severity-bar__seg admin-severity-bar__seg--green"
-                      style={{ flexGrow: Math.max(sb.green, 0.1) }}
-                      title={`Green ${sb.green}%`}
-                    />
-                    <div
-                      className="admin-severity-bar__seg admin-severity-bar__seg--yellow"
-                      style={{ flexGrow: Math.max(sb.yellow, 0.1) }}
-                      title={`Yellow ${sb.yellow}%`}
-                    />
-                    <div
-                      className="admin-severity-bar__seg admin-severity-bar__seg--red"
-                      style={{ flexGrow: Math.max(sb.red, 0.1) }}
-                      title={`Red ${sb.red}%`}
-                    />
-                  </div>
-                  <ul className="admin-severity-legend">
-                    <li>
-                      <span className="admin-dot admin-dot--green" /> Green {sb.green}% (
-                      {counts?.green ?? 0})
-                    </li>
-                    <li>
-                      <span className="admin-dot admin-dot--yellow" /> Yellow {sb.yellow}% (
-                      {counts?.yellow ?? 0})
-                    </li>
-                    <li>
-                      <span className="admin-dot admin-dot--red" /> Red {sb.red}% ({counts?.red ?? 0})
-                    </li>
-                    {counts?.unknown > 0 ? (
-                      <li className="admin-severity-unknown">
-                        Unknown / missing: {counts.unknown}
-                      </li>
-                    ) : null}
-                  </ul>
-                </div>
-                <div className="admin-metric-card admin-metric-card--wide">
-                  <p className="admin-metric-label">Top behavior classifications</p>
-                  <ol className="admin-top-list">
-                    {(stats.top_behaviors || []).map((row) => (
-                      <li key={row.classification}>
-                        <span className="admin-top-name">{row.classification}</span>
-                        <span className="admin-top-count">{row.count}</span>
-                      </li>
-                    ))}
-                    {(!stats.top_behaviors || stats.top_behaviors.length === 0) && (
-                      <li className="admin-metric-hint">No data yet</li>
-                    )}
-                  </ol>
-                </div>
                 <div className="admin-metric-card">
                   <p className="admin-metric-label">Week 1 improvement (avg)</p>
                   <p className="admin-metric-value">
@@ -270,6 +223,123 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               </div>
+            ) : null}
+
+            {stats ? (
+              <section
+                className="admin-breakdown"
+                aria-labelledby="admin-breakdown-heading"
+              >
+                <h3 id="admin-breakdown-heading" className="admin-breakdown__title">
+                  Behavior &amp; activity
+                </h3>
+                <p className="admin-breakdown__hint">
+                  From stored triage results (classification &amp; severity) and session
+                  dates (UTC).
+                </p>
+
+                <div className="admin-breakdown__block">
+                  <h4 className="admin-breakdown__subhead">Behavior types</h4>
+                  {behaviorRows.length > 0 ? (
+                    <ol className="admin-behavior-list">
+                      {behaviorRows.map((row, idx) => (
+                        <li key={`${row.classification}-${idx}`} className="admin-behavior-row">
+                          <span className="admin-behavior-name">{row.classification}</span>
+                          <span className="admin-behavior-badge">{row.count}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="admin-breakdown__empty">No classifications recorded yet.</p>
+                  )}
+                </div>
+
+                <div className="admin-breakdown__block">
+                  <h4 className="admin-breakdown__subhead">Severity split</h4>
+                  {sevSum > 0 ? (
+                    <>
+                      <div
+                        className="admin-severity-stack"
+                        role="img"
+                        aria-label={`Severity: ${sevGreen} green, ${sevYellow} yellow, ${sevRed} red`}
+                      >
+                        {sevGreen > 0 ? (
+                          <div
+                            className="admin-severity-stack__seg admin-severity-stack__seg--green"
+                            style={{ width: `${stackedPct(sevGreen)}%` }}
+                          />
+                        ) : null}
+                        {sevYellow > 0 ? (
+                          <div
+                            className="admin-severity-stack__seg admin-severity-stack__seg--yellow"
+                            style={{ width: `${stackedPct(sevYellow)}%` }}
+                          />
+                        ) : null}
+                        {sevRed > 0 ? (
+                          <div
+                            className="admin-severity-stack__seg admin-severity-stack__seg--red"
+                            style={{ width: `${stackedPct(sevRed)}%` }}
+                          />
+                        ) : null}
+                      </div>
+                      <ul className="admin-severity-inline-legend">
+                        <li>
+                          <span className="admin-dot admin-dot--green" />
+                          Green <strong>{sevGreen}</strong>
+                          <span className="admin-severity-pct">
+                            ({pctOfTotal(sevGreen)}% of all triages)
+                          </span>
+                        </li>
+                        <li>
+                          <span className="admin-dot admin-dot--yellow" />
+                          Yellow <strong>{sevYellow}</strong>
+                          <span className="admin-severity-pct">
+                            ({pctOfTotal(sevYellow)}% of all triages)
+                          </span>
+                        </li>
+                        <li>
+                          <span className="admin-dot admin-dot--red" />
+                          Red <strong>{sevRed}</strong>
+                          <span className="admin-severity-pct">
+                            ({pctOfTotal(sevRed)}% of all triages)
+                          </span>
+                        </li>
+                      </ul>
+                    </>
+                  ) : (
+                    <p className="admin-breakdown__empty">No severity data yet.</p>
+                  )}
+                  {sevUnknown > 0 ? (
+                    <p className="admin-breakdown__footnote">
+                      Unknown / missing severity: {sevUnknown}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="admin-breakdown__block">
+                  <h4 className="admin-breakdown__subhead">Daily triages (UTC)</h4>
+                  {dailyRows.length > 0 ? (
+                    <ul className="admin-daily-list">
+                      {dailyRows.map((row) => (
+                        <li key={row.date} className="admin-daily-row">
+                          <span className="admin-daily-date">{row.date}</span>
+                          <div className="admin-daily-bar-wrap">
+                            <div
+                              className="admin-daily-bar"
+                              style={{
+                                width: `${((row.count || 0) / maxDailyCount) * 100}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="admin-daily-count">{row.count}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="admin-breakdown__empty">No dated sessions yet.</p>
+                  )}
+                </div>
+              </section>
             ) : null}
 
             {stats ? (

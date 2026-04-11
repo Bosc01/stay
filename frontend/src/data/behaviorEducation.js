@@ -6,7 +6,7 @@ export const behaviorEducation = {
     signs:
       "Stiff body, hackles raised, barking directed at the trigger, pulling toward or away.",
     myth:
-      "This is NOT dominance. The dog is not trying to be the boss — they are scared.",
+      "This is NOT dominance. The dog is not trying to be the boss - they are scared.",
   },
   "Resource guarding": {
     what: "Resource guarding is defensive behavior around food, toys, resting spots, or people the dog values.",

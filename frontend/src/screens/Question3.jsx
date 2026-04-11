@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ProgressBar from "../components/ProgressBar.jsx";
-import TriageSkeleton from "../components/TriageSkeleton.jsx";
 import { submitTriage } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 
 const ALREADY_TRIED_SUPPORT_KEYWORDS = [
   "surrender",
@@ -27,12 +27,6 @@ const PRIOR_TRAINING_OPTIONS = [
   "Yes, didn't help",
   "Yes, it helped",
 ];
-const LOADING_MESSAGES = (dogName) => [
-  "Reading what you shared...",
-  `Thinking about ${dogName || "your dog"}'s situation...`,
-  "Putting together what we know...",
-  "Almost ready...",
-];
 
 export default function Question3({
   intake,
@@ -42,7 +36,6 @@ export default function Question3({
   currentStep,
 }) {
   const [loading, setLoading] = useState(false);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [error, setError] = useState(null);
   const [showSupportBanner, setShowSupportBanner] = useState(false);
   const supportBannerLockedRef = useRef(false);
@@ -70,19 +63,6 @@ export default function Question3({
     }
   }, [intake.already_tried]);
 
-  useEffect(() => {
-    if (!loading) {
-      setLoadingMessageIndex(0);
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setLoadingMessageIndex((prev) => (prev + 1) % 4);
-    }, 2500);
-
-    return () => window.clearInterval(intervalId);
-  }, [loading]);
-
   const handleSubmit = async () => {
     if (loading) return;
     setLoading(true);
@@ -99,7 +79,10 @@ export default function Question3({
       setResult({ ...res, session_id: finalSessionId });
       setScreen("result");
     } catch (err) {
-      setError(err.message);
+      setError(
+        sanitizeApiErrorMessage(err?.message) ||
+          "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }

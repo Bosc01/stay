@@ -6,6 +6,7 @@ import Question2 from "./screens/Question2.jsx";
 import Question3 from "./screens/Question3.jsx";
 import TriageResult from "./screens/TriageResult.jsx";
 import SiteFooter from "./components/SiteFooter.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 const SCREENS = ["landing", "q1", "q2", "q3", "result"];
 
@@ -109,16 +110,34 @@ export default function App() {
           </h1>
         </header>
         <main className="app-main">
-          {screen === "landing" && <Landing {...props} />}
-          {screen === "q1" && <Question1 {...props} />}
-          {screen === "q2" && <Question2 {...props} />}
-          {screen === "q3" && <Question3 {...props} />}
+          {screen === "landing" && (
+            <ErrorBoundary>
+              <Landing {...props} />
+            </ErrorBoundary>
+          )}
+          {screen === "q1" && (
+            <ErrorBoundary>
+              <Question1 {...props} />
+            </ErrorBoundary>
+          )}
+          {screen === "q2" && (
+            <ErrorBoundary>
+              <Question2 {...props} />
+            </ErrorBoundary>
+          )}
+          {screen === "q3" && (
+            <ErrorBoundary>
+              <Question3 {...props} />
+            </ErrorBoundary>
+          )}
           {screen === "result" && (
-            <TriageResult
-              {...props}
-              sessionId={result?.session_id ?? null}
-              resetToStart={resetToStart}
-            />
+            <ErrorBoundary>
+              <TriageResult
+                {...props}
+                sessionId={result?.session_id ?? null}
+                resetToStart={resetToStart}
+              />
+            </ErrorBoundary>
           )}
         </main>
         <SiteFooter />

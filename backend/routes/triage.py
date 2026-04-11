@@ -1,9 +1,10 @@
 import json
 import uuid
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 import anthropic
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import ValidationError
 
 from db import get_supabase
@@ -13,9 +14,24 @@ from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 router = APIRouter()
 client = anthropic.Anthropic()
 
+_rate_limit: dict = defaultdict(list)
+RATE_LIMIT = 10  # requests
+RATE_WINDOW = 3600  # 1 hour in seconds
+
 
 @router.post("/triage")
-async def triage(intake: TriageIntake):
+async def triage(intake: TriageIntake, request: Request):
+    ip = request.client.host if request.client else "unknown"
+    now = datetime.now()
+    window_start = now - timedelta(seconds=RATE_WINDOW)
+    _rate_limit[ip] = [t for t in _rate_limit[ip] if t > window_start]
+    if len(_rate_limit[ip]) >= RATE_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please try again later.",
+        )
+    _rate_limit[ip].append(now)
+
     user_message = json.dumps(intake.model_dump(), indent=2)
 
     system_prompt = SYSTEM_PROMPT
@@ -39,6 +55,8 @@ async def triage(intake: TriageIntake):
             status_code=502,
             detail=f"Claude response did not include text at content[0]: {e}",
         )
+
+    raw_text = raw_text.replace("—", "-").replace("–", "-")
 
     print("--- Claude raw response (before JSON parse) ---")
     print(raw_text)

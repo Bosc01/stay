@@ -9,6 +9,7 @@ import AdminDashboard from "./screens/AdminDashboard.jsx";
 import PrintCard from "./screens/PrintCard.jsx";
 import ImpactPage from "./screens/ImpactPage.jsx";
 import "./App.css";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
