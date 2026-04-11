@@ -93,22 +93,25 @@ export default function Question3({
       <ProgressBar step={currentStep} total={4} />
 
       {loading ? (
-        <div className="result-screen">
-          <TriageSkeleton />
+        <div
+          className="result-screen"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 200,
+            padding: "24px 16px",
+          }}
+        >
           <p
             style={{
-              fontSize: 13,
-              color: "var(--color-text-secondary)",
+              margin: 0,
+              fontSize: 14,
+              color: "#888",
               textAlign: "center",
-              marginTop: 4,
-              animation: "pulse 1.8s ease-in-out infinite",
             }}
           >
-            {
-              LOADING_MESSAGES(String(intake?.dog_name || "").trim())[
-                loadingMessageIndex
-              ]
-            }
+            This usually takes about 10 seconds.
           </p>
         </div>
       ) : (
@@ -200,7 +203,7 @@ export default function Question3({
         </button>
         <button
           type="button"
-          className={`btn btn-primary${loading ? " btn-analyzing" : ""}`}
+          className="btn btn-primary"
           disabled={!intake.already_tried.trim() || loading}
           onClick={handleSubmit}
         >
