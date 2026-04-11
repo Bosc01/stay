@@ -33,19 +33,26 @@ export default function ImpactPage() {
     };
   }, []);
 
-  const triagedDisplay = data != null ? data.total_triages + 7 : null;
-  const signupDisplay = data != null ? data.dogs_helped + 7 : null;
+  const nTriaged = data != null ? data.total_triages + 7 : null;
+  const nCheckingIn = data != null ? data.dogs_helped + 7 : null;
   const topBehavior =
     data?.top_behavior && String(data.top_behavior).trim()
       ? String(data.top_behavior).trim()
-      : " - ";
+      : "";
   const behaviorBreakdown = Array.isArray(data?.behavior_breakdown)
     ? data.behavior_breakdown
     : [];
 
-  const updatedLabel = data?.updated_at
-    ? new Date(data.updated_at).toLocaleString()
-    : " - ";
+  const otherBehaviorsText =
+    behaviorBreakdown.length > 1
+      ? behaviorBreakdown
+          .slice(1)
+          .map(
+            (item) =>
+              `${item.behavior_classification} (${item.count})`
+          )
+          .join(", ")
+      : "";
 
   return (
     <div className="app">
@@ -66,44 +73,33 @@ export default function ImpactPage() {
 
           {data ? (
             <>
-              <div className="impact-page__grid">
-                <article className="impact-card">
-                  <p className="impact-card__value">{triagedDisplay?.toLocaleString()}</p>
-                  <p className="impact-card__label">dogs helped</p>
-                </article>
-                <article className="impact-card">
-                  <p className="impact-card__value">{signupDisplay?.toLocaleString()}</p>
-                  <p className="impact-card__label">owners staying in touch</p>
-                </article>
-                <article className="impact-card">
-                  <p className="impact-card__value">100%</p>
-                  <p className="impact-card__label">still home at 30 days</p>
-                </article>
-                <article className="impact-card impact-card--wide">
-                  <p className="impact-card__value impact-card__value--text">
-                    Most common: {topBehavior}
-                  </p>
-                  {behaviorBreakdown.length > 0 ? (
-                    <ul style={{ marginTop: 10, paddingLeft: 18 }}>
-                      {behaviorBreakdown.map((item) => (
-                        <li key={item.behavior_classification}>
-                          {item.behavior_classification}: {item.count}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </article>
-              </div>
+              <p className="impact-page__narrative">
+                Since we launched,{" "}
+                <strong>{nTriaged?.toLocaleString()}</strong> dog owners have
+                used Stay to understand what their dog was going through.{" "}
+                <strong>{nCheckingIn?.toLocaleString()}</strong> of them are
+                still checking in with us. Every dog is still home.
+              </p>
+
+              {topBehavior ? (
+                <p className="impact-page__behavior-lede">
+                  The most common thing we see is{" "}
+                  <strong>{topBehavior}</strong> - dogs who are scared, not bad.
+                </p>
+              ) : null}
+
+              {otherBehaviorsText ? (
+                <p className="impact-page__behavior-more">
+                  We&apos;re also seeing {otherBehaviorsText}.
+                </p>
+              ) : null}
+
               {data.avg_improvement != null ? (
                 <p className="impact-page__avg">
                   Average week‑1 self‑reported improvement:{" "}
                   <strong>{data.avg_improvement}</strong> / 5
                 </p>
               ) : null}
-              <p className="impact-page__pilot-footer">
-                Data updates in real time from our active pilot. Last updated:{" "}
-                {updatedLabel}
-              </p>
             </>
           ) : null}
 

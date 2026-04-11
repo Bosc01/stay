@@ -96,6 +96,11 @@ export default function WeekOneCheckin() {
           : null;
       setRevisedFirstStep(revised);
       setStep(4);
+      try {
+        sessionStorage.setItem(`stay_week1_checkin_done_${sessionId}`, "1");
+      } catch {
+        /* private mode */
+      }
     } catch (e) {
       setError(
         sanitizeApiErrorMessage(e.message || "Could not save check-in")

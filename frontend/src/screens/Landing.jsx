@@ -76,7 +76,8 @@ export default function Landing({ setScreen }) {
   }, []);
 
   return (
-    <div className="screen landing-hero">
+    <div className="screen landing-page">
+      <div className="landing-hero">
       {referralShelterDisplayName ? (
         <div
           style={{
@@ -113,6 +114,9 @@ export default function Landing({ setScreen }) {
         Tell us what's going on
       </button>
       <p className="landing-footnote">Free. No account required.</p>
+      <p className="landing-social-proof">
+        15 dogs helped · 2 minutes · Austin Pets Alive pilot
+      </p>
       {isIOS ? (
         <p
           style={{
@@ -126,6 +130,7 @@ export default function Landing({ setScreen }) {
           experience
         </p>
       ) : null}
+      </div>
 
       {stories.length > 0 ? (
         <section
