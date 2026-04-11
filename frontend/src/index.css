@@ -1,0 +1,42 @@
+.result-print-actions {
+  margin-bottom: 10px;
+}
+
+.result-print-actions .btn {
+  width: 100%;
+}
+
+@media print {
+  /* Hide everything except the result card */
+  nav,
+  button,
+  .follow-up-section,
+  .share-section,
+  .email-section {
+    display: none !important;
+  }
+
+  .app-header,
+  .ios-install-banner,
+  .site-footer,
+  .result-print-actions,
+  .nav-row,
+  .result-next-steps-toggle,
+  .result-section-2-wrap,
+  .share-result-capture,
+  .result-interview-float,
+  .result-interview-modal__backdrop,
+  [role="alertdialog"] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .result-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}

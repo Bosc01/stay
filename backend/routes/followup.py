@@ -1,17 +1,41 @@
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from html import escape
 
 import anthropic
 import resend
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
 
 router = APIRouter()
 _claude = anthropic.Anthropic()
+
+
+def _ensure_follow_up_7_day_at(session_id: str) -> None:
+    """If follow_up_7_day_at is unset, set it to now + 7 days (runs after response)."""
+    try:
+        supabase = get_supabase()
+        sel = (
+            supabase.table("triage_sessions")
+            .select("follow_up_7_day_at")
+            .eq("id", session_id)
+            .limit(1)
+            .execute()
+        )
+        rows = sel.data or []
+        if not rows:
+            return
+        if rows[0].get("follow_up_7_day_at") is not None:
+            return
+        seven = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+        supabase.table("triage_sessions").update({"follow_up_7_day_at": seven}).eq(
+            "id", session_id
+        ).execute()
+    except Exception as e:
+        print(f"[followup] ensure follow_up_7_day_at: {e}")
 
 
 def _generate_revised_first_step(
@@ -66,7 +90,7 @@ def _generate_revised_first_step(
 
 
 @router.post("/followup")
-async def create_followup(req: FollowUpRequest):
+async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
     update_data: dict = {}
     response_extra: dict = {}
 
@@ -106,6 +130,9 @@ async def create_followup(req: FollowUpRequest):
             supabase.table("triage_sessions").insert(minimal_row).execute()
     except Exception as e:
         print(f"Followup error: {e}")
+
+    if req.email is not None:
+        background_tasks.add_task(_ensure_follow_up_7_day_at, req.session_id)
 
     # Best-effort welcome email after email signup is saved.
     if req.email is not None:

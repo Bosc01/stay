@@ -9,6 +9,7 @@ import {
   submitFollowup,
   submitFollowupQuestion,
 } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import { getBehaviorEducation } from "../data/behaviorEducation.js";
 import { rememberProfileSession } from "../profileHistory.js";
 import logoUrl from "../assets/stay-logo.png";
@@ -316,6 +317,10 @@ export default function TriageResult({
     }
   };
 
+  const handleSavePDF = () => {
+    window.print();
+  };
+
   const handleSendToFriend = async () => {
     const dogName = intake.dog_name?.trim();
     const friendShareText = `I just used Stay to understand ${dogName || "my dog"}'s behavior. It's free and takes 2 minutes - no judgment.`;
@@ -362,7 +367,11 @@ export default function TriageResult({
       setCheckInDateLabel(label);
       setEmailSaved(true);
     } catch (err) {
-      setFollowupError(err.message || "Something went wrong. Please try again.");
+      setFollowupError(
+        sanitizeApiErrorMessage(
+          err.message || "Something went wrong. Please try again."
+        )
+      );
     } finally {
       setFollowupLoading(false);
     }
@@ -382,9 +391,9 @@ export default function TriageResult({
       setFollowupQuestionAnswer(String(data?.answer || "").trim());
       setHasAskedFollowupQuestion(true);
     } catch (err) {
-      const msg = err.message || "Could not get an answer right now.";
-      setFollowupQuestionError(msg);
-      if (msg.toLowerCase().includes("already asked")) {
+      const raw = err.message || "Could not get an answer right now.";
+      setFollowupQuestionError(sanitizeApiErrorMessage(raw));
+      if (raw.toLowerCase().includes("already asked")) {
         setHasAskedFollowupQuestion(true);
       }
     } finally {
@@ -431,7 +440,9 @@ export default function TriageResult({
       }
       setInterviewFlowPhase("thanks");
     } catch (e) {
-      setInterviewError(e.message || "Something went wrong");
+      setInterviewError(
+        sanitizeApiErrorMessage(e.message || "Something went wrong")
+      );
     } finally {
       setInterviewSubmitting(false);
     }
@@ -460,6 +471,15 @@ export default function TriageResult({
             We could not save your session ID, so this result cannot be continued.
             Please start over and try again.
           </p>
+        </div>
+        <div className="result-print-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleSavePDF}
+          >
+            Save or print your results
+          </button>
         </div>
         <div className="nav-row">
           <button type="button" className="btn btn-secondary" onClick={resetToStart}>
@@ -840,7 +860,7 @@ export default function TriageResult({
           </div>
 
           {!emailSaved ? (
-            <div className="followup-section">
+            <div className="followup-section follow-up-section email-section">
               <h3>Want us to check in after 7 days?</h3>
               <p>
                 We&apos;ll email you to see how things are going and whether your
@@ -876,7 +896,7 @@ export default function TriageResult({
               {followupError && <p className="error-text">{followupError}</p>}
             </div>
           ) : (
-            <div className="followup-section followup-section--success">
+            <div className="followup-section followup-section--success follow-up-section">
               <p className="followup-success-message">
                 You&apos;re signed up - we&apos;ll check in on{" "}
                 <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
@@ -888,7 +908,7 @@ export default function TriageResult({
             </div>
           )}
 
-          <div className="result-share-row">
+          <div className="result-share-row share-section">
             <button
               type="button"
               className="btn btn-secondary"
@@ -901,7 +921,7 @@ export default function TriageResult({
           </div>
 
           <section
-            className="friend-share-section"
+            className="friend-share-section share-section"
             aria-labelledby="friend-share-heading"
           >
             <h3 id="friend-share-heading" className="friend-share-heading">
@@ -1022,6 +1042,16 @@ export default function TriageResult({
         consultation. For dogs with a bite history, contact a certified
         professional directly.
       </p>
+
+      <div className="result-print-actions">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={handleSavePDF}
+        >
+          Save or print your results
+        </button>
+      </div>
 
       <div className="nav-row">
         <button type="button" className="btn btn-secondary" onClick={resetToStart}>

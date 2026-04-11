@@ -667,7 +667,7 @@ a.logo-link {
   text-align: center;
 }
 
-/* Off-screen node for html2canvas — weekly check-in progress share */
+/* Off-screen node for html2canvas - weekly check-in progress share */
 .share-checkin-capture {
   position: fixed;
   left: -10000px;
@@ -1823,7 +1823,180 @@ a.logo-link {
   margin: 0;
 }
 
-/* Triage result — delayed user interview invite */
+.admin-breakdown {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.admin-breakdown__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.admin-breakdown__hint {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin: 0 0 20px;
+  line-height: 1.45;
+}
+
+.admin-breakdown__block {
+  margin-bottom: 24px;
+}
+
+.admin-breakdown__block:last-child {
+  margin-bottom: 0;
+}
+
+.admin-breakdown__subhead {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--fg);
+}
+
+.admin-breakdown__empty {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+.admin-breakdown__footnote {
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin: 10px 0 0;
+}
+
+.admin-behavior-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-behavior-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+
+.admin-behavior-name {
+  font-size: 14px;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.admin-behavior-badge {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 2rem;
+  padding: 4px 10px;
+  text-align: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+}
+
+.admin-severity-stack {
+  display: flex;
+  width: 100%;
+  height: 16px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.admin-severity-stack__seg {
+  height: 100%;
+  min-width: 2px;
+}
+
+.admin-severity-stack__seg--green {
+  background: #22c55e;
+}
+
+.admin-severity-stack__seg--yellow {
+  background: #eab308;
+}
+
+.admin-severity-stack__seg--red {
+  background: #ef4444;
+}
+
+.admin-severity-inline-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.admin-severity-pct {
+  margin-left: 4px;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+.admin-daily-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.admin-daily-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 36px;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.admin-daily-date {
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-daily-bar-wrap {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+}
+
+.admin-daily-bar {
+  height: 100%;
+  min-width: 2px;
+  background: var(--fg);
+  opacity: 0.85;
+  border-radius: 4px;
+}
+
+.admin-daily-count {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Triage result - delayed user interview invite */
 .result-interview-float {
   position: fixed;
   left: 0;

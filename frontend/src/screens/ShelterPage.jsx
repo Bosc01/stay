@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchShelterImpactStats, submitShelterInquiry } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
 const SITE_ORIGIN = "https://trystay.org";
@@ -80,7 +81,9 @@ export default function ShelterPage() {
       const data = await fetchShelterImpactStats(slug);
       setImpact(data);
     } catch (e) {
-      setImpactError(e.message || "Could not load stats.");
+      setImpactError(
+        sanitizeApiErrorMessage(e.message || "Could not load stats.")
+      );
       setImpact(null);
     } finally {
       setImpactLoading(false);
@@ -157,7 +160,9 @@ export default function ShelterPage() {
       setDemoEmail("");
       setDemoRole("");
     } catch (err) {
-      setDemoError(err.message || "Something went wrong.");
+      setDemoError(
+        sanitizeApiErrorMessage(err.message || "Something went wrong.")
+      );
     } finally {
       setDemoLoading(false);
     }

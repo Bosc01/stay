@@ -8,6 +8,7 @@ import {
   fetchProfileSession,
   patchProfileSession,
 } from "../api.js";
+import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import { getProfileSessionIds } from "../profileHistory.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
@@ -83,7 +84,9 @@ export default function DogProfile() {
       const hist = await fetchProfileHistory({ session_ids: [...idSet] });
       setHistoryRows(hist.sessions || []);
     } catch (e) {
-      setLoadError(e.message || "Could not load profile");
+      setLoadError(
+        sanitizeApiErrorMessage(e.message || "Could not load profile")
+      );
     } finally {
       setBusy(false);
     }
@@ -197,7 +200,7 @@ export default function DogProfile() {
       await patchProfileSession(sessionId, { photo_url: dataUrl });
       await refresh();
     } catch (err) {
-      setLoadError(err.message || "Upload failed");
+      setLoadError(sanitizeApiErrorMessage(err.message || "Upload failed"));
     } finally {
       setPhotoBusy(false);
     }
@@ -214,7 +217,7 @@ export default function DogProfile() {
       });
       await refresh();
     } catch (e) {
-      setLoadError(e.message || "Could not save name");
+      setLoadError(sanitizeApiErrorMessage(e.message || "Could not save name"));
     } finally {
       setNameSaving(false);
     }
@@ -231,7 +234,9 @@ export default function DogProfile() {
       const journalRes = await fetchProfileJournal(sessionId);
       setJournalEntries(journalRes.entries || []);
     } catch (e) {
-      setLoadError(e.message || "Could not save entry");
+      setLoadError(
+        sanitizeApiErrorMessage(e.message || "Could not save entry")
+      );
     } finally {
       setJournalSaving(false);
     }
