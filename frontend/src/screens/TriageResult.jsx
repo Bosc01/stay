@@ -19,6 +19,12 @@ const SHARE_DISPLAY_URL = "trystay.org";
 const FRIEND_SHARE_URL = "https://trystay.org";
 const FRIEND_SHARE_TITLE = "Stay - free dog behavior triage";
 
+const JOURNEY_STEP_LABELS = [
+  "Step 1 of 3: You got your triage",
+  "Step 2 of 3: Try the first step for 7 days",
+  "Step 3 of 3: Check back and tell us how it went",
+];
+
 function prefersMobileShare() {
   if (typeof navigator.share !== "function") return false;
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -49,6 +55,23 @@ function formatResourceTag(tag) {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+}
+
+/** Split on ". " so the first three segments are the collapsed preview. */
+function splitRootCauseSentences(text) {
+  const raw = String(text ?? "").trim();
+  if (!raw) {
+    return { preview: "", rest: "", hasMore: false };
+  }
+  const segments = raw.split(". ");
+  if (segments.length <= 3) {
+    return { preview: raw, rest: "", hasMore: false };
+  }
+  return {
+    preview: segments.slice(0, 3).join(". "),
+    rest: segments.slice(3).join(". "),
+    hasMore: true,
+  };
 }
 
 function computeIntakeConfidenceSignals(intake) {
@@ -116,6 +139,11 @@ export default function TriageResult({
   const [interviewQ3, setInterviewQ3] = useState("");
   const [interviewSubmitting, setInterviewSubmitting] = useState(false);
   const [interviewError, setInterviewError] = useState(null);
+  const [rootCauseExpanded, setRootCauseExpanded] = useState(false);
+
+  useEffect(() => {
+    setRootCauseExpanded(false);
+  }, [result?.root_cause]);
 
   if (!result) return null;
 
@@ -123,9 +151,33 @@ export default function TriageResult({
   const severityKey = ["green", "yellow", "red"].includes(severityRaw)
     ? severityRaw
     : "yellow";
+  const severityWhatNextAccent =
+    severityKey === "green"
+      ? "#4ade80"
+      : severityKey === "red"
+        ? "#f87171"
+        : "#facc15";
   const hasSessionId = sessionId !== null && sessionId !== undefined;
   const dogName = String(intake?.dog_name || "").trim();
   const hasDogName = dogName.length > 0;
+
+  const intakeEmail = String(intake?.email ?? "").trim();
+  const hasEmailSignup =
+    emailSaved ||
+    (intakeEmail.length > 2 && intakeEmail.includes("@"));
+
+  let week1CheckinDone = false;
+  if (sessionId) {
+    try {
+      week1CheckinDone =
+        typeof window !== "undefined" &&
+        sessionStorage.getItem(`stay_week1_checkin_done_${sessionId}`) === "1";
+    } catch {
+      week1CheckinDone = false;
+    }
+  }
+
+  const journeyStep = week1CheckinDone ? 3 : hasEmailSignup ? 2 : 1;
 
   useEffect(() => {
     setSessionId(sessionIdProp ?? result?.session_id ?? null);
@@ -262,6 +314,7 @@ export default function TriageResult({
   const confidenceLabel =
     confidenceLevel.charAt(0).toUpperCase() + confidenceLevel.slice(1);
   const behaviorEducation = getBehaviorEducation(result.behavior_classification);
+  const rootCauseSplit = splitRootCauseSentences(result.root_cause);
 
   const shareHeadlineParts = [];
   if (intake.dog_name?.trim()) shareHeadlineParts.push(intake.dog_name.trim());
@@ -587,6 +640,27 @@ export default function TriageResult({
 
       {!showRedGate ? (
         <>
+      <div
+        className="result-journey-bar"
+        role="region"
+        aria-label="Your Stay journey"
+      >
+        <div className="result-journey-bar__track">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="result-journey-bar__seg"
+              style={{
+                background: i <= journeyStep ? "#f5f0e8" : "#333333",
+              }}
+            />
+          ))}
+        </div>
+        <p className="result-journey-bar__label">
+          {JOURNEY_STEP_LABELS[journeyStep - 1]}
+        </p>
+      </div>
+
       <div className="result-badge-row" style={{ textAlign: "left" }}>
         {hasDogName ? (
           <p
@@ -610,7 +684,25 @@ export default function TriageResult({
         <p id="label-root-cause" className="result-card-label">
           What's probably going on
         </p>
-        <p className="result-card-body">{result.root_cause}</p>
+        <p className="result-card-body">
+          {rootCauseSplit.preview}
+          {rootCauseSplit.hasMore && rootCauseExpanded ? (
+            <>
+              {". "}
+              {rootCauseSplit.rest}
+            </>
+          ) : null}
+        </p>
+        {rootCauseSplit.hasMore ? (
+          <button
+            type="button"
+            className="result-root-cause-toggle"
+            onClick={() => setRootCauseExpanded((v) => !v)}
+            aria-expanded={rootCauseExpanded}
+          >
+            {rootCauseExpanded ? "Read less" : "Read more"}
+          </button>
+        ) : null}
       </section>
 
       <section className="result-card result-card--first-step" aria-labelledby="label-first-step">
@@ -618,6 +710,42 @@ export default function TriageResult({
           What to try today
         </p>
         <p className="result-card-body">{result.first_step}</p>
+      </section>
+
+      <section
+        className="result-what-next"
+        style={
+          {
+            "--result-what-next-accent": severityWhatNextAccent,
+          }
+        }
+        aria-labelledby="result-what-next-heading"
+      >
+        <h3 id="result-what-next-heading" className="result-what-next__title">
+          What happens next
+        </h3>
+        <ul className="result-what-next__list">
+          <li className="result-what-next__item">
+            <span className="result-what-next__dot" aria-hidden="true" />
+            <span>Try what we suggested for the next 7 days</span>
+          </li>
+          <li className="result-what-next__item">
+            <span className="result-what-next__dot" aria-hidden="true" />
+            <span>
+              {hasEmailSignup
+                ? `We'll check in to see how ${
+                    hasDogName ? dogName : "your dog"
+                  } is doing`
+                : "Sign up below and we'll check in after 7 days"}
+            </span>
+          </li>
+          <li className="result-what-next__item">
+            <span className="result-what-next__dot" aria-hidden="true" />
+            <span>
+              Come back and run another triage if something changes
+            </span>
+          </li>
+        </ul>
       </section>
 
       {Array.isArray(result.week_ahead) && result.week_ahead.length > 0 ? (
@@ -826,38 +954,6 @@ export default function TriageResult({
               </Link>
             </p>
           ) : null}
-
-          <div
-            style={{
-              padding: "16px",
-              borderRadius: "10px",
-              border: "0.5px solid var(--border)",
-              marginBottom: 16,
-            }}
-          >
-            <p
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                margin: "0 0 8px",
-                color: "var(--fg)",
-              }}
-            >
-              What happens next
-            </p>
-            <p
-              style={{
-                fontSize: 13,
-                color: "var(--color-text-secondary)",
-                margin: 0,
-                lineHeight: 1.6,
-              }}
-            >
-              Try the step above for one week. Sign up below and we&apos;ll check
-              in at day 7 to see how things are going, and again at day 30. No
-              spam - just two emails.
-            </p>
-          </div>
 
           {!emailSaved ? (
             <div className="followup-section follow-up-section email-section">

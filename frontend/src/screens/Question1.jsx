@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ProgressBar from "../components/ProgressBar.jsx";
 import OptionButton from "../components/OptionButton.jsx";
 
@@ -24,8 +25,24 @@ const OWNER_EXPERIENCE_OPTIONS = [
 ];
 
 export default function Question1({ intake, update, setScreen, currentStep }) {
+  const [dogShakeKey, setDogShakeKey] = useState(0);
+  const [behaviorShakeKey, setBehaviorShakeKey] = useState(0);
+
   const intensityValue =
     typeof intake.behavior_intensity === "number" ? intake.behavior_intensity : 2;
+
+  const handleNext = () => {
+    if (!String(intake.dog_name || "").trim()) {
+      setDogShakeKey((k) => k + 1);
+      document.getElementById("dog-name-input")?.focus();
+      return;
+    }
+    if (!intake.behavior_type) {
+      setBehaviorShakeKey((k) => k + 1);
+      return;
+    }
+    setScreen("q2");
+  };
 
   return (
     <div className="screen">
@@ -39,16 +56,22 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
       <h2>What's going on?</h2>
       <p className="subtitle">Select the behavior you're most concerned about.</p>
 
-      <input
-        id="dog-name-input"
-        type="text"
-        className="email-input"
-        placeholder="e.g. Bruno"
-        value={intake.dog_name ?? ""}
-        onChange={(e) => update({ dog_name: e.target.value || null })}
-        required
-        style={{ width: "100%", marginBottom: 16 }}
-      />
+      <div
+        key={dogShakeKey}
+        className={dogShakeKey > 0 ? "field-shake-once" : undefined}
+        style={{ marginBottom: 16 }}
+      >
+        <input
+          id="dog-name-input"
+          type="text"
+          className="email-input"
+          placeholder="e.g. Bruno"
+          value={intake.dog_name ?? ""}
+          onChange={(e) => update({ dog_name: e.target.value || null })}
+          required
+          style={{ width: "100%" }}
+        />
+      </div>
 
       <div style={{ marginBottom: 12 }}>
         <p className="field-label" style={{ marginBottom: 6 }}>
@@ -81,15 +104,20 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         </div>
       </div>
 
-      <div className="option-grid">
-        {BEHAVIOR_TYPES.map((type) => (
-          <OptionButton
-            key={type}
-            label={type}
-            selected={intake.behavior_type === type}
-            onClick={() => update({ behavior_type: type })}
-          />
-        ))}
+      <div
+        key={behaviorShakeKey}
+        className={behaviorShakeKey > 0 ? "field-shake-once" : undefined}
+      >
+        <div className="option-grid">
+          {BEHAVIOR_TYPES.map((type) => (
+            <OptionButton
+              key={type}
+              label={type}
+              selected={intake.behavior_type === type}
+              onClick={() => update({ behavior_type: type })}
+            />
+          ))}
+        </div>
       </div>
 
       <label className="sudden-onset-toggle">
@@ -143,14 +171,18 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         </>
       )}
 
-      <div className="nav-row">
-        <button className="btn btn-secondary" onClick={() => setScreen("landing")}>
+      <div className="nav-row nav-row--question">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setScreen("landing")}
+        >
           Back
         </button>
         <button
-          className="btn btn-primary"
-          disabled={!intake.behavior_type || !String(intake.dog_name || "").trim()}
-          onClick={() => setScreen("q2")}
+          type="button"
+          className="btn btn-primary question-primary-btn"
+          onClick={handleNext}
         >
           Next
         </button>
