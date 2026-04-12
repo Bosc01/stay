@@ -98,8 +98,8 @@ export default function Landing({ setScreen }) {
         src={logo}
         alt="Stay"
         style={{
-          width: 96,
-          height: 96,
+          width: 140,
+          height: 140,
           display: "block",
           margin: "0 auto 40px",
           objectFit: "contain",

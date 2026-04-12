@@ -521,6 +521,7 @@ export default function TriageResult({
           <section
             className="result-card"
             aria-labelledby="followup-question-heading"
+            style={{ marginTop: 32 }}
           >
             <p id="followup-question-heading" className="result-card-label">
               Have a specific question about{" "}

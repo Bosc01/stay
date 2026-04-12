@@ -23,15 +23,19 @@ const DURATIONS = [
 
 export default function Question2({ intake, update, setScreen, currentStep }) {
   const [triggersShakeKey, setTriggersShakeKey] = useState(0);
+  const [triggersError, setTriggersError] = useState("");
   const [durationShakeKey, setDurationShakeKey] = useState(0);
 
-  const selectedCount = intake.triggers?.length ?? 0;
+  const triggersList = intake.triggers ?? [];
+  const selectedCount = triggersList.length;
 
   const handleNext = () => {
-    if (intake.triggers.length === 0) {
+    if (selectedCount === 0) {
+      setTriggersError("Select at least one trigger.");
       setTriggersShakeKey((k) => k + 1);
       return;
     }
+    setTriggersError("");
     if (!intake.duration) {
       setDurationShakeKey((k) => k + 1);
       return;
@@ -40,10 +44,11 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
   };
 
   const toggleTrigger = (trigger) => {
-    const current = intake.triggers;
+    const current = triggersList;
     const next = current.includes(trigger)
       ? current.filter((t) => t !== trigger)
       : [...current, trigger];
+    if (triggersError && next.length > 0) setTriggersError("");
     update({ triggers: next });
   };
 
@@ -75,11 +80,21 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
             <OptionButton
               key={t}
               label={t}
-              selected={intake.triggers.includes(t)}
+              selected={triggersList.includes(t)}
               onClick={() => toggleTrigger(t)}
             />
           ))}
         </div>
+        {triggersError ? (
+          <p
+            id="triggers-error"
+            className="error-text"
+            role="alert"
+            style={{ marginTop: 12, marginBottom: 0 }}
+          >
+            {triggersError}
+          </p>
+        ) : null}
       </div>
 
       <h2 className="section-heading">How long has this been going on?</h2>
