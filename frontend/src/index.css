@@ -137,3 +137,198 @@ textarea:focus {
     border: 1px solid #ccc !important;
   }
 }
+
+/* ── HEADER ── */
+.logo-header-img {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+/* ── TRIAGE BADGE ── */
+.triage-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.triage-badge.green {
+  background: #0a2a0a;
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.2);
+}
+
+.triage-badge.yellow {
+  background: #2a1f00;
+  border: 1px solid #facc15;
+  color: #facc15;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.2);
+}
+
+.triage-badge.red {
+  background: #2a0a0a;
+  border: 1px solid #f87171;
+  color: #f87171;
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.2);
+}
+
+/* ── RESULT CARDS ── */
+.result-card {
+  background: linear-gradient(145deg, #161614 0%, #111110 100%) !important;
+  border: 1px solid #242420 !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+  margin-bottom: 12px;
+}
+
+.result-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555552;
+  margin-bottom: 10px;
+}
+
+.result-card-body {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #d4d4d0;
+}
+
+.result-behavior-heading {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 12px 0 16px;
+}
+
+/* ── OPTION BUTTONS ── */
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 13px 16px !important;
+  border-radius: 12px !important;
+  border: 1px solid #222220 !important;
+  background: #111110 !important;
+  color: #d4d4d0 !important;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  margin-bottom: 6px;
+}
+
+.option-btn:hover {
+  border-color: #333330 !important;
+  background: #161614 !important;
+}
+
+.option-btn.selected {
+  border-color: #ffffff !important;
+  background: #1a1a18 !important;
+  color: #ffffff !important;
+}
+
+/* ── INPUTS ── */
+.email-input,
+.text-input {
+  background: #111110 !important;
+  border: 1px solid #222220 !important;
+  border-radius: 12px !important;
+  color: #f0f0ee !important;
+  font-size: 15px;
+  padding: 12px 14px;
+  transition: border-color 0.15s ease;
+  width: 100%;
+}
+
+.email-input:focus,
+.text-input:focus {
+  border-color: #444440 !important;
+  outline: none;
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  background: #ffffff !important;
+  color: #0d0d0b !important;
+  border: none !important;
+  border-radius: 14px !important;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255,255,255,0.12);
+}
+
+.btn-secondary {
+  background: transparent !important;
+  color: #888884 !important;
+  border: 1px solid #222220 !important;
+  border-radius: 14px !important;
+  font-size: 15px;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #333330 !important;
+  color: #aaaaaa !important;
+}
+
+/* ── LANDING ── */
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 0 24px;
+  text-align: center;
+  position: relative;
+}
+
+.landing-hero h2 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.landing-story-card {
+  background: #111110;
+  border: 1px solid #1e1e1c;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+/* ── FIELD LABELS ── */
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #888884;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* ── FOLLOW UP SUCCESS ── */
+.followup-success-message {
+  font-size: 14px;
+  color: #4ade80;
+  font-weight: 500;
+}
