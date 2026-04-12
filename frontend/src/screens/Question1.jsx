@@ -48,9 +48,13 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   };
 
   return (
-    <div className="screen question-screen-mount">
+    <div className="screen">
       <ProgressBar step={currentStep} total={4} />
-      <label className="field-label" htmlFor="dog-name-input">
+      <label
+        className="field-label"
+        htmlFor="dog-name-input"
+        style={{ animation: "fadeInUp 0.25s ease forwards" }}
+      >
         What&apos;s your dog&apos;s name?
       </label>
       <div
@@ -80,7 +84,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         ) : null}
       </div>
 
-      <h2>What's going on?</h2>
+      <h2>What&apos;s going on?</h2>
       <p className="subtitle">Select the behavior you're most concerned about.</p>
 
       <div style={{ marginBottom: 12 }}>
