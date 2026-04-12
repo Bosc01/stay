@@ -58,7 +58,6 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         What&apos;s your dog&apos;s name?
       </label>
       <div
-        key={dogShakeKey}
         className={dogShakeKey > 0 ? "field-shake-once" : undefined}
         style={{ marginBottom: 24 }}
       >
@@ -119,7 +118,6 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
       </div>
 
       <div
-        key={behaviorShakeKey}
         className={behaviorShakeKey > 0 ? "field-shake-once" : undefined}
       >
         <div className="option-grid question-flow-option-grid">
