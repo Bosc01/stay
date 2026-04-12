@@ -53,10 +53,10 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
   };
 
   return (
-    <div className="screen question-screen-mount">
+    <div className="screen">
       <ProgressBar step={currentStep} total={4} />
 
-      <h2>When does it happen?</h2>
+      <h2 style={{ animation: "fadeInUp 0.25s ease forwards" }}>When does it happen?</h2>
       {selectedCount > 0 ? (
         <p
           style={{

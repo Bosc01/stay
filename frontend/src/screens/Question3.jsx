@@ -100,7 +100,7 @@ export default function Question3({
   };
 
   return (
-    <div className="screen question-screen-mount">
+    <div className="screen">
       <ProgressBar step={currentStep} total={4} />
 
       {loading ? (
@@ -127,7 +127,9 @@ export default function Question3({
         </div>
       ) : (
         <>
-          <h2>What have you tried so far?</h2>
+          <h2 style={{ animation: "fadeInUp 0.25s ease forwards" }}>
+            What have you tried so far?
+          </h2>
           <p className="subtitle">
             Tell us about any training, vet visits, or changes you&apos;ve already
             made.
