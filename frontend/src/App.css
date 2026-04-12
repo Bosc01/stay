@@ -114,12 +114,21 @@ body {
 }
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: var(--bg);
+  border-bottom: 1px solid #1a1a1a;
+  background: rgba(13, 13, 11, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .logo {
+  margin: 0;
   font-size: 20px;
   font-weight: 500;
   color: var(--fg);
@@ -127,10 +136,38 @@ body {
   letter-spacing: -0.02em;
 }
 
+.logo-mark-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.logo-mark-btn:focus-visible {
+  outline: 0.5px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.logo-header-img {
+  height: 28px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
 a.logo-link {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-main {
@@ -198,10 +235,18 @@ a.logo-link {
   padding-top: 0;
   padding-bottom: 0;
   box-shadow: 0 2px 8px rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:disabled {
@@ -337,18 +382,35 @@ a.logo-link {
   color: var(--fg);
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.question-screen-mount {
+  animation: fadeIn 0.2s ease;
+}
+
 /* Progress bar */
 .progress-bar {
-  height: 2px;
-  background: var(--border);
+  height: 3px;
+  background: #222222;
+  border-radius: 4px;
   margin-bottom: 28px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--fg);
-  transition: width 0.25s ease;
+  background: #ffffff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 /* Triage badge */
@@ -366,21 +428,24 @@ a.logo-link {
 }
 
 .triage-badge.green {
-  background: #1a3a2a;
+  background: #0a2a0a;
   color: #4ade80;
   border: 1px solid #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.2);
 }
 
 .triage-badge.yellow {
-  background: #3a2e0a;
+  background: #2a1f00;
   color: #facc15;
   border: 1px solid #facc15;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
 }
 
 .triage-badge.red {
-  background: #3a0a0a;
+  background: #2a0a0a;
   color: #f87171;
   border: 1px solid #f87171;
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.2);
 }
 
 .result-badge-row {
@@ -450,11 +515,12 @@ a.logo-link {
 
 /* Result card */
 .result-card {
-  background: var(--card-bg);
+  background: linear-gradient(135deg, #161614 0%, #111110 100%);
   border: 1px solid var(--card-border);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .result-card h3 {
@@ -540,7 +606,7 @@ a.logo-link {
 }
 
 .result-card--first-step {
-  background: var(--card-bg);
+  background: linear-gradient(135deg, #161614 0%, #111110 100%);
 }
 
 .result-honest-toggle {
@@ -1130,13 +1196,6 @@ a.logo-link {
 
 .followup-success-message strong {
   font-weight: 600;
-}
-
-.followup-success-7day {
-  margin: 12px 0 0;
-  font-size: 15px;
-  line-height: 1.6;
-  color: rgba(212, 212, 212, 0.82);
 }
 
 .friend-share-section {
@@ -1824,10 +1883,20 @@ a.logo-link {
 
 /* Admin dashboard */
 .admin-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
+}
+
+.admin-header .logo-link {
+  grid-column: 2;
+  justify-self: center;
+}
+
+.admin-header .admin-logout {
+  grid-column: 3;
+  justify-self: end;
 }
 
 .admin-logout {

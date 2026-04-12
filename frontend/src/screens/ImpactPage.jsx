@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchImpactPublic } from "../api.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
+import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
 export default function ImpactPage() {
   const [data, setData] = useState(null);
@@ -58,8 +59,8 @@ export default function ImpactPage() {
     <div className="app">
       <div className="app-frame">
         <header className="app-header">
-          <Link to="/" className="logo logo-link">
-            Stay
+          <Link to="/" className="logo logo-link" aria-label="Stay — home">
+            <StayHeaderLogo />
           </Link>
         </header>
         <main className="app-main impact-page">

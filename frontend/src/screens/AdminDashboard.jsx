@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../api.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
+import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
 const ADMIN_PASSWORD = "stay2026";
 const SESSION_STORAGE_KEY = "stay_admin_password";
@@ -96,8 +97,8 @@ export default function AdminDashboard() {
       <div className="app">
         <div className="app-frame">
           <header className="app-header">
-            <Link to="/" className="logo logo-link">
-              Stay
+            <Link to="/" className="logo logo-link" aria-label="Stay — home">
+              <StayHeaderLogo />
             </Link>
           </header>
           <main className="app-main">
@@ -153,8 +154,8 @@ export default function AdminDashboard() {
     <div className="app">
       <div className="app-frame">
         <header className="app-header admin-header">
-          <Link to="/" className="logo logo-link">
-            Stay
+          <Link to="/" className="logo logo-link" aria-label="Stay — home">
+            <StayHeaderLogo />
           </Link>
           <button type="button" className="btn btn-secondary admin-logout" onClick={handleLogout}>
             Sign out

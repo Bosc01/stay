@@ -100,7 +100,7 @@ export default function Question3({
   };
 
   return (
-    <div className="screen">
+    <div className="screen question-screen-mount">
       <ProgressBar step={currentStep} total={4} />
 
       {loading ? (
