@@ -26,6 +26,7 @@ const OWNER_EXPERIENCE_OPTIONS = [
 
 export default function Question1({ intake, update, setScreen, currentStep }) {
   const [dogShakeKey, setDogShakeKey] = useState(0);
+  const [dogNameError, setDogNameError] = useState("");
   const [behaviorShakeKey, setBehaviorShakeKey] = useState(0);
 
   const intensityValue =
@@ -33,10 +34,12 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
 
   const handleNext = () => {
     if (!String(intake.dog_name || "").trim()) {
+      setDogNameError("Please enter your dog's name.");
       setDogShakeKey((k) => k + 1);
       document.getElementById("dog-name-input")?.focus();
       return;
     }
+    setDogNameError("");
     if (!intake.behavior_type) {
       setBehaviorShakeKey((k) => k + 1);
       return;
@@ -61,10 +64,20 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
           className="email-input"
           placeholder="e.g. Bruno"
           value={intake.dog_name ?? ""}
-          onChange={(e) => update({ dog_name: e.target.value || null })}
+          onChange={(e) => {
+            if (dogNameError) setDogNameError("");
+            update({ dog_name: e.target.value || null });
+          }}
+          aria-invalid={dogNameError ? "true" : undefined}
+          aria-describedby={dogNameError ? "dog-name-error" : undefined}
           required
           style={{ width: "100%" }}
         />
+        {dogNameError ? (
+          <p id="dog-name-error" className="error-text" style={{ marginTop: 8, marginBottom: 0 }}>
+            {dogNameError}
+          </p>
+        ) : null}
       </div>
 
       <h2>What's going on?</h2>
