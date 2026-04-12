@@ -31,14 +31,14 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
   const handleNext = () => {
     if (selectedCount === 0) {
       setTriggersError("Select at least one trigger.");
-      setTriggersShakeKey((k) => k + 1);
       return;
     }
     setTriggersError("");
     if (!intake.duration) {
-      setDurationShakeKey((k) => k + 1);
+      setDurationError("Please select how long this has been going on.");
       return;
     }
+    setDurationError("");
     setScreen("q3");
   };
 
@@ -70,9 +70,7 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
       ) : null}
       <p className="subtitle">Select all triggers that apply.</p>
 
-      <div
-        className={triggersShakeKey > 0 ? "field-shake-once" : undefined}
-      >
+      <div>
         <div className="option-grid question-flow-option-grid">
           {TRIGGERS.map((t) => (
             <OptionButton
@@ -98,19 +96,25 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
       <h2 className="section-heading">How long has this been going on?</h2>
       <p className="subtitle">Select the closest estimate.</p>
 
-      <div
-        className={durationShakeKey > 0 ? "field-shake-once" : undefined}
-      >
+      <div>
         <div className="option-grid">
           {DURATIONS.map((d) => (
             <OptionButton
               key={d}
               label={d}
               selected={intake.duration === d}
-              onClick={() => update({ duration: d })}
+              onClick={() => {
+                if (durationError) setDurationError("");
+                update({ duration: d });
+              }}
             />
           ))}
         </div>
+        {durationError ? (
+          <p className="error-text" style={{ marginTop: 8 }}>
+            {durationError}
+          </p>
+        ) : null}
       </div>
 
       <div className="nav-row nav-row--question">

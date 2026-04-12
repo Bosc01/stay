@@ -42,6 +42,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
       setBehaviorError("Please select a behavior type.");
       return;
     }
+    setBehaviorError("");
     setScreen("q2");
   };
 
@@ -85,7 +86,14 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         <p className="field-label" style={{ marginBottom: 6 }}>
           Owner experience
         </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            flexWrap: "nowrap",
+            overflowX: "auto",
+          }}
+        >
           {OWNER_EXPERIENCE_OPTIONS.map((opt) => {
             const selected = intake.owner_experience === opt;
             return (
@@ -98,6 +106,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
                   padding: "6px 12px",
                   fontSize: 13,
                   borderRadius: 999,
+                  flexShrink: 0,
                 }}
                 onClick={() =>
                   update({
