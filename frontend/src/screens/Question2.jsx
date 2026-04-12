@@ -72,7 +72,6 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
       <p className="subtitle">Select all triggers that apply.</p>
 
       <div
-        key={triggersShakeKey}
         className={triggersShakeKey > 0 ? "field-shake-once" : undefined}
       >
         <div className="option-grid question-flow-option-grid">
@@ -101,7 +100,6 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
       <p className="subtitle">Select the closest estimate.</p>
 
       <div
-        key={durationShakeKey}
         className={durationShakeKey > 0 ? "field-shake-once" : undefined}
       >
         <div className="option-grid">
