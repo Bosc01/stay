@@ -25,9 +25,8 @@ const OWNER_EXPERIENCE_OPTIONS = [
 ];
 
 export default function Question1({ intake, update, setScreen, currentStep }) {
-  const [dogShakeKey, setDogShakeKey] = useState(0);
   const [dogNameError, setDogNameError] = useState("");
-  const [behaviorShakeKey, setBehaviorShakeKey] = useState(0);
+  const [behaviorError, setBehaviorError] = useState("");
 
   const intensityValue =
     typeof intake.behavior_intensity === "number" ? intake.behavior_intensity : 2;
@@ -35,13 +34,12 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   const handleNext = () => {
     if (!String(intake.dog_name || "").trim()) {
       setDogNameError("Please enter your dog's name.");
-      setDogShakeKey((k) => k + 1);
       document.getElementById("dog-name-input")?.focus();
       return;
     }
     setDogNameError("");
     if (!intake.behavior_type) {
-      setBehaviorShakeKey((k) => k + 1);
+      setBehaviorError("Please select a behavior type.");
       return;
     }
     setScreen("q2");
@@ -57,10 +55,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
       >
         What&apos;s your dog&apos;s name?
       </label>
-      <div
-        className={dogShakeKey > 0 ? "field-shake-once" : undefined}
-        style={{ marginBottom: 24 }}
-      >
+      <div style={{ marginBottom: 24 }}>
         <input
           id="dog-name-input"
           type="text"
@@ -117,19 +112,25 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         </div>
       </div>
 
-      <div
-        className={behaviorShakeKey > 0 ? "field-shake-once" : undefined}
-      >
+      <div>
         <div className="option-grid question-flow-option-grid">
           {BEHAVIOR_TYPES.map((type) => (
             <OptionButton
               key={type}
               label={type}
               selected={intake.behavior_type === type}
-              onClick={() => update({ behavior_type: type })}
+              onClick={() => {
+                if (behaviorError) setBehaviorError("");
+                update({ behavior_type: type });
+              }}
             />
           ))}
         </div>
+        {behaviorError ? (
+          <p className="error-text" style={{ marginTop: 8 }}>
+            {behaviorError}
+          </p>
+        ) : null}
       </div>
 
       <label className="sudden-onset-toggle">

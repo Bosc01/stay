@@ -22,9 +22,8 @@ const DURATIONS = [
 ];
 
 export default function Question2({ intake, update, setScreen, currentStep }) {
-  const [triggersShakeKey, setTriggersShakeKey] = useState(0);
   const [triggersError, setTriggersError] = useState("");
-  const [durationShakeKey, setDurationShakeKey] = useState(0);
+  const [durationError, setDurationError] = useState("");
 
   const triggersList = intake.triggers ?? [];
   const selectedCount = triggersList.length;
