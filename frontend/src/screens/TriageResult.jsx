@@ -12,20 +12,6 @@ function prefersMobileShare() {
   );
 }
 
-function formatFollowUpDate(iso) {
-  if (!iso) return null;
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return null;
-  }
-}
-
 /** Split on ". " so the first two segments are the collapsed preview. */
 function splitRootCauseSentences(text) {
   const raw = String(text ?? "").trim();
@@ -54,7 +40,6 @@ export default function TriageResult({
   const [emailSaved, setEmailSaved] = useState(false);
   const [followupLoading, setFollowupLoading] = useState(false);
   const [followupError, setFollowupError] = useState(null);
-  const [checkInDateLabel, setCheckInDateLabel] = useState(null);
   const [friendShareCopied, setFriendShareCopied] = useState(false);
   const [followupQuestion, setFollowupQuestion] = useState("");
   const [followupQuestionLoading, setFollowupQuestionLoading] = useState(false);
@@ -176,14 +161,8 @@ export default function TriageResult({
     setFollowupLoading(true);
     setFollowupError(null);
     try {
-      const data = await submitFollowup({ session_id: sessionId, email });
+      await submitFollowup({ session_id: sessionId, email });
       update({ email });
-      const label =
-        formatFollowUpDate(data.follow_up_send_at) ||
-        formatFollowUpDate(
-          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        );
-      setCheckInDateLabel(label);
       setEmailSaved(true);
     } catch (err) {
       setFollowupError(
@@ -280,8 +259,20 @@ export default function TriageResult({
           </p>
         </div>
         <div className="nav-row">
-          <button type="button" className="btn btn-secondary" onClick={resetToStart}>
-            Start Over
+          <button
+            type="button"
+            onClick={resetToStart}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#666",
+              fontSize: 14,
+              cursor: "pointer",
+              padding: "16px 0",
+              textDecoration: "underline",
+            }}
+          >
+            Start over
           </button>
         </div>
       </div>
@@ -490,12 +481,7 @@ export default function TriageResult({
           ) : (
             <div className="followup-section followup-section--success follow-up-section">
               <p className="followup-success-message">
-                You&apos;re signed up - we&apos;ll check in on{" "}
-                <strong>{checkInDateLabel ?? "the scheduled date"}</strong>.
-              </p>
-              <p className="followup-success-7day">
-                We&apos;ll also check in after 7 days to see if things are
-                improving.
+                We will check in on {hasDogName ? dogName : "your dog"} in 7 days.
               </p>
             </div>
           )}
@@ -524,8 +510,7 @@ export default function TriageResult({
             style={{ marginTop: 32 }}
           >
             <p id="followup-question-heading" className="result-card-label">
-              Have a specific question about{" "}
-              {intake.dog_name?.trim() || "your dog's"} situation?
+              Have a specific question about {hasDogName ? dogName : "your dog"}?
             </p>
             <div className="followup-row">
               <input
@@ -609,21 +594,32 @@ export default function TriageResult({
       <p
         style={{
           fontSize: 12,
-          color: "var(--color-text-tertiary)",
+          color: "#666",
           textAlign: "center",
           padding: "0 16px",
           lineHeight: 1.5,
           marginTop: 16,
         }}
       >
-        Stay provides educational information only, not professional behavioral
-        consultation. For dogs with a bite history, contact a certified
-        professional directly.
+        If your dog has a bite history, please contact a certified trainer
+        directly.
       </p>
 
       <div className="nav-row">
-        <button type="button" className="btn btn-secondary" onClick={resetToStart}>
-          Start Over
+        <button
+          type="button"
+          onClick={resetToStart}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#666",
+            fontSize: 14,
+            cursor: "pointer",
+            padding: "16px 0",
+            textDecoration: "underline",
+          }}
+        >
+          Start over
         </button>
       </div>
         </>

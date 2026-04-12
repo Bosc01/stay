@@ -75,7 +75,7 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
         key={triggersShakeKey}
         className={triggersShakeKey > 0 ? "field-shake-once" : undefined}
       >
-        <div className="option-grid">
+        <div className="option-grid question-flow-option-grid">
           {TRIGGERS.map((t) => (
             <OptionButton
               key={t}
