@@ -48,7 +48,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   };
 
   return (
-    <div className="screen">
+    <div className="screen question-screen-mount">
       <ProgressBar step={currentStep} total={4} />
       <label className="field-label" htmlFor="dog-name-input">
         What&apos;s your dog&apos;s name?

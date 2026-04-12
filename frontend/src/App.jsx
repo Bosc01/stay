@@ -6,6 +6,7 @@ import Question2 from "./screens/Question2.jsx";
 import Question3 from "./screens/Question3.jsx";
 import TriageResult from "./screens/TriageResult.jsx";
 import SiteFooter from "./components/SiteFooter.jsx";
+import StayHeaderLogo from "./components/StayHeaderLogo.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 const SCREENS = ["landing", "q1", "q2", "q3", "result"];
@@ -99,15 +100,17 @@ export default function App() {
       ) : null}
       <div className="app-frame">
         <header className="app-header">
-          <h1
-            className="logo"
+          <button
+            type="button"
+            className="logo logo-mark-btn"
             onClick={() => {
               navigate("/");
               setScreen("landing");
             }}
+            aria-label="Stay — home"
           >
-            Stay
-          </h1>
+            <StayHeaderLogo />
+          </button>
         </header>
         <main className="app-main">
           {screen === "landing" && (

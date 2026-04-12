@@ -53,7 +53,7 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
   };
 
   return (
-    <div className="screen">
+    <div className="screen question-screen-mount">
       <ProgressBar step={currentStep} total={4} />
 
       <h2>When does it happen?</h2>

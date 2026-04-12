@@ -120,6 +120,9 @@ export default function TriageResult({
     : "yellow";
   const dogName = String(intake?.dog_name || "").trim();
   const hasDogName = dogName.length > 0;
+  const dogNameSentenceCase = hasDogName
+    ? dogName.charAt(0).toUpperCase() + dogName.slice(1)
+    : "";
   const rootCauseSplit = splitRootCauseSentences(result.root_cause);
   const honestNoteText = String(result.honest_note ?? "").trim();
   const hasHonestNote = honestNoteText.length > 0;
@@ -510,7 +513,11 @@ export default function TriageResult({
             style={{ marginTop: 32 }}
           >
             <p id="followup-question-heading" className="result-card-label">
-              Have a specific question about {hasDogName ? dogName : "your dog"}?
+              Have a specific question about{" "}
+              {hasDogName
+                ? `${dogNameSentenceCase}'s`
+                : "your dog's"}{" "}
+              situation?
             </p>
             <div className="followup-row">
               <input
@@ -601,8 +608,7 @@ export default function TriageResult({
           marginTop: 16,
         }}
       >
-        If your dog has a bite history, please contact a certified trainer
-        directly.
+        If your dog has a bite history, please contact a certified trainer directly.
       </p>
 
       <div className="nav-row">

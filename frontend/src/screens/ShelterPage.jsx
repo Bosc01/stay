@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { fetchShelterImpactStats, submitShelterInquiry } from "../api.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
+import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
 const SITE_ORIGIN = "https://trystay.org";
 
@@ -174,8 +175,8 @@ export default function ShelterPage() {
     <div className="app">
       <div className="app-frame">
         <header className="app-header">
-          <Link to="/" className="logo logo-link">
-            Stay
+          <Link to="/" className="logo logo-link" aria-label="Stay — home">
+            <StayHeaderLogo />
           </Link>
         </header>
         <main className="app-main shelter-portal">
