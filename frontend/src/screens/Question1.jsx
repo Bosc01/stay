@@ -118,7 +118,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
         key={behaviorShakeKey}
         className={behaviorShakeKey > 0 ? "field-shake-once" : undefined}
       >
-        <div className="option-grid">
+        <div className="option-grid question-flow-option-grid">
           {BEHAVIOR_TYPES.map((type) => (
             <OptionButton
               key={type}
@@ -154,7 +154,11 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
             onChange={(e) =>
               update({ behavior_intensity: Number(e.target.value) || 2 })
             }
-            style={{ width: "100%", marginBottom: 6 }}
+            style={{
+              width: "100%",
+              marginBottom: 6,
+              accentColor: "#ffffff",
+            }}
           />
           <p
             style={{

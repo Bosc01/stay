@@ -298,6 +298,10 @@ a.logo-link {
   color: var(--fg);
 }
 
+.question-flow-option-grid .option-btn {
+  padding: 12px 16px;
+}
+
 /* Inputs */
 .text-input,
 .email-input {
