@@ -1,373 +1,1320 @@
+/* =========================================================================
+   STAY — DESIGN SYSTEM
+   -------------------------------------------------------------------------
+   Mood:        Warm, trustworthy, calm. Reads like a letter from a friend
+                who's been through this, not a clinical tool.
+   Foundation:  Warm off-black ink (never pure black) + parchment cream text.
+                Depth via tonal layering + inset highlights + soft warm
+                shadows. No flat hairline card borders.
+   Type:        Instrument Serif for display/emotion + Fraunces for body
+                (variable optical serif, warm soft axis).
+   ========================================================================= */
+
+:root {
+  /* ── INK PALETTE (warm off-black, layered) ───────────────────────────── */
+  --ink-900: #13100D;   /* deepest page bg, warm coffee */
+  --ink-850: #1A1612;   /* sticky header bg under blur */
+  --ink-800: #1E1A15;   /* subtle surface */
+  --ink-700: #251F18;   /* card surface */
+  --ink-600: #2F2820;   /* elevated surface, selected option */
+  --ink-500: #3D342B;   /* warm divider line */
+  --ink-400: #4F4438;   /* hairline border on hover */
+
+  /* ── PAPER PALETTE (warm cream foreground) ───────────────────────────── */
+  --paper-50:  #F5EBDB; /* primary text — warm parchment */
+  --paper-100: #E6D6BD; /* near-primary, headings on dark */
+  --paper-200: #C2B097; /* secondary body, soft */
+  --paper-300: #978670; /* meta, labels, captions */
+  --paper-400: #6E614F; /* tertiary / hint */
+  --paper-500: #4F4537; /* disabled */
+
+  /* ── WARM ACCENTS (the friend's voice) ───────────────────────────────── */
+  --amber-400: #D4A574; /* primary accent — honey amber */
+  --amber-300: #E8C39A; /* highlight / lighter accent */
+  --amber-200: #F5DDB8; /* subtle glow */
+  --terracotta-500: #C28867;
+  --terracotta-600: #A86F50;
+
+  /* ── SEVERITY (soft, warm — never alarming) ──────────────────────────── */
+  --sage-500:  #8FA888; /* low concern / green */
+  --sage-300:  #B8CDB1;
+  --honey-500: #D4A042; /* moderate concern / yellow */
+  --honey-300: #E8C57A;
+  --ember-500: #C77B5C; /* high concern / red but warm */
+  --ember-300: #E29F82;
+
+  /* ── SEMANTIC TOKENS (used by old App.css names too) ─────────────────── */
+  --bg: var(--ink-900);
+  --bg-muted: var(--ink-800);
+  --bg-elevated: var(--ink-700);
+  --card-bg: var(--ink-700);
+  --card-border: transparent;        /* depth, not borders */
+  --card-body: var(--paper-100);
+  --fg: var(--paper-50);
+  --fg-muted: var(--paper-200);
+  --color-text-secondary: var(--paper-200);
+  --color-text-tertiary: var(--paper-300);
+  --border: rgba(245, 235, 219, 0.06);
+  --border-strong: rgba(245, 235, 219, 0.12);
+  --primary-fg: var(--ink-900);
+  --primary-bg: var(--paper-50);
+  --disabled-bg: rgba(245, 235, 219, 0.06);
+  --disabled-fg: rgba(245, 235, 219, 0.25);
+  --selected-bg: rgba(212, 165, 116, 0.08);
+  --focus-ring: rgba(232, 195, 154, 0.5);
+
+  --urgency-bg: rgba(199, 123, 92, 0.10);
+  --urgency-border: rgba(199, 123, 92, 0.32);
+  --urgency-fg: var(--ember-300);
+
+  /* ── SPACING / RADII / MOTION ────────────────────────────────────────── */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  --ease-warm: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur: 240ms;
+  --dur-slow: 380ms;
+
+  /* ── DEPTH ───────────────────────────────────────────────────────────── */
+  --shadow-card:
+    inset 0 1px 0 rgba(245, 235, 219, 0.045),
+    0 1px 0 rgba(0, 0, 0, 0.3),
+    0 14px 32px -18px rgba(0, 0, 0, 0.55);
+  --shadow-elevated:
+    inset 0 1px 0 rgba(245, 235, 219, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.35),
+    0 24px 48px -20px rgba(0, 0, 0, 0.65);
+  --shadow-cta:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 0 rgba(0, 0, 0, 0.25),
+    0 10px 28px -10px rgba(212, 165, 116, 0.4),
+    0 18px 40px -22px rgba(0, 0, 0, 0.6);
+  --shadow-cta-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(0, 0, 0, 0.25),
+    0 14px 36px -10px rgba(212, 165, 116, 0.55),
+    0 24px 48px -22px rgba(0, 0, 0, 0.65);
+}
+
+/* =========================================================================
+   GLOBAL RESET / BASE
+   ========================================================================= */
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  background: #0d0d0b;
-  color: #f0f0ee;
+html, body {
+  background: var(--ink-900);
+  color: var(--paper-50);
 }
 
-/* ── BACKGROUND NOISE ── */
+body {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-variation-settings: "opsz" 14, "SOFT" 60;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(212, 165, 116, 0.055), transparent 60%),
+    radial-gradient(900px 500px at 100% 110%, rgba(143, 168, 136, 0.04), transparent 60%),
+    var(--ink-900);
+}
+
+::selection {
+  background: rgba(212, 165, 116, 0.3);
+  color: var(--paper-50);
+}
+
+/* Subtle paper grain — keep the noise overlay for warmth */
 .app {
-  position: relative;
+  background: transparent;
 }
 
 .app::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4t5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqrmQDeuv3powQ5ta2eN0FY0InkqDD73lT9c9lEzwUNqgFHs9VQce3TVClFCQrSTfOiYkVJQBmpbq2L6iZavPnAPcoU0dSw0SUTqz/GtrGuXfbyyBniKykOWQWGqwwMA7QiYAxi+IlPdqo+hYHnUt5ZPfnsHJyNiDtnpJyayNBkF6cWoYGAMY92U2hXHF/C1M8uP/ZtYdiuj26UdAdQQSXQErwSOMzt/gjuRniZIERARpnxmfpiN6V8iB5OPrJM8GiS8nBExhVAuAhTUGZw9EVGdPcKZ7MS0qJDGEjCeIFOHoGAGAAqIHAqHAG0AH2YCGIANwCGYsIMAAeAFSFCABMCGkAOAhiHABkAABhCCNMDqAAChEKAACMAAKGAJAmIAABBBjAoAAgAJgAFAFIA");
-  opacity: 0.03;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.92 0 0 0 0 0.86 0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.04;
+  mix-blend-mode: overlay;
   pointer-events: none;
   z-index: 0;
 }
 
-.app > .app-frame {
-  position: relative;
-  z-index: 1;
-}
+.app > .app-frame { position: relative; z-index: 1; }
 
-/* ── TYPOGRAPHY ── */
-h1,
-h2 {
-  font-family: "Instrument Serif", Georgia, serif;
+/* =========================================================================
+   TYPOGRAPHY
+   ========================================================================= */
+
+h1, h2, h3,
+.screen h2,
+.screen h3 {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  color: var(--paper-50);
 }
 
 .screen h2 {
-  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 30px;
+  line-height: 1.18;
+  margin: 0 0 8px;
+}
+
+.screen .subtitle {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 14, "SOFT" 70;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--paper-200);
+  margin: 0 0 28px;
+  max-width: 38ch;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.screen h2 + .subtitle { margin-top: 10px; }
+
+em, .italic-serif {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  letter-spacing: 0;
 }
 
+/* =========================================================================
+   LAYOUT
+   ========================================================================= */
+
+.app-frame {
+  background: transparent;
+}
+
+.app-main {
+  padding: 28px 22px 56px;
+}
+
+/* Sticky header with warm parchment edge */
 .app-header {
-  display: flex;
+  border-bottom: 1px solid rgba(245, 235, 219, 0.05);
+  background: rgba(19, 16, 13, 0.78);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+  padding: 14px 22px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.logo-header-img {
+  height: 26px;
+  width: auto;
+  display: block;
+  opacity: 0.95;
+}
+
+/* =========================================================================
+   BUTTONS — primary feels like warm pressed paper; secondary like ink
+   ========================================================================= */
+
+.btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  border-bottom: 1px solid #1a1a18;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  background: rgba(13, 13, 11, 0.9);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.btn-primary {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 14, "SOFT" 50;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0.005em;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 14px 22px;
+  min-height: 54px;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform var(--dur) var(--ease-warm),
+    box-shadow var(--dur) var(--ease-warm),
+    background var(--dur) var(--ease-warm),
+    color var(--dur) var(--ease-warm),
+    opacity var(--dur) var(--ease-warm);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Primary — warm paper, deep ink */
+.btn-primary,
+.question-primary-btn {
+  background: linear-gradient(180deg, #FBF1DF 0%, #EFE0C5 100%) !important;
+  color: var(--ink-900) !important;
+  font-weight: 500 !important;
+  border: none !important;
+  box-shadow: var(--shadow-cta) !important;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover:not(:disabled),
+.question-primary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-cta-hover) !important;
+  background: linear-gradient(180deg, #FFF6E4 0%, #F3E4C9 100%) !important;
 }
 
-.btn-primary:active:not(:disabled) {
+.btn-primary:active:not(:disabled),
+.question-primary-btn:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: var(--shadow-cta) !important;
 }
 
-.result-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
-  padding: 20px;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+.btn-primary:disabled,
+.question-primary-btn:disabled {
+  background: rgba(245, 235, 219, 0.10) !important;
+  color: rgba(245, 235, 219, 0.35) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: none;
 }
+
+.btn-primary.btn-analyzing:disabled {
+  background: linear-gradient(180deg, #FBF1DF 0%, #EFE0C5 100%) !important;
+  color: var(--ink-900) !important;
+  cursor: wait;
+  box-shadow: var(--shadow-cta) !important;
+  animation: btn-analyzing-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes btn-analyzing-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+/* Secondary — warm ghost */
+.btn-secondary {
+  background: transparent !important;
+  color: var(--paper-200) !important;
+  border: 1px solid rgba(245, 235, 219, 0.10) !important;
+  box-shadow: inset 0 1px 0 rgba(245, 235, 219, 0.03) !important;
+}
+
+.btn-secondary:hover {
+  background: rgba(245, 235, 219, 0.04) !important;
+  color: var(--paper-50) !important;
+  border-color: rgba(245, 235, 219, 0.18) !important;
+}
+
+/* Nav row — stack on mobile, primary first */
+.nav-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.nav-row--question {
+  flex-direction: column-reverse;
+}
+
+.nav-row--question .btn { width: 100%; }
+.nav-row .btn { flex: 1; }
+
+/* =========================================================================
+   OPTION BUTTONS — slips of warm paper, not form controls
+   ========================================================================= */
+
+.option-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.option-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 16px 18px !important;
+  font-family: "Fraunces", serif !important;
+  font-variation-settings: "opsz" 14, "SOFT" 70;
+  font-weight: 400;
+  font-size: 15.5px;
+  line-height: 1.45;
+  letter-spacing: 0.005em;
+  color: var(--paper-100) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.025), rgba(245, 235, 219, 0.005)),
+    var(--ink-700) !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.04),
+    0 1px 0 rgba(0, 0, 0, 0.25),
+    0 6px 18px -12px rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer;
+  transition:
+    transform var(--dur) var(--ease-warm),
+    background var(--dur) var(--ease-warm),
+    box-shadow var(--dur) var(--ease-warm),
+    color var(--dur) var(--ease-warm);
+  overflow: hidden;
+}
+
+/* Left amber accent strip — invisible until selected */
+.option-btn::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 10px; bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--amber-400);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform var(--dur) var(--ease-warm);
+  opacity: 0;
+}
+
+.option-btn:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.045), rgba(245, 235, 219, 0.01)),
+    var(--ink-700) !important;
+  color: var(--paper-50) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.25),
+    0 12px 24px -14px rgba(0, 0, 0, 0.6) !important;
+}
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.option-btn.selected {
+  background:
+    linear-gradient(180deg, rgba(212, 165, 116, 0.10), rgba(212, 165, 116, 0.03)),
+    var(--ink-600) !important;
+  color: var(--paper-50) !important;
+  font-weight: 500;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.08),
+    0 0 0 1px rgba(212, 165, 116, 0.18),
+    0 12px 28px -14px rgba(212, 165, 116, 0.22),
+    0 14px 30px -18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.option-btn.selected::before {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* Compact pill option (owner experience row) */
+.option-btn--pill {
+  width: auto !important;
+  padding: 10px 16px !important;
+  font-size: 13.5px !important;
+  border-radius: var(--radius-pill) !important;
+  flex-shrink: 0;
+}
+
+.option-btn--pill::before { display: none; }
+
+.option-btn--pill.selected {
+  background:
+    linear-gradient(180deg, rgba(212, 165, 116, 0.16), rgba(212, 165, 116, 0.06)),
+    var(--ink-600) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.08),
+    0 0 0 1px rgba(212, 165, 116, 0.32) !important;
+}
+
+.question-flow-option-grid .option-btn {
+  padding: 14px 18px !important;
+}
+
+/* =========================================================================
+   INPUTS — quiet, warm, no harsh borders
+   ========================================================================= */
 
 input[type="text"],
-textarea {
-  background: #111110;
-  border: 1px solid #222220;
-  border-radius: 12px;
-  color: #f0f0ee;
-  transition: border-color 0.15s ease;
+input[type="email"],
+textarea,
+.text-input,
+.email-input {
+  width: 100%;
+  padding: 14px 16px !important;
+  font-family: "Fraunces", serif !important;
+  font-variation-settings: "opsz" 14, "SOFT" 60;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--paper-50) !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.05)),
+    var(--ink-800) !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(245, 235, 219, 0.05),
+    0 1px 0 rgba(245, 235, 219, 0.025) !important;
+  transition: box-shadow var(--dur) var(--ease-warm);
 }
 
-input[type="text"]:focus,
-textarea:focus {
-  border-color: #444440;
+textarea,
+.text-input {
+  min-height: 110px;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--paper-400);
+  font-style: italic;
+  opacity: 1;
+}
+
+input:focus,
+textarea:focus,
+.text-input:focus,
+.email-input:focus {
   outline: none;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(232, 195, 154, 0.45),
+    0 0 0 4px rgba(212, 165, 116, 0.10) !important;
 }
 
-.severity-green {
-  background: #0a2a0a;
-  border: 1px solid #4ade80;
-  color: #4ade80;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.15);
+input[type="checkbox"] {
+  accent-color: var(--amber-400);
 }
 
-.severity-yellow {
-  background: #2a1f00;
-  border: 1px solid #facc15;
-  color: #facc15;
-  box-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
+input[type="range"] {
+  accent-color: var(--amber-300) !important;
 }
 
-.severity-red {
-  background: #2a0a0a;
-  border: 1px solid #f87171;
-  color: #f87171;
-  box-shadow: 0 0 8px rgba(248, 113, 113, 0.15);
-}
-
-.result-print-actions {
+.field-label {
+  display: block;
+  font-family: "Fraunces", serif !important;
+  font-variation-settings: "opsz" 11, "SOFT" 40;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-300) !important;
   margin-bottom: 10px;
 }
 
-.result-print-actions .btn {
-  width: 100%;
+.sudden-onset-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 4px 0 28px;
+  padding: 14px 16px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--paper-100);
+  background: rgba(245, 235, 219, 0.025);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 rgba(245, 235, 219, 0.04);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease-warm);
 }
 
-@media print {
-  /* Hide everything except the result card */
-  nav,
-  button,
-  .follow-up-section,
-  .share-section,
-  .email-section {
-    display: none !important;
-  }
+.sudden-onset-toggle:hover { background: rgba(245, 235, 219, 0.05); }
 
-  .app-header,
-  .ios-install-banner,
-  .site-footer,
-  .result-print-actions,
-  .nav-row,
-  .result-section-2-wrap,
-  .share-result-capture,
-  .result-interview-float,
-  .result-interview-modal__backdrop,
-  [role="alertdialog"] {
+.sudden-onset-toggle input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* =========================================================================
+   PROGRESS BAR
+   ========================================================================= */
+
+.progress-bar {
+  height: 3px;
+  background: rgba(245, 235, 219, 0.06);
+  border-radius: var(--radius-pill);
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber-400), var(--amber-300));
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+  transition: width 400ms var(--ease-warm);
+}
+
+/* =========================================================================
+   ERRORS
+   ========================================================================= */
+
+.error-text {
+  font-family: "Fraunces", serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ember-300);
+  margin-top: 10px;
+}
+
+/* =========================================================================
+   LANDING — hero like a quiet opening line
+   ========================================================================= */
+
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 24px;
+  position: relative;
+}
+
+.landing-eyebrow {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 11, "SOFT" 40;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--amber-300);
+  margin: 0 0 22px;
+}
+
+.landing-referral {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--paper-200);
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 235, 219, 0.04);
+  box-shadow: inset 0 1px 0 rgba(245, 235, 219, 0.05);
+  margin-bottom: 24px;
+}
+
+.landing-logo-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 36px;
+}
+
+.landing-logo-glow {
+  position: absolute;
+  inset: -30px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(212, 165, 116, 0.22) 0%, rgba(212, 165, 116, 0.06) 35%, transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+  animation: glow-breathe 6s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.04); }
+}
+
+.landing-logo {
+  position: relative;
+  z-index: 1;
+  width: 168px;
+  height: 168px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+}
+
+.landing-headline {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-size: clamp(34px, 9vw, 42px) !important;
+  font-weight: 400 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--paper-50) !important;
+  margin: 0 0 16px !important;
+  max-width: 18ch;
+}
+
+.landing-headline em {
+  font-style: italic;
+  color: var(--amber-200);
+}
+
+.landing-sub {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 14, "SOFT" 80;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--paper-200);
+  max-width: 34ch;
+  margin: 0 auto 32px;
+}
+
+.landing-cta {
+  width: 100%;
+  max-width: 360px;
+  font-size: 16.5px !important;
+  min-height: 58px;
+}
+
+.landing-meta {
+  margin-top: 18px;
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--paper-300);
+  letter-spacing: 0.01em;
+}
+
+.landing-meta-divider {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--paper-400);
+  margin: 0 9px;
+  vertical-align: middle;
+}
+
+.landing-ios-hint {
+  margin-top: 10px;
+  font-family: "Fraunces", serif;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--paper-300);
+  max-width: 32ch;
+}
+
+/* Recent stories — feel like overheard notes from neighbors */
+.landing-stories {
+  margin-top: 56px;
+  padding-top: 36px;
+  border-top: none;
+  position: relative;
+  text-align: left;
+}
+
+.landing-stories::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.4), transparent);
+}
+
+.landing-stories-heading {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--paper-200);
+  margin: 0 0 18px;
+  text-align: center;
+}
+
+.landing-stories-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.landing-story-card {
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.025), rgba(245, 235, 219, 0.005)),
+    transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 18px 4px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid rgba(245, 235, 219, 0.06) !important;
+}
+
+.landing-story-card:last-child {
+  border-bottom: none !important;
+}
+
+.landing-story-meta {
+  font-family: "Fraunces", serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber-300);
+  margin: 0 0 8px;
+}
+
+.landing-story-text {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 14, "SOFT" 80;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--paper-100);
+  margin: 0;
+}
+
+/* =========================================================================
+   QUESTION FLOW
+   ========================================================================= */
+
+.q-section {
+  margin-bottom: 32px;
+}
+
+.q-section--first {
+  margin-top: 4px;
+}
+
+.q-section + .q-section {
+  padding-top: 28px;
+  border-top: 1px solid rgba(245, 235, 219, 0.06);
+}
+
+.section-heading {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-size: 26px !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.012em !important;
+  margin: 0 0 6px !important;
+  color: var(--paper-50) !important;
+}
+
+.q-pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0 4px;
+  margin: 0 -22px;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.q-pill-row::-webkit-scrollbar { display: none; }
+
+.q-intensity-label {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  text-align: center;
+  color: var(--paper-100);
+  margin: 8px 0 20px;
+}
+
+.q-selected-count {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--amber-300);
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* Intensity slider — warm warm */
+input[type="range"].q-intensity {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+/* =========================================================================
+   TRIAGE RESULT — A LETTER LAYOUT
+   ========================================================================= */
+
+.result-screen {
+  position: relative;
+}
+
+/* Salutation: "About Cooper," in italic serif */
+.result-salutation {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 17px;
+  font-style: italic;
+  color: var(--paper-200);
+  margin: 0 0 8px;
+  letter-spacing: 0;
+}
+
+.result-badge-row {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Severity — soft, never alarming */
+.triage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 12px !important;
+  font-family: "Fraunces", serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill) !important;
+  border: 1px solid transparent !important;
+  background: rgba(245, 235, 219, 0.05) !important;
+}
+
+.triage-badge::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--paper-300);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.triage-badge.green {
+  color: var(--sage-300) !important;
+  background: rgba(143, 168, 136, 0.10) !important;
+  border-color: rgba(143, 168, 136, 0.22) !important;
+  box-shadow: 0 0 24px -10px rgba(143, 168, 136, 0.45) !important;
+}
+.triage-badge.green::before { background: var(--sage-500); }
+
+.triage-badge.yellow {
+  color: var(--honey-300) !important;
+  background: rgba(212, 160, 66, 0.10) !important;
+  border-color: rgba(212, 160, 66, 0.22) !important;
+  box-shadow: 0 0 24px -10px rgba(212, 160, 66, 0.45) !important;
+}
+.triage-badge.yellow::before { background: var(--honey-500); }
+
+.triage-badge.red {
+  color: var(--ember-300) !important;
+  background: rgba(199, 123, 92, 0.12) !important;
+  border-color: rgba(199, 123, 92, 0.28) !important;
+  box-shadow: 0 0 28px -10px rgba(199, 123, 92, 0.55) !important;
+}
+.triage-badge.red::before { background: var(--ember-500); }
+
+/* Behavior heading — large, italic, like a chapter title */
+.result-behavior-heading {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-style: italic !important;
+  font-size: clamp(30px, 8vw, 38px) !important;
+  font-weight: 400 !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.012em !important;
+  color: var(--paper-50) !important;
+  margin: 6px 0 32px !important;
+}
+
+/* Letter sections — depth, no hairlines */
+.result-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.035), rgba(245, 235, 219, 0.008)),
+    var(--ink-700) !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 22px 22px 24px !important;
+  margin: 0 0 18px !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.result-card--first-step {
+  background:
+    linear-gradient(180deg, rgba(212, 165, 116, 0.05), rgba(212, 165, 116, 0.01)),
+    var(--ink-700) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(232, 195, 154, 0.12),
+    0 1px 0 rgba(0, 0, 0, 0.3),
+    0 18px 36px -18px rgba(212, 165, 116, 0.18),
+    0 14px 32px -18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.result-card-label {
+  font-family: "Fraunces", serif !important;
+  font-variation-settings: "opsz" 11, "SOFT" 40;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+  color: var(--amber-300) !important;
+  margin: 0 0 12px !important;
+}
+
+.result-card--first-step .result-card-label {
+  color: var(--amber-200) !important;
+}
+
+.result-card-body {
+  font-family: "Fraunces", serif !important;
+  font-variation-settings: "opsz" 16, "SOFT" 90;
+  font-size: 16px !important;
+  font-weight: 400;
+  line-height: 1.7 !important;
+  color: var(--paper-100) !important;
+  margin: 0;
+}
+
+.result-card-body--muted {
+  color: var(--paper-200) !important;
+  font-size: 15px !important;
+  font-style: italic;
+}
+
+.result-root-cause-toggle--inline {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--amber-300);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.result-root-cause-toggle--inline:hover {
+  color: var(--amber-200);
+}
+
+/* Red-gate — a careful, quiet redirect, not a screaming dialog */
+.result-red-gate {
+  background:
+    linear-gradient(180deg, rgba(199, 123, 92, 0.08), rgba(199, 123, 92, 0.02)),
+    var(--ink-700);
+  border-radius: var(--radius-xl);
+  padding: 32px 26px;
+  margin-bottom: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(232, 195, 154, 0.10),
+    0 24px 56px -22px rgba(199, 123, 92, 0.22),
+    0 24px 48px -20px rgba(0, 0, 0, 0.55);
+  text-align: center;
+}
+
+.result-red-gate__eyebrow {
+  display: inline-block;
+  font-family: "Fraunces", serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ember-300);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(199, 123, 92, 0.10);
+  box-shadow: 0 0 24px -8px rgba(199, 123, 92, 0.4);
+  margin-bottom: 18px;
+}
+
+.result-red-gate__heading {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--paper-50);
+  margin: 0 0 14px;
+}
+
+.result-red-gate__body {
+  font-family: "Fraunces", serif;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--paper-200);
+  margin: 0 0 24px;
+}
+
+/* Letter divider — hairline with warm dot */
+.result-letter-divider {
+  position: relative;
+  height: 1px;
+  margin: 32px 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.22), transparent);
+}
+
+.result-letter-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--amber-300);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.6);
+}
+
+/* Follow-up section — a soft postscript */
+.followup-section {
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.025), rgba(245, 235, 219, 0.005)),
+    var(--ink-700) !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 22px !important;
+  margin: 0 0 18px !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.followup-section h3 {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-style: italic;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  line-height: 1.25;
+  color: var(--paper-50);
+  margin: 0 0 8px !important;
+}
+
+.followup-section p {
+  font-family: "Fraunces", serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--paper-200);
+  margin: 0 0 16px;
+}
+
+.followup-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.followup-row .email-input {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.followup-row .btn {
+  flex: 0 0 auto;
+  min-height: 50px;
+  padding: 12px 20px;
+}
+
+.followup-section--success {
+  background:
+    linear-gradient(180deg, rgba(143, 168, 136, 0.06), rgba(143, 168, 136, 0.01)),
+    var(--ink-700) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(184, 205, 177, 0.10),
+    0 14px 32px -18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.followup-success-message {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--sage-300) !important;
+  margin: 0;
+}
+
+/* Send-to-a-friend — quiet outline */
+.friend-share-section {
+  margin: 20px 0 8px;
+  padding-top: 0;
+  border-top: none;
+  text-align: center;
+}
+
+.friend-share-btn {
+  width: 100%;
+  max-width: 320px;
+  font-size: 15px !important;
+  min-height: 50px;
+}
+
+.friend-share-copied {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--amber-300);
+  margin: 10px 0 0;
+}
+
+/* Closing signature — feels like a sign-off */
+.result-closing {
+  margin-top: 28px;
+  text-align: center;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--paper-300);
+  padding: 0 16px;
+}
+
+.result-closing strong {
+  font-weight: 400;
+  color: var(--paper-200);
+}
+
+.result-start-over {
+  display: inline-block;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--paper-300);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 16px 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(245, 235, 219, 0.2);
+  transition: color var(--dur) var(--ease-warm);
+}
+
+.result-start-over:hover {
+  color: var(--paper-100);
+  text-decoration-color: var(--amber-300);
+}
+
+/* Interview floating card */
+.result-interview-float__card {
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.04), rgba(245, 235, 219, 0.01)),
+    var(--ink-800) !important;
+  border: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.06),
+    0 -8px 30px -10px rgba(0, 0, 0, 0.6),
+    0 24px 48px -20px rgba(0, 0, 0, 0.5) !important;
+}
+
+.result-interview-float__text {
+  font-family: "Fraunces", serif;
+  font-size: 14px;
+  color: var(--paper-100);
+}
+
+.result-interview-modal {
+  background:
+    linear-gradient(180deg, rgba(245, 235, 219, 0.025), rgba(245, 235, 219, 0.005)),
+    var(--ink-800) !important;
+  border: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 235, 219, 0.06),
+    0 -24px 60px -20px rgba(0, 0, 0, 0.7) !important;
+}
+
+.result-interview-modal__label {
+  font-family: "Fraunces", serif;
+  color: var(--amber-300) !important;
+  letter-spacing: 0.18em !important;
+}
+
+.result-interview-modal__question {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-style: italic;
+  font-weight: 400 !important;
+  font-size: 22px !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em;
+  color: var(--paper-50);
+}
+
+.result-interview-modal__thanks-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--paper-50);
+}
+
+/* =========================================================================
+   FOOTER / MISC
+   ========================================================================= */
+
+.site-footer {
+  border-top: 1px solid rgba(245, 235, 219, 0.05);
+  background: transparent;
+}
+
+.site-footer__link {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  color: var(--paper-300);
+}
+
+.site-footer__link:hover {
+  color: var(--amber-300);
+}
+
+.ios-install-banner {
+  background: var(--ink-800);
+  border-top: 1px solid rgba(245, 235, 219, 0.06);
+}
+
+/* =========================================================================
+   PRINT (preserve clean printout)
+   ========================================================================= */
+
+@media print {
+  nav, button,
+  .follow-up-section, .share-section, .email-section,
+  .app-header, .ios-install-banner, .site-footer,
+  .result-print-actions, .nav-row, .result-section-2-wrap,
+  .share-result-capture, .result-interview-float,
+  .result-interview-modal__backdrop, [role="alertdialog"] {
     display: none !important;
   }
 
   body {
     background: white !important;
     color: black !important;
+    font-family: "Fraunces", Georgia, serif !important;
   }
 
   .result-card {
+    background: white !important;
     box-shadow: none !important;
     border: 1px solid #ccc !important;
+    color: black !important;
   }
 }
 
-/* ── HEADER ── */
-.logo-header-img {
-  height: 28px;
-  width: auto;
-  display: block;
-}
+/* =========================================================================
+   REDUCED MOTION
+   ========================================================================= */
 
-/* ── TRIAGE BADGE ── */
-.triage-badge {
-  display: inline-block;
-  padding: 8px 20px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.triage-badge.green {
-  background: #0a2a0a;
-  border: 1px solid #4ade80;
-  color: #4ade80;
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.2);
-}
-
-.triage-badge.yellow {
-  background: #2a1f00;
-  border: 1px solid #facc15;
-  color: #facc15;
-  box-shadow: 0 0 12px rgba(250, 204, 21, 0.2);
-}
-
-.triage-badge.red {
-  background: #2a0a0a;
-  border: 1px solid #f87171;
-  color: #f87171;
-  box-shadow: 0 0 12px rgba(248, 113, 113, 0.2);
-}
-
-/* ── RESULT CARDS ── */
-.result-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 16px !important;
-  padding: 20px !important;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  box-shadow: none !important;
-  margin-bottom: 12px;
-}
-
-.result-card-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #555552;
-  margin-bottom: 10px;
-}
-
-.result-card-body {
-  font-size: 15px;
-  line-height: 1.65;
-  color: #d4d4d0;
-}
-
-.result-behavior-heading {
-  font-family: "Instrument Serif", Georgia, serif !important;
-  font-style: italic !important;
-  font-size: 32px !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.01em !important;
-  line-height: 1.2 !important;
-  margin: 12px 0 20px;
-}
-
-/* ── OPTION BUTTONS ── */
-.option-btn {
-  width: 100%;
-  text-align: left;
-  padding: 13px 16px !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: transparent !important;
-  color: #d4d4d0 !important;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.12s ease;
-  margin-bottom: 6px;
-}
-
-.option-btn:hover {
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-.option-btn.selected {
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
-}
-
-/* ── INPUTS ── */
-.email-input,
-.text-input {
-  background: #111110 !important;
-  border: 1px solid #222220 !important;
-  border-radius: 12px !important;
-  color: #f0f0ee !important;
-  font-size: 15px;
-  padding: 12px 14px;
-  transition: border-color 0.15s ease;
-  width: 100%;
-}
-
-.email-input:focus,
-.text-input:focus {
-  border-color: #444440 !important;
-  outline: none;
-}
-
-/* ── BUTTONS ── */
-.btn-primary {
-  background: #ffffff !important;
-  color: #0d0d0b !important;
-  border: none !important;
-  border-radius: 14px !important;
-  font-weight: 600;
-  font-size: 15px;
-  padding: 14px 24px;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255,255,255,0.12);
-}
-
-.btn-secondary {
-  background: transparent !important;
-  color: #888884 !important;
-  border: 1px solid #222220 !important;
-  border-radius: 14px !important;
-  font-size: 15px;
-  padding: 14px 24px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-secondary:hover {
-  border-color: #333330 !important;
-  color: #aaaaaa !important;
-}
-
-/* ── LANDING ── */
-.landing-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  padding: 0 24px;
-  text-align: center;
-  position: relative;
-}
-
-.landing-hero h2 {
-  font-family: "Instrument Serif", Georgia, serif !important;
-  font-size: 36px !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.01em !important;
-  line-height: 1.15 !important;
-  margin-bottom: 14px;
-}
-
-.landing-story-card {
-  background: #111110;
-  border: 1px solid #1e1e1c;
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-}
-
-/* ── FIELD LABELS ── */
-.field-label {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: #888884;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-/* ── FOLLOW UP SUCCESS ── */
-.followup-success-message {
-  font-size: 14px;
-  color: #4ade80;
-  font-weight: 500;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

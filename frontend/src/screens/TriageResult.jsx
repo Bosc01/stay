@@ -157,7 +157,7 @@ export default function TriageResult({
   const handleFollowupSubmit = async () => {
     if (!hasSessionId) {
       setFollowupError(
-        "We couldn't save your session for email updates. Please start over and try again."
+        "Something went wrong saving your session. Please start over and try again."
       );
       return;
     }
@@ -254,26 +254,20 @@ export default function TriageResult({
   if (!hasSessionId) {
     return (
       <div className="screen result-screen">
-        <div className="result-card" role="alert" aria-live="polite">
-          <p className="result-card-label">Session error</p>
+        <p className="result-salutation">A note</p>
+        <h2 className="result-behavior-heading">Something went wrong.</h2>
+        <section className="result-card" role="alert" aria-live="polite">
+          <p className="result-card-label">What happened</p>
           <p className="result-card-body">
-            We could not save your session ID, so this result cannot be continued.
-            Please start over and try again.
+            We couldn&apos;t hold onto your session, so we can&apos;t continue
+            from here. It happens. Please start over and we&apos;ll try again.
           </p>
-        </div>
+        </section>
         <div className="nav-row">
           <button
             type="button"
             onClick={resetToStart}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#666",
-              fontSize: 14,
-              cursor: "pointer",
-              padding: "16px 0",
-              textDecoration: "underline",
-            }}
+            className="result-start-over"
           >
             Start over
           </button>
@@ -286,356 +280,301 @@ export default function TriageResult({
     <div className="screen result-screen">
       {showRedGate ? (
         <div
-          style={{
-            minHeight: 400,
-            background: "rgba(0,0,0,0.85)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 16,
-            margin: "0 0 16px",
-          }}
+          className="result-red-gate"
           role="alertdialog"
           aria-labelledby="red-gate-heading"
           aria-describedby="red-gate-body"
         >
-          <div
-            style={{
-              maxWidth: 360,
-              padding: "28px 22px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: 16,
-            }}
+          <span className="result-red-gate__eyebrow">
+            This deserves a real person
+          </span>
+          <h2 id="red-gate-heading" className="result-red-gate__heading">
+            {hasDogName
+              ? `${dogName} needs professional support before anything else.`
+              : "Your dog needs professional support before anything else."}
+          </h2>
+          <p id="red-gate-body" className="result-red-gate__body">
+            What you&apos;re describing goes beyond what any app should advise
+            on. The most important thing you can do right now is contact a
+            certified professional - not because{" "}
+            {hasDogName
+              ? `${dogName} can't be helped,`
+              : "your dog can't be helped,"}{" "}
+            but because they can.
+          </p>
+          <a
+            className="btn btn-primary"
+            href="https://www.dacvb.org/search/custom.asp?id=4803"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ width: "100%", boxSizing: "border-box", marginBottom: 10 }}
           >
-            <span
-              style={{
-                display: "inline-block",
-                padding: "5px 12px",
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                borderRadius: 999,
-                background: "#2e0a0a",
-                color: "#f87171",
-                border: "1px solid #991b1b",
-              }}
-            >
-              We'd recommend getting some help
-            </span>
-            <h2
-              id="red-gate-heading"
-              style={{
-                margin: 0,
-                fontSize: 22,
-                fontWeight: 600,
-                lineHeight: 1.25,
-                letterSpacing: "-0.02em",
-                color: "var(--fg)",
-              }}
-            >
-              {hasDogName
-                ? `${dogName} needs professional support before anything else.`
-                : "Your dog needs professional support before anything else."}
-            </h2>
-            <p
-              id="red-gate-body"
-              style={{
-                margin: 0,
-                fontSize: 15,
-                lineHeight: 1.55,
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              What you&apos;re describing goes beyond what any app should advise
-              on. The most important thing you can do right now is contact a
-              certified professional - not because{" "}
-              {hasDogName ? `${dogName} can&apos;t be helped,` : "your dog can&apos;t be helped,"}
-              but because they can.
-            </p>
-            <a
-              className="btn btn-primary"
-              href="https://www.dacvb.org/search/custom.asp?id=4803"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ width: "100%", boxSizing: "border-box" }}
-            >
-              Find a certified behaviorist
-            </a>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ width: "100%" }}
-              onClick={() => setRedGateDismissed(true)}
-            >
-              See full triage anyway
-            </button>
-          </div>
+            Find a certified behaviorist
+          </a>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ width: "100%" }}
+            onClick={() => setRedGateDismissed(true)}
+          >
+            See full triage anyway
+          </button>
         </div>
       ) : null}
 
       {!showRedGate ? (
         <>
-      <div className="result-badge-row" style={{ textAlign: "left" }}>
-        {hasDogName ? (
-          <p
-            style={{
-              margin: "0 0 6px",
-              fontSize: 12,
-              fontWeight: 500,
-              color: "var(--color-text-tertiary)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {dogName}
-          </p>
-        ) : null}
-        <TriageBadge severity={result.severity} label={result.severity_label} />
-      </div>
-
-      <h2 className="result-behavior-heading">{result.behavior_classification}</h2>
-
-      <section className="result-card" aria-labelledby="label-root-cause">
-        <p id="label-root-cause" className="result-card-label">
-          What&apos;s probably going on
-        </p>
-        <div>
-          <p className="result-card-body">
-            {rootCauseSplit.preview}
-            {rootCauseExpanded && rootCauseSplit.hasMore ? (
-              <>
-                {". "}
-                {rootCauseSplit.rest}
-              </>
-            ) : null}
-            {showReadMoreToggle ? (
-              <>
-                {" "}
-                <button
-                  type="button"
-                  className="result-root-cause-toggle--inline"
-                  onClick={() => setRootCauseExpanded((v) => !v)}
-                  aria-expanded={rootCauseExpanded}
-                >
-                  {rootCauseExpanded ? "Read less" : "Read more"}
-                </button>
-              </>
-            ) : null}
-          </p>
-          {rootCauseExpanded && hasHonestNote ? (
-            <p
-              className="result-card-body result-card-body--muted"
-              style={{ marginTop: 12 }}
-            >
-              {honestNoteText}
-            </p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="result-card result-card--first-step" aria-labelledby="label-first-step">
-        <p id="label-first-step" className="result-card-label">
-          What to try today
-        </p>
-        <p className="result-card-body">{result.first_step}</p>
-      </section>
-
-      <div className="result-section-2-wrap">
-        <div className="result-section-2-inner">
-          {!emailSaved ? (
-            <div className="followup-section follow-up-section email-section">
-              <h3>Want us to check in after 7 days?</h3>
-              <p>
-                We&apos;ll email you to see how things are going and whether your
-                dog is still home.
-              </p>
-              <div className="followup-row">
-                <input
-                  type="email"
-                  className="email-input"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={followupLoading}
-                  autoComplete="email"
-                />
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={
-                    !email.includes("@") || followupLoading || !hasSessionId
-                  }
-                  onClick={handleFollowupSubmit}
-                >
-                  {followupLoading ? "Saving..." : "Sign up"}
-                </button>
-              </div>
-              {!hasSessionId && (
-                <p className="followup-hint">
-                  Email signup isn&apos;t available because this session
-                  wasn&apos;t saved. Your triage above is still valid.
-                </p>
-              )}
-              {followupError && <p className="error-text">{followupError}</p>}
-            </div>
+          {/* Salutation — sets a warm, personal tone before any clinical info */}
+          {hasDogName ? (
+            <p className="result-salutation">About {dogNameSentenceCase},</p>
           ) : (
-            <div className="followup-section followup-section--success follow-up-section">
-              <p className="followup-success-message">
-                We will check in on {hasDogName ? dogName : "your dog"} in 7 days.
-              </p>
-            </div>
+            <p className="result-salutation">Here&apos;s what we&apos;re seeing.</p>
           )}
 
+          <div className="result-badge-row">
+            <TriageBadge severity={result.severity} label={result.severity_label} />
+          </div>
+
+          <h2 className="result-behavior-heading">
+            {result.behavior_classification}
+          </h2>
+
+          {/* What's probably going on — first paragraph of the letter */}
+          <section className="result-card" aria-labelledby="label-root-cause">
+            <p id="label-root-cause" className="result-card-label">
+              What&apos;s probably going on
+            </p>
+            <p className="result-card-body">
+              {rootCauseSplit.preview}
+              {rootCauseExpanded && rootCauseSplit.hasMore ? (
+                <>
+                  {". "}
+                  {rootCauseSplit.rest}
+                </>
+              ) : null}
+              {showReadMoreToggle ? (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="result-root-cause-toggle--inline"
+                    onClick={() => setRootCauseExpanded((v) => !v)}
+                    aria-expanded={rootCauseExpanded}
+                  >
+                    {rootCauseExpanded ? "Read less" : "Read more"}
+                  </button>
+                </>
+              ) : null}
+            </p>
+            {rootCauseExpanded && hasHonestNote ? (
+              <p
+                className="result-card-body result-card-body--muted"
+                style={{ marginTop: 14 }}
+              >
+                {honestNoteText}
+              </p>
+            ) : null}
+          </section>
+
+          {/* What to try today — the second, action-oriented paragraph */}
           <section
-            className="friend-share-section share-section"
-            aria-label="Send Stay to a friend"
+            className="result-card result-card--first-step"
+            aria-labelledby="label-first-step"
           >
+            <p id="label-first-step" className="result-card-label">
+              What to try today
+            </p>
+            <p className="result-card-body">{result.first_step}</p>
+          </section>
+
+          <div className="result-letter-divider" aria-hidden="true" />
+
+          {/* Postscripts: check-in, share, ask follow-up */}
+          <div className="result-section-2-wrap">
+            <div className="result-section-2-inner">
+              {!emailSaved ? (
+                <div className="followup-section follow-up-section email-section">
+                  <h3>Want us to check in after 7 days?</h3>
+                  <p>
+                    We&apos;ll email you to see how things are going and
+                    whether {hasDogName ? dogName : "your dog"} is still home.
+                  </p>
+                  <div className="followup-row">
+                    <input
+                      type="email"
+                      className="email-input"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={followupLoading}
+                      autoComplete="email"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      disabled={
+                        !email.includes("@") || followupLoading || !hasSessionId
+                      }
+                      onClick={handleFollowupSubmit}
+                    >
+                      {followupLoading ? "Saving..." : "Sign up"}
+                    </button>
+                  </div>
+                  {!hasSessionId && (
+                    <p className="followup-hint">
+                      Email signup isn&apos;t available because this session
+                      wasn&apos;t saved. Your triage above is still valid.
+                    </p>
+                  )}
+                  {followupError && (
+                    <p className="error-text">{followupError}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="followup-section followup-section--success follow-up-section">
+                  <p className="followup-success-message">
+                    We&apos;ll check in on{" "}
+                    {hasDogName ? dogName : "your dog"} in 7 days.
+                  </p>
+                </div>
+              )}
+
+              <section
+                className="friend-share-section share-section"
+                aria-label="Send Stay to a friend"
+              >
+                <button
+                  type="button"
+                  className="btn btn-secondary friend-share-btn"
+                  onClick={handleSendToFriend}
+                >
+                  Send to a friend
+                </button>
+                {friendShareCopied ? (
+                  <p className="friend-share-copied" role="status">
+                    Copied to clipboard
+                  </p>
+                ) : null}
+              </section>
+
+              <section
+                className="result-card"
+                aria-labelledby="followup-question-heading"
+                style={{ marginTop: 28 }}
+              >
+                <p
+                  id="followup-question-heading"
+                  className="result-card-label"
+                >
+                  Have a specific question about{" "}
+                  {hasDogName ? `${dogNameSentenceCase}'s` : "your dog's"}{" "}
+                  situation?
+                </p>
+                <div className="followup-row" style={{ marginTop: 4 }}>
+                  <input
+                    type="text"
+                    className="email-input"
+                    placeholder="Type your question..."
+                    value={followupQuestion}
+                    onChange={(e) => setFollowupQuestion(e.target.value)}
+                    disabled={
+                      !hasSessionId ||
+                      hasAskedFollowupQuestion ||
+                      followupQuestionLoading
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleFollowupQuestionSubmit();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={
+                      !hasSessionId ||
+                      hasAskedFollowupQuestion ||
+                      followupQuestionLoading ||
+                      !followupQuestion.trim()
+                    }
+                    onClick={handleFollowupQuestionSubmit}
+                  >
+                    {followupQuestionLoading ? "Sending..." : "Send"}
+                  </button>
+                </div>
+                {followupQuestionError ? (
+                  <p className="error-text">{followupQuestionError}</p>
+                ) : null}
+                {followupQuestionAnswer ? (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: "1px solid rgba(245, 235, 219, 0.08)",
+                    }}
+                  >
+                    <ReactMarkdown
+                      className="result-card-markdown"
+                      components={{
+                        strong: ({ node, ...props }) => (
+                          <strong {...props} style={{ fontWeight: 600 }} />
+                        ),
+                        ul: ({ node, ...props }) => (
+                          <ul
+                            {...props}
+                            style={{
+                              margin: "0.5rem 0 0.5rem 1.25rem",
+                              listStyleType: "disc",
+                            }}
+                          />
+                        ),
+                        li: ({ node, ...props }) => (
+                          <li
+                            {...props}
+                            style={{ marginBottom: "0.25rem" }}
+                          />
+                        ),
+                      }}
+                    >
+                      {followupQuestionAnswer}
+                    </ReactMarkdown>
+                  </div>
+                ) : null}
+              </section>
+            </div>
+          </div>
+
+          {/* Sign-off */}
+          <p className="result-closing">
+            If {hasDogName ? dogName : "your dog"} has a bite history, please
+            contact a certified trainer directly.
+            <br />
+            <strong>— Stay</strong>
+          </p>
+
+          <div className="nav-row" style={{ justifyContent: "center" }}>
             <button
               type="button"
-              className="btn btn-secondary friend-share-btn"
-              onClick={handleSendToFriend}
+              onClick={resetToStart}
+              className="result-start-over"
             >
-              Send to a friend
+              Start over
             </button>
-            {friendShareCopied ? (
-              <p className="friend-share-copied" role="status">
-                Copied to clipboard
-              </p>
-            ) : null}
-          </section>
-
-          <section
-            className="result-card"
-            aria-labelledby="followup-question-heading"
-            style={{ marginTop: 32 }}
-          >
-            <p id="followup-question-heading" className="result-card-label">
-              Have a specific question about{" "}
-              {hasDogName
-                ? `${dogNameSentenceCase}'s`
-                : "your dog's"}{" "}
-              situation?
-            </p>
-            <div className="followup-row">
-              <input
-                type="text"
-                className="email-input"
-                placeholder="Type your question..."
-                value={followupQuestion}
-                onChange={(e) => setFollowupQuestion(e.target.value)}
-                disabled={
-                  !hasSessionId ||
-                  hasAskedFollowupQuestion ||
-                  followupQuestionLoading
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleFollowupQuestionSubmit();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={
-                  !hasSessionId ||
-                  hasAskedFollowupQuestion ||
-                  followupQuestionLoading ||
-                  !followupQuestion.trim()
-                }
-                onClick={handleFollowupQuestionSubmit}
-              >
-                {followupQuestionLoading ? "Sending..." : "Send"}
-              </button>
-            </div>
-            {followupQuestionError ? (
-              <p className="error-text" style={{ marginTop: 8 }}>
-                {followupQuestionError}
-              </p>
-            ) : null}
-            {followupQuestionAnswer ? (
-              <div
-                style={{
-                  marginTop: 12,
-                  padding: 20,
-                  border: "1px solid var(--card-border)",
-                  borderRadius: 16,
-                  background: "var(--card-bg)",
-                }}
-              >
-                <ReactMarkdown
-                  className="result-card-markdown"
-                  components={{
-                    strong: ({ node, ...props }) => (
-                      <strong
-                        {...props}
-                        style={{ fontWeight: 600 }}
-                      />
-                    ),
-                    ul: ({ node, ...props }) => (
-                      <ul
-                        {...props}
-                        style={{ margin: "0.5rem 0 0.5rem 1.25rem", listStyleType: "disc" }}
-                      />
-                    ),
-                    li: ({ node, ...props }) => (
-                      <li
-                        {...props}
-                        style={{ marginBottom: "0.25rem" }}
-                      />
-                    ),
-                  }}
-                >
-                  {followupQuestionAnswer}
-                </ReactMarkdown>
-              </div>
-            ) : null}
-          </section>
-        </div>
-      </div>
-
-      <p
-        style={{
-          fontSize: 12,
-          color: "#666",
-          textAlign: "center",
-          padding: "0 16px",
-          lineHeight: 1.5,
-          marginTop: 16,
-        }}
-      >
-        If your dog has a bite history, please contact a certified trainer directly.
-      </p>
-
-      <div className="nav-row">
-        <button
-          type="button"
-          onClick={resetToStart}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#666",
-            fontSize: 14,
-            cursor: "pointer",
-            padding: "16px 0",
-            textDecoration: "underline",
-          }}
-        >
-          Start over
-        </button>
-      </div>
+          </div>
         </>
       ) : null}
 
       {showUserInterviewFloat ? (
-        <div className="result-interview-float" role="region" aria-label="Research invite">
+        <div
+          className="result-interview-float"
+          role="region"
+          aria-label="Research invite"
+        >
           <div className="result-interview-float__card">
             <p className="result-interview-float__text">
-              Help us improve Stay - 3 questions, 2 minutes. We read every response.
+              Help us improve Stay - 3 questions, 2 minutes. We read every
+              response.
             </p>
             <div className="result-interview-float__actions">
               <button
@@ -676,12 +615,20 @@ export default function TriageResult({
           >
             {interviewFlowPhase === "q1" ? (
               <>
-                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                <p
+                  id="result-interview-dialog-title"
+                  className="result-interview-modal__label"
+                >
                   Step 1 of 3
                 </p>
-                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
+                <p
+                  id="result-interview-dialog-desc"
+                  className="result-interview-modal__question"
+                >
                   Before you found Stay, what did you try when{" "}
-                  {hasDogName ? `${dogName} had this behavior?` : "your dog had this behavior?"}
+                  {hasDogName
+                    ? `${dogName} had this behavior?`
+                    : "your dog had this behavior?"}
                 </p>
                 <textarea
                   className="text-input result-interview-modal__textarea"
@@ -704,10 +651,16 @@ export default function TriageResult({
             ) : null}
             {interviewFlowPhase === "q2" ? (
               <>
-                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                <p
+                  id="result-interview-dialog-title"
+                  className="result-interview-modal__label"
+                >
                   Step 2 of 3
                 </p>
-                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
+                <p
+                  id="result-interview-dialog-desc"
+                  className="result-interview-modal__question"
+                >
                   What almost stopped you from finishing the triage just now?
                 </p>
                 <textarea
@@ -738,12 +691,18 @@ export default function TriageResult({
             ) : null}
             {interviewFlowPhase === "q3" ? (
               <>
-                <p id="result-interview-dialog-title" className="result-interview-modal__label">
+                <p
+                  id="result-interview-dialog-title"
+                  className="result-interview-modal__label"
+                >
                   Step 3 of 3
                 </p>
-                <p id="result-interview-dialog-desc" className="result-interview-modal__question">
-                  If this triage was helpful, who&apos;s the first person you&apos;d think to
-                  share it with?
+                <p
+                  id="result-interview-dialog-desc"
+                  className="result-interview-modal__question"
+                >
+                  If this triage was helpful, who&apos;s the first person
+                  you&apos;d think to share it with?
                 </p>
                 <textarea
                   className="text-input result-interview-modal__textarea"
@@ -753,7 +712,9 @@ export default function TriageResult({
                   autoFocus
                   aria-label="Your answer"
                 />
-                {interviewError ? <p className="error-text">{interviewError}</p> : null}
+                {interviewError ? (
+                  <p className="error-text">{interviewError}</p>
+                ) : null}
                 <div className="result-interview-modal__nav">
                   <button
                     type="button"
@@ -775,10 +736,16 @@ export default function TriageResult({
             ) : null}
             {interviewFlowPhase === "thanks" ? (
               <>
-                <p id="result-interview-dialog-title" className="result-interview-modal__thanks-title">
+                <p
+                  id="result-interview-dialog-title"
+                  className="result-interview-modal__thanks-title"
+                >
                   Thank you
                 </p>
-                <p id="result-interview-dialog-desc" className="result-interview-modal__thanks-body">
+                <p
+                  id="result-interview-dialog-desc"
+                  className="result-interview-modal__thanks-body"
+                >
                   We read every response.
                 </p>
                 <div className="result-interview-modal__nav">

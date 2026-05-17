@@ -55,66 +55,60 @@ export default function Question2({ intake, update, setScreen, currentStep }) {
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
 
-      <h2 style={{ animation: "fadeInUp 0.25s ease forwards" }}>When does it happen?</h2>
-      {selectedCount > 0 ? (
-        <p
-          style={{
-            fontSize: 13,
-            color: "var(--color-text-tertiary)",
-            marginTop: 6,
-            textAlign: "center",
-          }}
-        >
-          {selectedCount} selected
-        </p>
-      ) : null}
-      <p className="subtitle">Select all triggers that apply.</p>
+      <div className="q-section q-section--first">
+        <h2 className="section-heading">When does it happen?</h2>
+        <p className="subtitle">Select all triggers that apply.</p>
 
-      <div>
-        <div className="option-grid question-flow-option-grid">
-          {TRIGGERS.map((t) => (
-            <OptionButton
-              key={t}
-              label={t}
-              selected={triggersList.includes(t)}
-              onClick={() => toggleTrigger(t)}
-            />
-          ))}
+        <div>
+          <div className="option-grid question-flow-option-grid">
+            {TRIGGERS.map((t) => (
+              <OptionButton
+                key={t}
+                label={t}
+                selected={triggersList.includes(t)}
+                onClick={() => toggleTrigger(t)}
+              />
+            ))}
+          </div>
+          {selectedCount > 0 ? (
+            <p className="q-selected-count">
+              {selectedCount} selected
+            </p>
+          ) : null}
+          {triggersError ? (
+            <p
+              id="triggers-error"
+              className="error-text"
+              role="alert"
+            >
+              {triggersError}
+            </p>
+          ) : null}
         </div>
-        {triggersError ? (
-          <p
-            id="triggers-error"
-            className="error-text"
-            role="alert"
-            style={{ marginTop: 12, marginBottom: 0 }}
-          >
-            {triggersError}
-          </p>
-        ) : null}
       </div>
 
-      <h2 className="section-heading">How long has this been going on?</h2>
-      <p className="subtitle">Select the closest estimate.</p>
+      <div className="q-section">
+        <h2 className="section-heading">How long has this been going on?</h2>
+        <p className="subtitle">Select the closest estimate.</p>
 
-      <div>
-        <div className="option-grid">
-          {DURATIONS.map((d) => (
-            <OptionButton
-              key={d}
-              label={d}
-              selected={intake.duration === d}
-              onClick={() => {
-                if (durationError) setDurationError("");
-                update({ duration: d });
-              }}
-            />
-          ))}
+        <div>
+          <div className="option-grid">
+            {DURATIONS.map((d) => (
+              <OptionButton
+                key={d}
+                label={d}
+                selected={intake.duration === d}
+                onClick={() => {
+                  if (durationError) setDurationError("");
+                  update({ duration: d });
+                }}
+              />
+            ))}
+          </div>
+          {durationError ? (
+            <p className="error-text">{durationError}</p>
+          ) : null}
         </div>
-        {durationError ? (
-          <p className="error-text" style={{ marginTop: 8 }}>
-            {durationError}
-          </p>
-        ) : null}
       </div>
 
       <div className="nav-row nav-row--question">
