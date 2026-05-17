@@ -8,6 +8,38 @@ body {
   color: #f0f0ee;
 }
 
+/* ── BACKGROUND NOISE ── */
+.app {
+  position: relative;
+}
+
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4t5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqrmQDeuv3powQ5ta2eN0FY0InkqDD73lT9c9lEzwUNqgFHs9VQce3TVClFCQrSTfOiYkVJQBmpbq2L6iZavPnAPcoU0dSw0SUTqz/GtrGuXfbyyBniKykOWQWGqwwMA7QiYAxi+IlPdqo+hYHnUt5ZPfnsHJyNiDtnpJyayNBkF6cWoYGAMY92U2hXHF/C1M8uP/ZtYdiuj26UdAdQQSXQErwSOMzt/gjuRniZIERARpnxmfpiN6V8iB5OPrJM8GiS8nBExhVAuAhTUGZw9EVGdPcKZ7MS0qJDGEjCeIFOHoGAGAAqIHAqHAG0AH2YCGIANwCGYsIMAAeAFSFCABMCGkAOAhiHABkAABhCCNMDqAAChEKAACMAAKGAJAmIAABBBjAoAAgAJgAFAFIA");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app > .app-frame {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TYPOGRAPHY ── */
+h1,
+h2 {
+  font-family: "Instrument Serif", Georgia, serif;
+}
+
+.screen h2 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -53,11 +85,12 @@ body {
 }
 
 .result-card {
-  background: linear-gradient(135deg, #161614 0%, #111110 100%);
-  border: 1px solid #1e1e1c;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 input[type="text"],
@@ -148,11 +181,11 @@ textarea:focus {
 /* ── TRIAGE BADGE ── */
 .triage-badge {
   display: inline-block;
-  padding: 5px 14px;
+  padding: 8px 20px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -179,11 +212,13 @@ textarea:focus {
 
 /* ── RESULT CARDS ── */
 .result-card {
-  background: linear-gradient(145deg, #161614 0%, #111110 100%) !important;
-  border: 1px solid #242420 !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-radius: 16px !important;
   padding: 20px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: none !important;
   margin-bottom: 12px;
 }
 
@@ -203,10 +238,13 @@ textarea:focus {
 }
 
 .result-behavior-heading {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 12px 0 16px;
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-style: italic !important;
+  font-size: 32px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.2 !important;
+  margin: 12px 0 20px;
 }
 
 /* ── OPTION BUTTONS ── */
@@ -215,8 +253,8 @@ textarea:focus {
   text-align: left;
   padding: 13px 16px !important;
   border-radius: 12px !important;
-  border: 1px solid #222220 !important;
-  background: #111110 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
   color: #d4d4d0 !important;
   font-size: 15px;
   cursor: pointer;
@@ -225,13 +263,13 @@ textarea:focus {
 }
 
 .option-btn:hover {
-  border-color: #333330 !important;
-  background: #161614 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .option-btn.selected {
-  border-color: #ffffff !important;
-  background: #1a1a18 !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   color: #ffffff !important;
 }
 
@@ -301,11 +339,12 @@ textarea:focus {
 }
 
 .landing-hero h2 {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 12px;
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-size: 36px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.15 !important;
+  margin-bottom: 14px;
 }
 
 .landing-story-card {

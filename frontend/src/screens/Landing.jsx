@@ -136,14 +136,16 @@ export default function Landing({ setScreen }) {
         />
         <h2
           style={{
-            fontSize: 32,
-            fontWeight: 700,
-            lineHeight: 1.2,
-            letterSpacing: "-0.02em",
-            marginBottom: 12,
+            fontFamily: "'Instrument Serif', Georgia, serif",
+            fontSize: 36,
+            fontWeight: 400,
+            lineHeight: 1.15,
+            letterSpacing: "-0.01em",
+            marginBottom: 14,
           }}
         >
-          Something happened with your dog.
+          <span>Something happened with </span>
+          <span style={{ fontStyle: "italic" }}>your dog.</span>
         </h2>
         <p className="subtitle">
           Answer a few questions and we'll help you figure out what's driving it - and
