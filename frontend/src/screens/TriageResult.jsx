@@ -326,7 +326,7 @@ export default function TriageResult({
         <>
           {/* Salutation — sets a warm, personal tone before any clinical info */}
           {hasDogName ? (
-            <p className="result-salutation">About {dogNameSentenceCase},</p>
+            <p className="result-salutation">{dogNameSentenceCase}</p>
           ) : (
             <p className="result-salutation">Here&apos;s what we&apos;re seeing.</p>
           )}
