@@ -114,7 +114,7 @@ export default function Landing({ setScreen }) {
           No account required
         </p>
         <p className="landing-meta">
-          15 dogs helped
+          18 dogs helped
           <span className="landing-meta-divider" aria-hidden="true" />
           2 minutes
           <span className="landing-meta-divider" aria-hidden="true" />
