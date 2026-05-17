@@ -49,14 +49,11 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
   return (
     <div className="screen">
       <ProgressBar step={currentStep} total={4} />
-      <label
-        className="field-label"
-        htmlFor="dog-name-input"
-        style={{ animation: "fadeInUp 0.25s ease forwards" }}
-      >
-        What&apos;s your dog&apos;s name?
-      </label>
-      <div style={{ marginBottom: 24 }}>
+
+      <div className="q-section q-section--first">
+        <label className="field-label" htmlFor="dog-name-input">
+          What&apos;s your dog&apos;s name?
+        </label>
         <input
           id="dog-name-input"
           type="text"
@@ -70,44 +67,27 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
           aria-invalid={dogNameError ? "true" : undefined}
           aria-describedby={dogNameError ? "dog-name-error" : undefined}
           required
-          style={{ width: "100%" }}
         />
         {dogNameError ? (
-          <p id="dog-name-error" className="error-text" style={{ marginTop: 8, marginBottom: 0 }}>
+          <p id="dog-name-error" className="error-text">
             {dogNameError}
           </p>
         ) : null}
       </div>
 
-      <h2>What&apos;s going on?</h2>
-      <p className="subtitle">Select the behavior you're most concerned about.</p>
+      <div className="q-section">
+        <h2 className="section-heading">What&apos;s going on?</h2>
+        <p className="subtitle">Select the behavior you&apos;re most concerned about.</p>
 
-      <div style={{ marginBottom: 12 }}>
-        <p className="field-label" style={{ marginBottom: 6 }}>
-          Owner experience
-        </p>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            flexWrap: "nowrap",
-            overflowX: "auto",
-          }}
-        >
+        <label className="field-label">Owner experience</label>
+        <div className="q-pill-row" role="group" aria-label="Owner experience">
           {OWNER_EXPERIENCE_OPTIONS.map((opt) => {
             const selected = intake.owner_experience === opt;
             return (
               <button
                 key={opt}
                 type="button"
-                className={`option-btn${selected ? " selected" : ""}`}
-                style={{
-                  width: "auto",
-                  padding: "6px 12px",
-                  fontSize: 13,
-                  borderRadius: 999,
-                  flexShrink: 0,
-                }}
+                className={`option-btn option-btn--pill${selected ? " selected" : ""}`}
                 onClick={() =>
                   update({
                     owner_experience: selected ? null : opt,
@@ -119,83 +99,71 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
             );
           })}
         </div>
-      </div>
 
-      <div>
-        <div className="option-grid question-flow-option-grid">
-          {BEHAVIOR_TYPES.map((type) => (
-            <OptionButton
-              key={type}
-              label={type}
-              selected={intake.behavior_type === type}
-              onClick={() => {
-                if (behaviorError) setBehaviorError("");
-                update({ behavior_type: type });
-              }}
-            />
-          ))}
+        <div style={{ marginTop: 24 }}>
+          <div className="option-grid question-flow-option-grid">
+            {BEHAVIOR_TYPES.map((type) => (
+              <OptionButton
+                key={type}
+                label={type}
+                selected={intake.behavior_type === type}
+                onClick={() => {
+                  if (behaviorError) setBehaviorError("");
+                  update({ behavior_type: type });
+                }}
+              />
+            ))}
+          </div>
+          {behaviorError ? (
+            <p className="error-text">{behaviorError}</p>
+          ) : null}
         </div>
-        {behaviorError ? (
-          <p className="error-text" style={{ marginTop: 8 }}>
-            {behaviorError}
-          </p>
-        ) : null}
-      </div>
 
-      <label className="sudden-onset-toggle">
-        <input
-          type="checkbox"
-          checked={Boolean(intake.sudden_onset)}
-          onChange={(e) => update({ sudden_onset: e.target.checked })}
-        />
-        <span>This started suddenly or my dog seems different lately</span>
-      </label>
-
-      {intake.behavior_type && (
-        <>
-          <label className="field-label" htmlFor="behavior-intensity">
-            How intense is it on a bad day?
-          </label>
+        <label className="sudden-onset-toggle">
           <input
-            id="behavior-intensity"
-            type="range"
-            min="1"
-            max="3"
-            step="1"
-            value={intensityValue}
-            onChange={(e) =>
-              update({ behavior_intensity: Number(e.target.value) || 2 })
-            }
-            style={{
-              width: "100%",
-              marginBottom: 6,
-              accentColor: "#ffffff",
-            }}
+            type="checkbox"
+            checked={Boolean(intake.sudden_onset)}
+            onChange={(e) => update({ sudden_onset: e.target.checked })}
           />
-          <p
-            style={{
-              fontSize: 13,
-              color: "var(--color-text-secondary)",
-              margin: "0 0 16px",
-              textAlign: "center",
-            }}
-          >
-            {INTENSITY_LABELS[intensityValue] || "Moderate"}
-          </p>
-          <label className="field-label" htmlFor="behavior-desc">
-            Describe what happens (optional)
-          </label>
-          <textarea
-            id="behavior-desc"
-            className="text-input"
-            placeholder="e.g. My dog lunges at strangers who come to the door..."
-            value={intake.behavior_description || ""}
-            onChange={(e) =>
-              update({ behavior_description: e.target.value || null })
-            }
-          />
-        </>
-      )}
+          <span>This started suddenly or my dog seems different lately</span>
+        </label>
+
+        {intake.behavior_type && (
+          <>
+            <label className="field-label" htmlFor="behavior-intensity">
+              How intense is it on a bad day?
+            </label>
+            <input
+              id="behavior-intensity"
+              type="range"
+              className="q-intensity"
+              min="1"
+              max="3"
+              step="1"
+              value={intensityValue}
+              onChange={(e) =>
+                update({ behavior_intensity: Number(e.target.value) || 2 })
+              }
+            />
+            <p className="q-intensity-label">
+              {INTENSITY_LABELS[intensityValue] || "Moderate"}
+            </p>
+
+            <label className="field-label" htmlFor="behavior-desc">
+              Describe what happens (optional)
+            </label>
+            <textarea
+              id="behavior-desc"
+              className="text-input"
+              placeholder="e.g. My dog lunges at strangers who come to the door..."
+              value={intake.behavior_description || ""}
+              onChange={(e) =>
+                update({ behavior_description: e.target.value || null })
+              }
+            />
+          </>
+        )}
+      </div>
 
       <div className="nav-row nav-row--question">
         <button
