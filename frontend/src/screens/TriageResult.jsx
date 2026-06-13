@@ -52,14 +52,6 @@ export default function TriageResult({
   const hasSessionId = sessionId !== null && sessionId !== undefined;
   const [redGateDismissed, setRedGateDismissed] = useState(false);
 
-  const [interviewEverHandled, setInterviewEverHandled] = useState(false);
-  const [interviewDeadlinePassed, setInterviewDeadlinePassed] = useState(false);
-  const [interviewFlowPhase, setInterviewFlowPhase] = useState(null);
-  const [interviewQ1, setInterviewQ1] = useState("");
-  const [interviewQ2, setInterviewQ2] = useState("");
-  const [interviewQ3, setInterviewQ3] = useState("");
-  const [interviewSubmitting, setInterviewSubmitting] = useState(false);
-  const [interviewError, setInterviewError] = useState(null);
   const [rootCauseExpanded, setRootCauseExpanded] = useState(false);
 
   useEffect(() => {
@@ -83,34 +75,6 @@ export default function TriageResult({
   useEffect(() => {
     setRedGateDismissed(false);
   }, [result?.session_id]);
-
-  useEffect(() => {
-    if (!sessionId) {
-      setInterviewEverHandled(false);
-      return;
-    }
-    try {
-      const v = sessionStorage.getItem(`stay_user_interview_${sessionId}`);
-      setInterviewEverHandled(v === "dismissed" || v === "submitted");
-    } catch {
-      setInterviewEverHandled(false);
-    }
-  }, [sessionId]);
-
-  useEffect(() => {
-    setInterviewDeadlinePassed(false);
-    setInterviewFlowPhase(null);
-    setInterviewQ1("");
-    setInterviewQ2("");
-    setInterviewQ3("");
-    setInterviewError(null);
-  }, [sessionId]);
-
-  useEffect(() => {
-    if (!hasSessionId || interviewEverHandled) return undefined;
-    const t = window.setTimeout(() => setInterviewDeadlinePassed(true), 60_000);
-    return () => window.clearTimeout(t);
-  }, [hasSessionId, sessionId, interviewEverHandled]);
 
   if (!result) return null;
 
@@ -202,54 +166,7 @@ export default function TriageResult({
     }
   };
 
-  const handleUserInterviewDismiss = () => {
-    if (!sessionId) return;
-    try {
-      sessionStorage.setItem(`stay_user_interview_${sessionId}`, "dismissed");
-    } catch {
-      /* ignore */
-    }
-    setInterviewEverHandled(true);
-  };
-
-  const handleUserInterviewAccept = () => {
-    setInterviewFlowPhase("q1");
-    setInterviewError(null);
-  };
-
-  const handleUserInterviewSubmit = async () => {
-    if (!sessionId) return;
-    setInterviewSubmitting(true);
-    setInterviewError(null);
-    try {
-      try {
-        sessionStorage.setItem(`stay_user_interview_${sessionId}`, "submitted");
-      } catch {
-        /* ignore */
-      }
-      setInterviewFlowPhase("thanks");
-    } catch (e) {
-      setInterviewError(
-        sanitizeApiErrorMessage(e.message || "Something went wrong")
-      );
-    } finally {
-      setInterviewSubmitting(false);
-    }
-  };
-
-  const handleUserInterviewModalClose = () => {
-    setInterviewFlowPhase(null);
-    setInterviewEverHandled(true);
-  };
-
   const showRedGate = severityKey === "red" && !redGateDismissed;
-  const showUserInterviewFloat =
-    hasSessionId &&
-    interviewDeadlinePassed &&
-    !showRedGate &&
-    !interviewEverHandled &&
-    interviewFlowPhase === null;
-  const showUserInterviewModal = interviewFlowPhase !== null;
 
   if (!hasSessionId) {
     return (
@@ -429,6 +346,23 @@ export default function TriageResult({
                   {followupError && (
                     <p className="error-text">{followupError}</p>
                   )}
+                  <div className="friend-share-link-row">
+                    <button
+                      type="button"
+                      className="friend-share-link"
+                      onClick={handleSendToFriend}
+                    >
+                      Send to a friend
+                    </button>
+                    {friendShareCopied ? (
+                      <span
+                        className="friend-share-link-copied"
+                        role="status"
+                      >
+                        Copied
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               ) : (
                 <div className="followup-section followup-section--success follow-up-section">
@@ -436,31 +370,30 @@ export default function TriageResult({
                     We&apos;ll check in on{" "}
                     {hasDogName ? dogName : "your dog"} in 7 days.
                   </p>
+                  <div className="friend-share-link-row">
+                    <button
+                      type="button"
+                      className="friend-share-link"
+                      onClick={handleSendToFriend}
+                    >
+                      Send to a friend
+                    </button>
+                    {friendShareCopied ? (
+                      <span
+                        className="friend-share-link-copied"
+                        role="status"
+                      >
+                        Copied
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               )}
 
               <section
-                className="friend-share-section share-section"
-                aria-label="Send Stay to a friend"
-              >
-                <button
-                  type="button"
-                  className="btn btn-secondary friend-share-btn"
-                  onClick={handleSendToFriend}
-                >
-                  Send to a friend
-                </button>
-                {friendShareCopied ? (
-                  <p className="friend-share-copied" role="status">
-                    Copied to clipboard
-                  </p>
-                ) : null}
-              </section>
-
-              <section
                 className="result-card"
                 aria-labelledby="followup-question-heading"
-                style={{ marginTop: 28 }}
+                style={{ marginTop: 12 }}
               >
                 <p
                   id="followup-question-heading"
@@ -549,8 +482,6 @@ export default function TriageResult({
           <p className="result-closing">
             If {hasDogName ? dogName : "your dog"} has a bite history, please
             contact a certified trainer directly.
-            <br />
-            <strong>— Stay</strong>
           </p>
 
           <div className="nav-row" style={{ justifyContent: "center" }}>
@@ -563,204 +494,6 @@ export default function TriageResult({
             </button>
           </div>
         </>
-      ) : null}
-
-      {showUserInterviewFloat ? (
-        <div
-          className="result-interview-float"
-          role="region"
-          aria-label="Research invite"
-        >
-          <div className="result-interview-float__card">
-            <p className="result-interview-float__text">
-              Help us improve Stay - 3 questions, 2 minutes. We read every
-              response.
-            </p>
-            <div className="result-interview-float__actions">
-              <button
-                type="button"
-                className="btn btn-primary result-interview-float__btn-primary"
-                onClick={handleUserInterviewAccept}
-              >
-                Sure, I&apos;ll help
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary result-interview-float__btn-dismiss"
-                onClick={handleUserInterviewDismiss}
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {showUserInterviewModal ? (
-        <div
-          className="result-interview-modal__backdrop"
-          role="presentation"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && interviewFlowPhase === "thanks") {
-              handleUserInterviewModalClose();
-            }
-          }}
-        >
-          <div
-            className="result-interview-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="result-interview-dialog-title"
-            aria-describedby="result-interview-dialog-desc"
-          >
-            {interviewFlowPhase === "q1" ? (
-              <>
-                <p
-                  id="result-interview-dialog-title"
-                  className="result-interview-modal__label"
-                >
-                  Step 1 of 3
-                </p>
-                <p
-                  id="result-interview-dialog-desc"
-                  className="result-interview-modal__question"
-                >
-                  Before you found Stay, what did you try when{" "}
-                  {hasDogName
-                    ? `${dogName} had this behavior?`
-                    : "your dog had this behavior?"}
-                </p>
-                <textarea
-                  className="text-input result-interview-modal__textarea"
-                  rows={5}
-                  value={interviewQ1}
-                  onChange={(e) => setInterviewQ1(e.target.value)}
-                  autoFocus
-                  aria-label="Your answer"
-                />
-                <div className="result-interview-modal__nav">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setInterviewFlowPhase("q2")}
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            ) : null}
-            {interviewFlowPhase === "q2" ? (
-              <>
-                <p
-                  id="result-interview-dialog-title"
-                  className="result-interview-modal__label"
-                >
-                  Step 2 of 3
-                </p>
-                <p
-                  id="result-interview-dialog-desc"
-                  className="result-interview-modal__question"
-                >
-                  What almost stopped you from finishing the triage just now?
-                </p>
-                <textarea
-                  className="text-input result-interview-modal__textarea"
-                  rows={5}
-                  value={interviewQ2}
-                  onChange={(e) => setInterviewQ2(e.target.value)}
-                  autoFocus
-                  aria-label="Your answer"
-                />
-                <div className="result-interview-modal__nav">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setInterviewFlowPhase("q1")}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setInterviewFlowPhase("q3")}
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            ) : null}
-            {interviewFlowPhase === "q3" ? (
-              <>
-                <p
-                  id="result-interview-dialog-title"
-                  className="result-interview-modal__label"
-                >
-                  Step 3 of 3
-                </p>
-                <p
-                  id="result-interview-dialog-desc"
-                  className="result-interview-modal__question"
-                >
-                  If this triage was helpful, who&apos;s the first person
-                  you&apos;d think to share it with?
-                </p>
-                <textarea
-                  className="text-input result-interview-modal__textarea"
-                  rows={5}
-                  value={interviewQ3}
-                  onChange={(e) => setInterviewQ3(e.target.value)}
-                  autoFocus
-                  aria-label="Your answer"
-                />
-                {interviewError ? (
-                  <p className="error-text">{interviewError}</p>
-                ) : null}
-                <div className="result-interview-modal__nav">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setInterviewFlowPhase("q2")}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleUserInterviewSubmit}
-                    disabled={interviewSubmitting}
-                  >
-                    {interviewSubmitting ? "Sending..." : "Submit"}
-                  </button>
-                </div>
-              </>
-            ) : null}
-            {interviewFlowPhase === "thanks" ? (
-              <>
-                <p
-                  id="result-interview-dialog-title"
-                  className="result-interview-modal__thanks-title"
-                >
-                  Thank you
-                </p>
-                <p
-                  id="result-interview-dialog-desc"
-                  className="result-interview-modal__thanks-body"
-                >
-                  We read every response.
-                </p>
-                <div className="result-interview-modal__nav">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleUserInterviewModalClose}
-                  >
-                    Close
-                  </button>
-                </div>
-              </>
-            ) : null}
-          </div>
-        </div>
       ) : null}
     </div>
   );
