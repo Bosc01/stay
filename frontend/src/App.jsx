@@ -54,6 +54,16 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const ping = () => {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/health`)
+        .catch(() => {});
+    };
+    ping();
+    const interval = setInterval(ping, 4 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const update = (fields) => setIntake((prev) => ({ ...prev, ...fields }));
   const currentStep = SCREENS.indexOf(screen);
 
