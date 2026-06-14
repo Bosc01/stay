@@ -293,6 +293,20 @@ export default function TriageResult({
             ) : null}
           </section>
 
+          <p
+            style={{
+              fontSize: 13,
+              color: '#8a7a6a',
+              textAlign: 'center',
+              marginTop: 8,
+              marginBottom: 16,
+              fontStyle: 'italic',
+            }}
+          >
+            This is our best read of the situation, not a clinical diagnosis.
+            Every dog is different.
+          </p>
+
           {/* What to try today — the second, action-oriented paragraph */}
           <section
             className="result-card result-card--first-step"
