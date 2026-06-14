@@ -32,7 +32,7 @@ const SECTIONS = [
   {
     heading: "The problem",
     body:
-      "28% of dogs surrendered to shelters are given up because of behavioral issues. Most of those issues are fixable. The owners just did not have anyone to tell them that at the right moment — right after adoption, when the dog was showing the first signs of a problem and the owner was scared and Googling at midnight. Stay is built for that moment.",
+      "28% of dogs surrendered to shelters are given up because of behavioral issues. Most of those issues are fixable. The owners just did not have anyone to tell them that at the right moment. Stay is built for that moment: right after adoption, when the owner is scared and Googling at midnight.",
   },
   {
     heading: "What it does",
@@ -42,12 +42,12 @@ const SECTIONS = [
   {
     heading: "Key product decision",
     body:
-      "The severity system is not cosmetic. A red classification overrides the standard result and tells the owner to contact a professional directly — the app does not try to handle cases it should not handle. That boundary was a deliberate product safety decision, not a technical limitation.",
+      "The severity system is not cosmetic. A red classification overrides the standard result and tells the owner to contact a professional directly. The app does not try to handle cases it should not handle. That boundary was a deliberate product safety decision, not a technical limitation.",
   },
   {
     heading: "What the data shows",
     body:
-      "43 sessions across the pilot. 58% of cases classified as yellow — owners who needed support but not an emergency intervention. Fear-based reactivity accounts for 58% of all presenting issues, consistent with what shelter intake data shows nationally.",
+      "43 sessions across the pilot. 58% of cases classified as yellow, owners who needed support but not an emergency intervention. Fear-based reactivity accounts for 58% of all presenting issues, consistent with what shelter intake data shows nationally.",
   },
   {
     heading: "Stack",
@@ -70,7 +70,6 @@ export default function CaseStudy() {
             ← Back to Stay
           </Link>
 
-          <p className="result-salutation">A case study</p>
           <h1 className="result-behavior-heading">How Stay was built</h1>
 
           {SECTIONS.map((section) => (
