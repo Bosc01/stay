@@ -64,6 +64,10 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen]);
+
   const update = (fields) => setIntake((prev) => ({ ...prev, ...fields }));
   const currentStep = SCREENS.indexOf(screen);
 
