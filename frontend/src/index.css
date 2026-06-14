@@ -1309,6 +1309,14 @@ input[type="range"].q-intensity {
   color: var(--amber-300);
 }
 
+.site-footer__sep {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  color: var(--paper-300);
+  margin: 0 10px;
+  opacity: 0.5;
+}
+
 .ios-install-banner {
   background: var(--ink-800);
   border-top: 1px solid rgba(245, 235, 219, 0.06);

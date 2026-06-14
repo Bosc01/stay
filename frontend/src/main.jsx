@@ -8,6 +8,7 @@ import ShelterPage from "./screens/ShelterPage.jsx";
 import AdminDashboard from "./screens/AdminDashboard.jsx";
 import PrintCard from "./screens/PrintCard.jsx";
 import ImpactPage from "./screens/ImpactPage.jsx";
+import CaseStudy from "./screens/CaseStudy.jsx";
 import "./App.css";
 import "./index.css";
 
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/print" element={<PrintCard />} />
         <Route path="/impact" element={<ImpactPage />} />
+        <Route path="/case-study" element={<CaseStudy />} />
         <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>
