@@ -47,12 +47,12 @@ const SECTIONS = [
   {
     heading: "What the data shows",
     body:
-      "43 sessions across the pilot. 58% of cases classified as yellow, owners who needed support but not an emergency intervention. Fear-based reactivity accounts for 58% of all presenting issues, consistent with what shelter intake data shows nationally.",
+      "58% of cases classified as yellow, owners who needed support but not an emergency intervention. Fear-based reactivity accounts for 58% of all presenting issues, consistent with what shelter intake data shows nationally. The pilot is early and ongoing. Distribution started through dog owner communities in June 2026.",
   },
   {
     heading: "Stack",
     body:
-      "React and Vite on Vercel. FastAPI on Render. Supabase for session persistence. Anthropic Claude API for triage and follow-up questions. Resend for email follow-ups.",
+      "React and Vite on Vercel. FastAPI on Render. Supabase for session persistence. Anthropic Claude API for triage and follow-up questions. Resend for email follow-ups. Built and deployed solo over roughly 6 weeks while in school full time.",
   },
 ];
 
