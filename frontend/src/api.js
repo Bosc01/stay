@@ -144,6 +144,21 @@ export async function submitFollowupQuestion({
   return res.json();
 }
 
+export async function submitAsk({ question }) {
+  const res = await fetch(apiUrl("/ask"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Could not get an answer right now.");
+  }
+
+  return res.json();
+}
+
 /** Public shelter impact metrics (no admin password). */
 export async function fetchShelterImpactStats(ref) {
   const q = new URLSearchParams({ ref });

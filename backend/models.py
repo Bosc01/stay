@@ -88,6 +88,10 @@ class FollowupQuestionRequest(BaseModel):
     original_triage: dict
 
 
+class AskRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=3000)
+
+
 class ShelterInquiryCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     shelter_name: str = Field(..., min_length=1, max_length=200)

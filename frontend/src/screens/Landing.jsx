@@ -108,6 +108,23 @@ export default function Landing({ setScreen }) {
           Tell us what's going on
         </button>
 
+        <button
+          type="button"
+          onClick={() => setScreen("ask")}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#8a7a6a",
+            fontSize: 14,
+            cursor: "pointer",
+            marginTop: 12,
+            textDecoration: "underline",
+            fontFamily: "inherit",
+          }}
+        >
+          Already know what you want to ask?
+        </button>
+
         <p className="landing-meta">
           Free
           <span className="landing-meta-divider" aria-hidden="true" />

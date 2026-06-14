@@ -5,11 +5,12 @@ import Question1 from "./screens/Question1.jsx";
 import Question2 from "./screens/Question2.jsx";
 import Question3 from "./screens/Question3.jsx";
 import TriageResult from "./screens/TriageResult.jsx";
+import Ask from "./screens/Ask.jsx";
 import SiteFooter from "./components/SiteFooter.jsx";
 import StayHeaderLogo from "./components/StayHeaderLogo.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
-const SCREENS = ["landing", "q1", "q2", "q3", "result"];
+const SCREENS = ["landing", "q1", "q2", "q3", "result", "ask"];
 
 const INITIAL_INTAKE = {
   behavior_type: "",
@@ -154,6 +155,11 @@ export default function App() {
                 sessionId={result?.session_id ?? null}
                 resetToStart={resetToStart}
               />
+            </ErrorBoundary>
+          )}
+          {screen === "ask" && (
+            <ErrorBoundary>
+              <Ask {...props} />
             </ErrorBoundary>
           )}
         </main>
