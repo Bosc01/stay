@@ -37,7 +37,7 @@ const SECTIONS = [
   {
     heading: "What it does",
     body:
-      "Owners answer 3 questions about their dog's behavior. Stay returns a plain-language explanation of what is probably driving it, a severity classification (manageable at home, try this but consider support, or get help now), and one specific first step to try today. A follow-up question feature lets owners ask Claude directly about their specific situation after reading their result.",
+      "Owners answer 3 questions about their dog's behavior. Stay returns a plain-language explanation of what is probably driving it, a severity classification (manageable at home, try this but consider support, or get help now), and one specific first step to try today. Owners can also skip the structured flow entirely and ask a direct question from the landing screen, for cases where they already know what they want to understand.",
   },
   {
     heading: "Key product decision",
