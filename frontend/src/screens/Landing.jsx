@@ -110,17 +110,8 @@ export default function Landing({ setScreen }) {
 
         <button
           type="button"
+          className="landing-ask-link"
           onClick={() => setScreen("ask")}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#8a7a6a",
-            fontSize: 14,
-            cursor: "pointer",
-            marginTop: 12,
-            textDecoration: "underline",
-            fontFamily: "inherit",
-          }}
         >
           Already know what you want to ask?
         </button>

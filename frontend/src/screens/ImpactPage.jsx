@@ -63,7 +63,7 @@ export default function ImpactPage() {
             <StayHeaderLogo />
           </Link>
         </header>
-        <main className="app-main impact-page">
+        <main className="app-main app-main--wide impact-page">
           <h1 className="impact-page__headline">Real dogs. Real outcomes.</h1>
 
           {error ? <p className="error-text impact-page__error">{error}</p> : null}

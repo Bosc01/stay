@@ -10,9 +10,13 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: "40px 24px", textAlign: "center" }}>
-          <p style={{ fontSize: 18, marginBottom: 12 }}>Something went wrong.</p>
-          <button type="button" onClick={() => (window.location.href = "/")}>
+        <div className="error-fallback" role="alert">
+          <p className="error-fallback__message">Something went wrong.</p>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => (window.location.href = "/")}
+          >
             Go back to Stay
           </button>
         </div>

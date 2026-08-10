@@ -100,7 +100,7 @@ export default function Question1({ intake, update, setScreen, currentStep }) {
           })}
         </div>
 
-        <div style={{ marginTop: 24 }}>
+        <div className="q-field">
           <div className="option-grid question-flow-option-grid">
             {BEHAVIOR_TYPES.map((type) => (
               <OptionButton
