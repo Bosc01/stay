@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ProgressBar from "../components/ProgressBar.jsx";
+import TriageSkeleton from "../components/TriageSkeleton.jsx";
 import { submitTriage } from "../api.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 
@@ -104,55 +105,32 @@ export default function Question3({
       <ProgressBar step={currentStep} total={4} />
 
       {loading ? (
-        <div
-          className="result-screen"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 200,
-            padding: "24px 16px",
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: 14,
-              color: "#888",
-              textAlign: "center",
-            }}
-          >
+        <div className="result-screen triage-loading">
+          <TriageSkeleton />
+          <p className="triage-loading__caption" aria-live="polite">
             This usually takes about 10 seconds.
           </p>
         </div>
       ) : (
         <>
-          <h2 style={{ animation: "fadeInUp 0.25s ease forwards" }}>
-            What have you tried so far?
-          </h2>
+          <h2 className="section-heading">What have you tried so far?</h2>
           <p className="subtitle">
             Tell us about any training, vet visits, or changes you&apos;ve already
             made.
           </p>
 
-          <div style={{ marginBottom: 12 }}>
-            <p className="field-label" style={{ marginBottom: 6 }}>
-              Has your dog seen a trainer?
-            </p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div className="q-field q-field--tight">
+            <p className="field-label">Has your dog seen a trainer?</p>
+            <div className="q-pill-row">
               {PRIOR_TRAINING_OPTIONS.map((opt) => {
                 const selected = intake.prior_training === opt;
                 return (
                   <button
                     key={opt}
                     type="button"
-                    className={`option-btn${selected ? " selected" : ""}`}
-                    style={{
-                      width: "auto",
-                      padding: "6px 12px",
-                      fontSize: 13,
-                      borderRadius: 999,
-                    }}
+                    className={`option-btn option-btn--pill${
+                      selected ? " selected" : ""
+                    }`}
                     onClick={() =>
                       update({
                         prior_training: selected ? null : opt,
@@ -168,20 +146,7 @@ export default function Question3({
           </div>
 
           {showSupportBanner ? (
-            <div
-              role="note"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "0.5px solid rgba(255,255,255,0.12)",
-                borderLeft: "3px solid #4ade80",
-                borderRadius: 8,
-                padding: "12px 14px",
-                marginBottom: 12,
-                fontSize: 13,
-                color: "var(--color-text-secondary)",
-                lineHeight: 1.6,
-              }}
-            >
+            <div role="note" className="q-support-note">
               You&apos;re not out of options. Most behavioral issues are more workable than they
               feel in the moment. Let&apos;s figure out what&apos;s actually going on.
             </div>
@@ -193,11 +158,10 @@ export default function Question3({
           >
             <textarea
               id="already-tried-input"
-              className="text-input"
+              className="text-input text-input--tall"
               placeholder="e.g. We tried a trainer for 3 sessions, vet said no medical issues..."
               value={intake.already_tried}
               onChange={(e) => update({ already_tried: e.target.value })}
-              style={{ minHeight: 140 }}
               disabled={loading}
             />
           </div>
@@ -217,11 +181,13 @@ export default function Question3({
         </button>
         <button
           type="button"
-          className="btn btn-primary question-primary-btn"
+          className={`btn btn-primary question-primary-btn${
+            loading ? " btn-analyzing" : ""
+          }`}
           disabled={loading}
           onClick={handlePrimaryClick}
         >
-          {loading ? "Analyzing..." : "See what's going on"}
+          {loading ? "Reading your answers" : "See what's going on"}
         </button>
       </div>
     </div>

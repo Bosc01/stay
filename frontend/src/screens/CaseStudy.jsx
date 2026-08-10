@@ -2,32 +2,6 @@ import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter.jsx";
 import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
-const SECTION_HEADING_STYLE = {
-  fontFamily: '"Instrument Serif", Georgia, serif',
-  fontStyle: "italic",
-  fontWeight: 400,
-  fontSize: 24,
-  lineHeight: 1.2,
-  color: "var(--paper-50)",
-  margin: "0 0 14px",
-  letterSpacing: "-0.005em",
-};
-
-const BACK_LINK_STYLE = {
-  display: "inline-block",
-  margin: "0 0 18px",
-  fontFamily: '"Fraunces", serif',
-  fontSize: 14,
-  color: "var(--paper-300)",
-  textDecoration: "none",
-};
-
-const CTA_WRAP_STYLE = {
-  margin: "28px 0 8px",
-  display: "flex",
-  justifyContent: "center",
-};
-
 const SECTIONS = [
   {
     heading: "The problem",
@@ -65,30 +39,32 @@ export default function CaseStudy() {
             <StayHeaderLogo />
           </Link>
         </header>
-        <main className="app-main">
-          <Link to="/" style={BACK_LINK_STYLE}>
-            ← Back to Stay
-          </Link>
+        <main className="app-main app-main--wide">
+          <article className="case-article">
+            <Link to="/" className="case-article__back">
+              ← Back to Stay
+            </Link>
 
-          <h1 className="result-behavior-heading">How Stay was built</h1>
+            <h1 className="result-behavior-heading">How Stay was built</h1>
 
-          {SECTIONS.map((section) => (
-            <section key={section.heading} className="result-card">
-              <h2 style={SECTION_HEADING_STYLE}>{section.heading}</h2>
-              <p className="result-card-body">{section.body}</p>
-            </section>
-          ))}
+            {SECTIONS.map((section) => (
+              <section key={section.heading} className="case-article__section">
+                <h2 className="case-article__heading">{section.heading}</h2>
+                <p className="case-article__body">{section.body}</p>
+              </section>
+            ))}
 
-          <div style={CTA_WRAP_STYLE}>
-            <a
-              className="btn btn-primary"
-              href="https://trystay.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Try Stay
-            </a>
-          </div>
+            <div className="case-article__cta">
+              <a
+                className="btn btn-primary"
+                href="https://trystay.org"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Try Stay
+              </a>
+            </div>
+          </article>
         </main>
         <SiteFooter />
       </div>

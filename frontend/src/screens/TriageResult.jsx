@@ -224,14 +224,12 @@ export default function TriageResult({
             href="https://www.dacvb.org/search/custom.asp?id=4803"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ width: "100%", boxSizing: "border-box", marginBottom: 10 }}
           >
             Find a certified behaviorist
           </a>
           <button
             type="button"
             className="btn btn-secondary"
-            style={{ width: "100%" }}
             onClick={() => setRedGateDismissed(true)}
           >
             See full triage anyway
@@ -284,25 +282,13 @@ export default function TriageResult({
               ) : null}
             </p>
             {rootCauseExpanded && hasHonestNote ? (
-              <p
-                className="result-card-body result-card-body--muted"
-                style={{ marginTop: 14 }}
-              >
+              <p className="result-card-body result-card-body--muted">
                 {honestNoteText}
               </p>
             ) : null}
           </section>
 
-          <p
-            style={{
-              fontSize: 13,
-              color: '#8a7a6a',
-              textAlign: 'center',
-              marginTop: 8,
-              marginBottom: 16,
-              fontStyle: 'italic',
-            }}
-          >
+          <p className="result-disclaimer">
             This is our best read of the situation, not a clinical diagnosis.
             Every dog is different.
           </p>
@@ -405,9 +391,8 @@ export default function TriageResult({
               )}
 
               <section
-                className="result-card"
+                className="result-card result-card--followup"
                 aria-labelledby="followup-question-heading"
-                style={{ marginTop: 12 }}
               >
                 <p
                   id="followup-question-heading"
@@ -417,7 +402,7 @@ export default function TriageResult({
                   {hasDogName ? `${dogNameSentenceCase}'s` : "your dog's"}{" "}
                   situation?
                 </p>
-                <div className="followup-row" style={{ marginTop: 4 }}>
+                <div className="followup-row">
                   <input
                     type="text"
                     className="email-input"
@@ -454,38 +439,8 @@ export default function TriageResult({
                   <p className="error-text">{followupQuestionError}</p>
                 ) : null}
                 {followupQuestionAnswer ? (
-                  <div
-                    style={{
-                      marginTop: 16,
-                      paddingTop: 16,
-                      borderTop: "1px solid rgba(245, 235, 219, 0.08)",
-                    }}
-                  >
-                    <ReactMarkdown
-                      className="result-card-markdown"
-                      components={{
-                        strong: ({ node, ...props }) => (
-                          <strong {...props} style={{ fontWeight: 600 }} />
-                        ),
-                        ul: ({ node, ...props }) => (
-                          <ul
-                            {...props}
-                            style={{
-                              margin: "0.5rem 0 0.5rem 1.25rem",
-                              listStyleType: "disc",
-                            }}
-                          />
-                        ),
-                        li: ({ node, ...props }) => (
-                          <li
-                            {...props}
-                            style={{ marginBottom: "0.25rem" }}
-                          />
-                        ),
-                      }}
-                    >
-                      {followupQuestionAnswer}
-                    </ReactMarkdown>
+                  <div className="followup-answer result-card-markdown">
+                    <ReactMarkdown>{followupQuestionAnswer}</ReactMarkdown>
                   </div>
                 ) : null}
               </section>
@@ -498,7 +453,7 @@ export default function TriageResult({
             contact a certified trainer directly.
           </p>
 
-          <div className="nav-row" style={{ justifyContent: "center" }}>
+          <div className="nav-row nav-row--center">
             <button
               type="button"
               onClick={resetToStart}

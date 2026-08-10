@@ -122,12 +122,16 @@ export default function App() {
               navigate("/");
               setScreen("landing");
             }}
-            aria-label="Stay — home"
+            aria-label="Stay, home"
           >
             <StayHeaderLogo />
           </button>
         </header>
-        <main className="app-main">
+        <main
+          className={`app-main${
+            screen === "result" ? " app-main--letter" : ""
+          }`}
+        >
           {screen === "landing" && (
             <ErrorBoundary>
               <Landing {...props} />

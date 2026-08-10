@@ -67,6 +67,12 @@
   --urgency-border: rgba(199, 123, 92, 0.32);
   --urgency-fg: var(--ember-300);
 
+  /* ── MEASURE (content width varies by section, not one global column) ── */
+  --measure-form: 30rem;    /* 480px — questions, landing, ask */
+  --measure-letter: 38rem;  /* 608px — triage result */
+  --measure-wide: 60rem;    /* 960px — footer, case study, impact */
+  --measure-band: 34ch;     /* result header band, indented against the cards */
+
   /* ── SPACING / RADII / MOTION ────────────────────────────────────────── */
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -192,12 +198,45 @@ em, .italic-serif {
    LAYOUT
    ========================================================================= */
 
+/* The frame is a shell, not the measure. It spans wide so the sticky header
+   rule and the footer reach the full page width; each section then sets its
+   own measure below. */
 .app-frame {
   background: transparent;
+  max-width: var(--measure-wide);
 }
 
+/* Default measure: intake form. Tight and centered, which is right for a
+   question you answer one at a time. */
 .app-main {
+  width: 100%;
+  max-width: var(--measure-form);
+  margin-inline: auto;
   padding: 28px 22px calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Result reads as a letter, so it gets a wider measure than the form. */
+.app-main--letter {
+  max-width: var(--measure-letter);
+}
+
+/* Standalone pages carry more than one idea at a time. */
+.app-main--wide {
+  max-width: var(--measure-wide);
+}
+
+@media (min-width: 768px) {
+  .app-main {
+    padding-top: 40px;
+  }
+
+  .app-main--letter {
+    padding-inline: 32px;
+  }
+
+  .app-main--wide {
+    padding-inline: 40px;
+  }
 }
 
 /* Sticky header with warm parchment edge */
@@ -861,6 +900,52 @@ input[type="range"].q-intensity {
   position: relative;
 }
 
+/* -------------------------------------------------------------------------
+   RESULT RHYTHM: two bands, not one column.
+   The question screens are a centered form. The result is a letter, so the
+   opening (salutation, severity, heading) sits in a narrower band and the
+   cards run to the full measure. The step between the two is what makes the
+   result read differently from the screens that led into it.
+   ------------------------------------------------------------------------- */
+.result-salutation,
+.result-badge-row,
+.result-behavior-heading {
+  max-width: var(--measure-band);
+}
+
+@media (min-width: 768px) {
+  /* The band picks up a continuous left rule, the way a letterhead sits apart
+     from the body copy. The three elements are consecutive siblings, so their
+     vertical margins become padding here — otherwise the rule breaks into
+     disconnected segments across the gaps. */
+  /* Direct children only. The skeleton nests its own .result-badge-row inside
+     .triage-skeleton__band, and it must not pick up a stray rule segment. */
+  .result-screen > .result-salutation,
+  .result-screen > .result-badge-row,
+  .result-screen > .result-behavior-heading {
+    padding-left: 20px;
+    border-left: 1px solid var(--ink-500);
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .result-screen > .result-salutation {
+    padding-top: 4px;
+    padding-bottom: 8px;
+  }
+
+  .result-screen > .result-badge-row {
+    padding-bottom: 18px;
+  }
+
+  .result-screen > .result-behavior-heading {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    /* Air below the band is what separates it from the cards. */
+    margin-bottom: 44px !important;
+  }
+}
+
 /* Salutation: "About Cooper," in italic serif */
 .result-salutation {
   font-family: "Instrument Serif", Georgia, serif;
@@ -991,6 +1076,7 @@ input[type="range"].q-intensity {
   color: var(--paper-200) !important;
   font-size: 15px !important;
   font-style: normal;
+  margin-top: 14px;
 }
 
 .result-root-cause-toggle--inline {
@@ -1297,24 +1383,96 @@ input[type="range"].q-intensity {
 .site-footer {
   border-top: 1px solid rgba(245, 235, 219, 0.05);
   background: transparent;
+  text-align: left;
+  padding: 40px 22px calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+.site-footer__inner {
+  width: 100%;
+  max-width: var(--measure-wide);
+  margin-inline: auto;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr;
+}
+
+/* Brand column leads, link groups sit beside it once there is room. */
+@media (min-width: 640px) {
+  .site-footer {
+    padding-inline: 40px;
+  }
+
+  .site-footer__inner {
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+/* The source logo carries a lot of internal padding, so the footer mark needs
+   more height than the header to read with equal weight. */
+.site-footer__brand .logo-header-img {
+  height: 40px;
+  margin-bottom: 14px;
+  opacity: 1;
+}
+
+.site-footer__tagline {
+  font-family: "Fraunces", serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--paper-300);
+  margin: 0;
+  max-width: 34ch;
+}
+
+.site-footer__group {
+  min-width: 0;
+}
+
+.site-footer__group-title {
+  font-family: "Fraunces", serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-400);
+  margin: 0 0 12px;
+}
+
+.site-footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .site-footer__link {
   font-family: "Fraunces", serif;
-  font-size: 13px;
-  color: var(--paper-300);
+  font-size: 14px;
+  color: var(--paper-200);
+  text-decoration: none;
+  /* Keeps the tap target at 44px without pushing the rows apart visually. */
+  display: inline-block;
+  padding: 4px 0;
+  transition: color var(--dur-fast) var(--ease-warm);
 }
 
-.site-footer__link:hover {
-  color: var(--amber-300);
+.site-footer__bottom {
+  width: 100%;
+  max-width: var(--measure-wide);
+  margin-inline: auto;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(245, 235, 219, 0.05);
 }
 
-.site-footer__sep {
+.site-footer__copyright {
   font-family: "Fraunces", serif;
   font-size: 13px;
-  color: var(--paper-300);
-  margin: 0 10px;
-  opacity: 0.5;
+  color: var(--paper-400);
+  margin: 0;
 }
 
 .ios-install-banner {
@@ -1325,6 +1483,308 @@ input[type="range"].q-intensity {
 /* =========================================================================
    PRINT (preserve clean printout)
    ========================================================================= */
+
+/* =========================================================================
+   ONE-OFF COMPONENTS
+   Pulled out of inline JSX styles so every screen draws from the same system.
+   ========================================================================= */
+
+/* Question flow: field groups */
+.q-field { margin-top: 24px; }
+.q-field--tight { margin-top: 0; margin-bottom: 12px; }
+.q-field .field-label { margin-bottom: 6px; }
+
+/* Question 3: soft support note when the intake sounds like giving up */
+.q-support-note {
+  background: rgba(245, 235, 219, 0.04);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--sage-500);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.text-input--tall { min-height: 140px; }
+
+/* Landing: quiet text link under the primary CTA */
+.landing-ask-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--paper-300);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-warm);
+}
+
+/* Result: red gate actions stack full-width */
+.result-red-gate .btn {
+  width: 100%;
+  box-sizing: border-box;
+}
+.result-red-gate .btn + .btn { margin-top: 10px; }
+
+/* Result: soft disclaimer between the two letter paragraphs */
+.result-disclaimer {
+  font-size: 13px;
+  font-style: italic;
+  text-align: center;
+  color: var(--paper-300);
+  margin: 8px 0 16px;
+}
+
+/* Result: follow-up question card */
+.result-card--followup { margin-top: 12px; }
+.result-card--followup .followup-row { margin-top: 4px; }
+
+.followup-answer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.result-card-markdown ul {
+  margin: 0.5rem 0 0.5rem 1.25rem;
+  padding: 0;
+  list-style-type: disc;
+}
+.result-card-markdown li { margin-bottom: 0.25rem; }
+
+.nav-row--center { justify-content: center; }
+
+/* Error boundary fallback */
+.error-fallback {
+  padding: 48px 22px;
+  text-align: center;
+}
+.error-fallback__message {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 22px;
+  color: var(--paper-50);
+  margin: 0 0 16px;
+}
+
+/* Case study: article rhythm, distinct from the triage letter.
+   Text sits on a narrower measure inside the wide page, left-aligned. */
+.case-article { max-width: 40rem; }
+.case-article__back {
+  display: inline-block;
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--paper-300);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-warm);
+}
+.case-article__section { margin: 0 0 28px; }
+.case-article__heading {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: var(--paper-50);
+  margin: 0 0 14px;
+}
+.case-article__body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--paper-100);
+  margin: 0;
+}
+.case-article__cta { margin: 28px 0 8px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .landing-ask-link:hover,
+  .case-article__back:hover { color: var(--amber-300); }
+}
+
+/* =========================================================================
+   INTERACTION STATES
+   One baseline for focus so nothing can be reached by keyboard without a
+   visible ring. Per-component rules above stay as refinements.
+   ========================================================================= */
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Text fields keep their own inset amber ring (see `input:focus` above), which
+   wins on specificity and reads clearly. Checkboxes, radios and ranges share
+   that rule but the inset shadow is invisible on them, so they need an
+   outline. Specificity here beats the bare `input:focus` selector. */
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 3px;
+}
+
+/* App.css gives these a 0.5px outline, which outranks the baseline above on
+   specificity and is effectively invisible. Restore a real ring. */
+.logo-mark-btn:focus-visible,
+.ios-install-banner__dismiss:focus-visible,
+.result-root-cause-toggle--inline:focus-visible,
+.result-honest-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Mouse and touch users should not see the ring; keyboard users always should. */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Hover only where a real pointer exists, so states do not latch after a tap. */
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    color: var(--amber-300);
+  }
+
+  .site-footer__link:hover {
+    color: var(--amber-300);
+    text-decoration: none;
+  }
+
+  .logo-mark-btn:hover .logo-header-img {
+    opacity: 1;
+  }
+
+  .result-honest-toggle:hover,
+  .result-root-cause-toggle--inline:hover {
+    color: var(--amber-300);
+  }
+}
+
+.logo-header-img {
+  transition: opacity var(--dur-fast) var(--ease-warm);
+}
+
+/* -------------------------------------------------------------------------
+   DISABLED: deliberately paused, not broken.
+   Keeps the surface and its shape; drops emphasis and blocks the pointer.
+   ------------------------------------------------------------------------- */
+.btn-primary:disabled,
+.question-primary-btn:disabled {
+  background: #f5ede0 !important;
+  color: var(--ink-900) !important;
+  opacity: 0.45;
+  box-shadow: inset 0 0 0 1px rgba(245, 235, 219, 0.18) !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Question 3 disables these while the triage runs, and neither had any
+   disabled styling before. */
+.option-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none !important;
+}
+
+.text-input:disabled,
+.email-input:disabled,
+textarea:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  resize: none;
+}
+
+/* =========================================================================
+   TRIAGE SKELETON
+   Mirrors the result layout so nothing shifts when content lands.
+   App.css styles this on the old cold palette; these are the warm values.
+   ========================================================================= */
+
+.triage-loading {
+  padding-top: 4px;
+}
+
+.triage-loading__caption {
+  font-family: "Fraunces", serif;
+  font-size: 14px;
+  color: var(--paper-300);
+  margin: 4px 0 0;
+}
+
+.triage-skeleton__band {
+  max-width: var(--measure-band);
+}
+
+.triage-skeleton__salutation,
+.triage-skeleton__pill,
+.triage-skeleton__heading,
+.triage-skeleton__card {
+  background: var(--ink-700) !important;
+  border: 1px solid rgba(245, 235, 219, 0.05) !important;
+  animation: skeleton-breathe 1.8s var(--ease-warm) infinite;
+}
+
+.triage-skeleton__salutation {
+  display: block;
+  width: 42%;
+  height: 17px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.triage-skeleton__heading {
+  height: 38px;
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+  margin: 6px 0 32px;
+}
+
+.triage-skeleton__card {
+  min-height: 132px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+@keyframes skeleton-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.62; }
+}
+
+@media (min-width: 768px) {
+  /* Mirrors the result's band rule so the two states line up. */
+  .triage-skeleton__band {
+    padding: 4px 0 6px 20px;
+    border-left: 1px solid var(--ink-500);
+  }
+
+  .triage-skeleton__heading {
+    margin-bottom: 0;
+  }
+
+  /* Adjacent sibling, not :first-of-type — the band is also a div, so
+     :first-of-type would match the band instead of the card. */
+  .triage-skeleton__band + .triage-skeleton__card {
+    margin-top: 44px;
+  }
+}
 
 @media print {
   nav, button,
@@ -1358,5 +1818,22 @@ input[type="range"].q-intensity {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Collapsing the animation freezes it at an arbitrary frame, which can land
+     near zero opacity. Pin the loading states to a visible value instead. */
+  .triage-skeleton__salutation,
+  .triage-skeleton__pill,
+  .triage-skeleton__heading,
+  .triage-skeleton__card {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .btn-primary.btn-analyzing:disabled {
+    animation: none !important;
+    opacity: 1;
   }
 }
