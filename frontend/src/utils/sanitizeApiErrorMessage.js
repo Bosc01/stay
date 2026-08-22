@@ -10,5 +10,15 @@ export function sanitizeApiErrorMessage(message) {
   if (lower.includes("database error") || lower.includes("pgrst")) {
     return GENERIC;
   }
+  // Browser network errors ("Failed to fetch", "NetworkError", "Load failed")
+  // are implementation details too - the owner just needs a kind retry prompt.
+  if (
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror") ||
+    lower.includes("network error") ||
+    lower.includes("load failed")
+  ) {
+    return GENERIC;
+  }
   return s;
 }
