@@ -48,8 +48,9 @@ async def followup_question(req: FollowupQuestionRequest):
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=450,
+            thinking={"type": "disabled"},
             messages=[{"role": "user", "content": json.dumps(prompt, indent=2)}],
         )
         answer_text = response.content[0].text.strip()

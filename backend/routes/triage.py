@@ -40,8 +40,9 @@ async def triage(intake: TriageIntake, request: Request):
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=1024,
+            thinking={"type": "disabled"},
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
