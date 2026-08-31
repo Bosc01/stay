@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from db import get_supabase
 from models import TriageIntake, TriageResult
-from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
+from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 
 router = APIRouter()
 client = anthropic.Anthropic()
@@ -35,8 +35,14 @@ async def triage(intake: TriageIntake, request: Request):
     user_message = json.dumps(intake.model_dump(), indent=2)
 
     system_prompt = SYSTEM_PROMPT
+    if intake.owner_experience or intake.prior_training:
+        owner_context = OWNER_CONTEXT.format(
+            owner_experience=intake.owner_experience or "Not specified",
+            prior_training=intake.prior_training or "Not specified",
+        ).strip()
+        system_prompt = f"{system_prompt.rstrip()}\n\n{owner_context}\n"
     if intake.sudden_onset:
-        system_prompt = f"{SYSTEM_PROMPT.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
+        system_prompt = f"{system_prompt.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
 
     try:
         response = client.messages.create(
