@@ -119,8 +119,15 @@ Return valid JSON only. No preamble, no explanation outside the JSON structure.
 4. Do not recommend specific paid products, apps, or trainers by name.
 
 5. Keep root_cause and first_step at a 7th-grade reading level. No clinical terms without a plain-language explanation.
+"""
 
-Owner context (if provided):
+# Appended to SYSTEM_PROMPT when the owner provided experience level and/or prior
+# training (see routes/triage.py). Kept as a separate, small .format() target
+# rather than embedding placeholders in SYSTEM_PROMPT itself, since SYSTEM_PROMPT's
+# JSON output schema example contains literal { } that str.format() would choke on.
+OWNER_CONTEXT = """
+## Owner context
+
 - Experience: {owner_experience}
 - Prior training: {prior_training}
 
