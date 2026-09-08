@@ -34,9 +34,11 @@ async def triage(intake: TriageIntake, request: Request):
 
     user_message = json.dumps(intake.model_dump(), indent=2)
 
-    system_prompt = SYSTEM_PROMPT
+    system_prompt = SYSTEM_PROMPT.replace(
+        "{owner_experience}", intake.owner_experience or "Not specified"
+    ).replace("{prior_training}", intake.prior_training or "Not specified")
     if intake.sudden_onset:
-        system_prompt = f"{SYSTEM_PROMPT.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
+        system_prompt = f"{system_prompt.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
 
     try:
         response = client.messages.create(
