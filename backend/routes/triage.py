@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from db import get_supabase
 from models import TriageIntake, TriageResult
-from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
+from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 
 router = APIRouter()
 client = anthropic.Anthropic()
@@ -34,18 +34,33 @@ async def triage(intake: TriageIntake, request: Request):
 
     user_message = json.dumps(intake.model_dump(), indent=2)
 
-    system_prompt = SYSTEM_PROMPT.replace(
-        "{owner_experience}", intake.owner_experience or "Not specified"
-    ).replace("{prior_training}", intake.prior_training or "Not specified")
+    # SYSTEM_PROMPT is identical on every request, so it is sent as its own
+    # cached block. Everything that varies per owner goes in later blocks, after
+    # the cache breakpoint, otherwise the prefix changes and nothing ever hits.
+    system_blocks: list[dict] = [
+        {
+            "type": "text",
+            "text": SYSTEM_PROMPT,
+            "cache_control": {"type": "ephemeral"},
+        },
+        {
+            "type": "text",
+            "text": OWNER_CONTEXT.replace(
+                "{owner_experience}", intake.owner_experience or "Not specified"
+            ).replace("{prior_training}", intake.prior_training or "Not specified"),
+        },
+    ]
     if intake.sudden_onset:
-        system_prompt = f"{system_prompt.rstrip()}\n\n{SUDDEN_ONSET_PRIORITY.strip()}\n"
+        system_blocks.append(
+            {"type": "text", "text": SUDDEN_ONSET_PRIORITY.strip()}
+        )
 
     try:
         response = client.messages.create(
             model="claude-sonnet-5",
             max_tokens=1024,
             thinking={"type": "disabled"},
-            system=system_prompt,
+            system=system_blocks,
             messages=[{"role": "user", "content": user_message}],
         )
     except anthropic.APIError as e:
@@ -57,6 +72,18 @@ async def triage(intake: TriageIntake, request: Request):
         raise HTTPException(
             status_code=502,
             detail=f"Claude response did not include text at content[0]: {e}",
+        )
+
+    # Cache reads cost about a tenth of base input price. If read stays 0 across
+    # requests, the cached prefix is being invalidated or is under the model's
+    # minimum cacheable size, and the breakpoint above is doing nothing.
+    usage = getattr(response, "usage", None)
+    if usage is not None:
+        print(
+            "[triage] cache "
+            f"read={getattr(usage, 'cache_read_input_tokens', 0)} "
+            f"write={getattr(usage, 'cache_creation_input_tokens', 0)} "
+            f"uncached={getattr(usage, 'input_tokens', 0)}"
         )
 
     raw_text = raw_text.replace("—", "-").replace("–", "-")
