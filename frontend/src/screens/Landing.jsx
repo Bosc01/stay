@@ -117,14 +117,7 @@ export default function Landing({ setScreen }) {
         </button>
 
         <p className="landing-meta">
-          Free
-          <span className="landing-meta-divider" aria-hidden="true" />
-          No account required
-        </p>
-        <p className="landing-meta">
           18 dogs helped
-          <span className="landing-meta-divider" aria-hidden="true" />
-          2 minutes
           <span className="landing-meta-divider" aria-hidden="true" />
           Austin Pets Alive pilot
         </p>
