@@ -1,5 +1,6 @@
 import json
 import os
+import secrets
 from collections import Counter
 from datetime import datetime, timezone
 
@@ -10,13 +11,28 @@ from tasks.checkin import send_7day_checkins
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "stay2026")
-
 PAGE_SIZE = 1000
 
 
+def _admin_password() -> str:
+    return os.environ.get("ADMIN_PASSWORD", "").strip()
+
+
 def _require_admin(x_admin_password: str | None) -> None:
-    if not x_admin_password or x_admin_password != ADMIN_PASSWORD:
+    configured = _admin_password()
+    if not configured:
+        # Fail closed. With no password set, the admin surface stays locked
+        # rather than falling back to a default anyone could read in this repo.
+        raise HTTPException(
+            status_code=503,
+            detail="Admin access is not configured on this server.",
+        )
+    if not x_admin_password:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    # Constant time compare so a wrong password does not leak its prefix length.
+    if not secrets.compare_digest(
+        x_admin_password.encode("utf-8"), configured.encode("utf-8")
+    ):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
