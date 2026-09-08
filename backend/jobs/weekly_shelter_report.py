@@ -8,6 +8,7 @@ Example from repo root:
 Requires: SUPABASE_URL, SUPABASE_KEY, RESEND_API_KEY, and shelter_partners rows.
 """
 
+import logging
 from __future__ import annotations
 
 import json
@@ -31,6 +32,8 @@ if str(_BACKEND_DIR) not in sys.path:
 import resend  # noqa: E402
 
 from db import get_supabase  # noqa: E402
+
+logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 1000
 WINDOW_DAYS = 7
@@ -190,7 +193,7 @@ def build_html_email(
 def run() -> int:
     resend.api_key = os.environ.get("RESEND_API_KEY")
     if not resend.api_key:
-        print("RESEND_API_KEY not set; aborting.")
+        logger.error("RESEND_API_KEY not set, aborting")
         return 1
 
     supabase = get_supabase()
@@ -201,13 +204,13 @@ def run() -> int:
     try:
         sessions = fetch_sessions_last_week(supabase, since_iso)
     except Exception as e:
-        print(f"Failed to fetch triage_sessions: {e}")
+        logger.error("Failed to fetch triage_sessions: %s", e)
         return 1
 
     try:
         partners = fetch_shelter_partners(supabase)
     except Exception as e:
-        print(f"Failed to fetch shelter_partners (table may be missing): {e}")
+        logger.error("Failed to fetch shelter_partners, table may be missing: %s", e)
         return 1
 
     by_ref = aggregate_by_ref(sessions)
@@ -217,7 +220,7 @@ def run() -> int:
     for ref_slug, stats in sorted(by_ref.items()):
         partner = partners.get(ref_slug)
         if not partner:
-            print(f"Skip {ref_slug}: no shelter_partners row")
+            logger.info("Skip %s, no shelter_partners row", ref_slug)
             skipped += 1
             continue
 
@@ -228,7 +231,7 @@ def run() -> int:
         name = str(partner.get("name") or ref_slug).strip()
         to = str(partner.get("contact_email") or "").strip()
         if not to or "@" not in to:
-            print(f"Skip {ref_slug}: invalid contact_email")
+            logger.info("Skip %s, invalid contact_email", ref_slug)
             skipped += 1
             continue
 
@@ -252,15 +255,18 @@ def run() -> int:
                     "html": html,
                 }
             )
-            print(f"Sent weekly report to {to} ({ref_slug}, n={total})")
+            logger.info("Sent weekly report for %s, n=%s", ref_slug, total)
             sent += 1
         except Exception as e:
-            print(f"Resend failed for {ref_slug} ({to}): {e}")
+            logger.error("Resend failed for %s: %s", ref_slug, e)
             skipped += 1
 
-    print(f"Done. Sent={sent}, skipped_or_failed={skipped}, refs_in_window={len(by_ref)}")
+    logger.info("Done. sent=%s skipped_or_failed=%s refs_in_window=%s", sent, skipped, len(by_ref))
     return 0
 
 
 if __name__ == "__main__":
+    from logging_config import configure_logging
+
+    configure_logging()
     raise SystemExit(run())

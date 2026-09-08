@@ -1,3 +1,4 @@
+import logging
 import json
 import os
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,8 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 _claude = anthropic.Anthropic()
@@ -35,7 +38,7 @@ def _ensure_follow_up_7_day_at(session_id: str) -> None:
             "id", session_id
         ).execute()
     except Exception as e:
-        print(f"[followup] ensure follow_up_7_day_at: {e}")
+        logger.warning("Could not set follow_up_7_day_at for %s: %s", session_id, e)
 
 
 def _generate_revised_first_step(
@@ -86,7 +89,7 @@ def _generate_revised_first_step(
         text = response.content[0].text.strip()
         return text if text else None
     except Exception as e:
-        print(f"[weekly_checkin] revised first step Claude error: {e}")
+        logger.warning("Revised first step generation failed: %s", e)
         return None
 
 
@@ -130,7 +133,7 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
                 minimal_row["follow_up_send_at"] = update_data.get("follow_up_send_at")
             supabase.table("triage_sessions").insert(minimal_row).execute()
     except Exception as e:
-        print(f"Followup error: {e}")
+        logger.exception("Followup update failed for session %s", req.session_id)
 
     if req.email is not None:
         background_tasks.add_task(_ensure_follow_up_7_day_at, req.session_id)
@@ -175,9 +178,9 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
                     }
                 )
             else:
-                print("RESEND_API_KEY not set; skipping welcome email")
+                logger.warning("RESEND_API_KEY not set, skipping welcome email")
         except Exception as e:
-            print(f"Resend welcome email failed: {e}")
+            logger.warning("Welcome email failed to send: %s", e)
 
     return {"status": "ok", **response_extra}
 
