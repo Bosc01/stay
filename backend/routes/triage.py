@@ -1,6 +1,5 @@
 import json
 import uuid
-from collections import defaultdict
 from datetime import datetime, timedelta
 
 import anthropic
@@ -14,23 +13,62 @@ from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 router = APIRouter()
 client = anthropic.Anthropic()
 
-_rate_limit: dict = defaultdict(list)
+_rate_limit: dict[str, list[datetime]] = {}
 RATE_LIMIT = 10  # requests
 RATE_WINDOW = 3600  # 1 hour in seconds
+MAX_TRACKED_IPS = 10_000  # backstop so the limiter cannot grow without bound
+
+
+def _client_ip(request: Request) -> str:
+    """The owner's address, not the proxy's.
+
+    Railway forwards through its edge, and uvicorn only trusts X-Forwarded-For
+    from 127.0.0.1 unless told otherwise, so request.client.host is the proxy.
+    Keying on that would put every owner in one shared bucket.
+    """
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        first = forwarded.split(",")[0].strip()
+        if first:
+            return first
+    return request.client.host if request.client else "unknown"
+
+
+def _prune(now: datetime) -> None:
+    """Drop buckets whose hits have all aged out, then cap what is left."""
+    window_start = now - timedelta(seconds=RATE_WINDOW)
+    for ip in [k for k, hits in _rate_limit.items() if not hits or hits[-1] <= window_start]:
+        del _rate_limit[ip]
+
+    overflow = len(_rate_limit) - MAX_TRACKED_IPS
+    if overflow > 0:
+        # Evict least recently seen rather than refusing new callers.
+        for ip, _ in sorted(_rate_limit.items(), key=lambda kv: kv[1][-1])[:overflow]:
+            del _rate_limit[ip]
+
+
+def _record_and_check(ip: str, now: datetime) -> bool:
+    """Record this hit. Returns True when the caller is over the limit."""
+    window_start = now - timedelta(seconds=RATE_WINDOW)
+    hits = [t for t in _rate_limit.get(ip, []) if t > window_start]
+
+    over_limit = len(hits) >= RATE_LIMIT
+    if not over_limit:
+        hits.append(now)
+    _rate_limit[ip] = hits
+
+    # Prune after writing, so the cap holds counting the entry just added.
+    _prune(now)
+    return over_limit
 
 
 @router.post("/triage")
 async def triage(intake: TriageIntake, request: Request):
-    ip = request.client.host if request.client else "unknown"
-    now = datetime.now()
-    window_start = now - timedelta(seconds=RATE_WINDOW)
-    _rate_limit[ip] = [t for t in _rate_limit[ip] if t > window_start]
-    if len(_rate_limit[ip]) >= RATE_LIMIT:
+    if _record_and_check(_client_ip(request), datetime.now()):
         raise HTTPException(
             status_code=429,
             detail="Too many requests. Please try again later.",
         )
-    _rate_limit[ip].append(now)
 
     user_message = json.dumps(intake.model_dump(), indent=2)
 
