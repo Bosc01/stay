@@ -8,8 +8,8 @@ depend on those values had nothing real to act on.
 
 import re
 
-from conftest import sample_intake
-from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
+from conftest import flatten_system, sample_intake
+from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 
 # Matches a leftover {placeholder} but not the JSON schema example in the prompt,
 # which uses braces on their own lines.
@@ -18,7 +18,7 @@ PLACEHOLDER = re.compile(r"\{[a-z_]+\}")
 
 def sent_system_prompt(fake) -> str:
     assert fake.messages.calls, "expected the triage route to call Claude"
-    return fake.messages.calls[0]["system"]
+    return flatten_system(fake.messages.calls[0]["system"])
 
 
 def test_owner_experience_is_substituted(client, fake_claude):
@@ -95,7 +95,14 @@ def test_safety_rules_are_always_present(client, fake_claude):
     assert "Never recommend punishment, alpha/dominance techniques" in system
 
 
-def test_source_prompt_still_has_placeholders_to_substitute():
-    """If someone removes these from the prompt, the route's replace() silently no-ops."""
-    assert "{owner_experience}" in SYSTEM_PROMPT
-    assert "{prior_training}" in SYSTEM_PROMPT
+def test_owner_context_template_still_has_placeholders_to_substitute():
+    """If someone removes these, the route's replace() silently no-ops."""
+    assert "{owner_experience}" in OWNER_CONTEXT
+    assert "{prior_training}" in OWNER_CONTEXT
+
+
+def test_static_prompt_holds_no_per_request_values():
+    """SYSTEM_PROMPT is the cache prefix, so nothing owner specific may live in it."""
+    assert "{owner_experience}" not in SYSTEM_PROMPT
+    assert "{prior_training}" not in SYSTEM_PROMPT
+    assert "Owner context" not in SYSTEM_PROMPT

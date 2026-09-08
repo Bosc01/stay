@@ -42,9 +42,17 @@ class FakeTextBlock:
         self.text = text
 
 
+class FakeUsage:
+    def __init__(self) -> None:
+        self.input_tokens = 120
+        self.cache_creation_input_tokens = 0
+        self.cache_read_input_tokens = 1266
+
+
 class FakeResponse:
     def __init__(self, text: str) -> None:
         self.content = [FakeTextBlock(text)]
+        self.usage = FakeUsage()
 
 
 class FakeMessages:
@@ -122,6 +130,13 @@ def client(fake_supabase):
     from main import app
 
     return TestClient(app)
+
+
+def flatten_system(system) -> str:
+    """The system prompt is sent as content blocks; join them for assertions."""
+    if isinstance(system, str):
+        return system
+    return "\n\n".join(block["text"] for block in system)
 
 
 def sample_intake(**overrides) -> dict:

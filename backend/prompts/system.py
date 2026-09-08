@@ -119,8 +119,13 @@ Return valid JSON only. No preamble, no explanation outside the JSON structure.
 4. Do not recommend specific paid products, apps, or trainers by name.
 
 5. Keep root_cause and first_step at a 7th-grade reading level. No clinical terms without a plain-language explanation.
+"""
 
-Owner context (if provided):
+# Sent as a separate system block after SYSTEM_PROMPT (see routes/triage.py).
+# This lives outside SYSTEM_PROMPT so that SYSTEM_PROMPT stays byte identical on
+# every request and can serve as a stable prompt cache prefix. Anything that
+# varies per owner has to sit after the cache breakpoint, not inside it.
+OWNER_CONTEXT = """Owner context (if provided):
 - Experience: {owner_experience}
 - Prior training: {prior_training}
 
