@@ -117,4 +117,4 @@ async def triage(intake: TriageIntake, request: Request):
         session_id = None
 
     print(f"[triage] Returning session_id={session_id}")
-    return {**result.dict(), "session_id": session_id}
+    return {**result.model_dump(), "session_id": session_id}
