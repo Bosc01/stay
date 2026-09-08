@@ -5,6 +5,10 @@ load_dotenv("backend/.env")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from logging_config import configure_logging
+
+configure_logging()
+
 from routes.triage import router as triage_router
 from routes.followup import router as followup_router
 from routes.referrals import router as referrals_router

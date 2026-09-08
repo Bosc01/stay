@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from datetime import datetime, timedelta
 
@@ -9,6 +10,8 @@ from pydantic import ValidationError
 from db import get_supabase
 from models import TriageIntake, TriageResult
 from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 client = anthropic.Anthropic()
@@ -117,35 +120,35 @@ async def triage(intake: TriageIntake, request: Request):
     # minimum cacheable size, and the breakpoint above is doing nothing.
     usage = getattr(response, "usage", None)
     if usage is not None:
-        print(
-            "[triage] cache "
-            f"read={getattr(usage, 'cache_read_input_tokens', 0)} "
-            f"write={getattr(usage, 'cache_creation_input_tokens', 0)} "
-            f"uncached={getattr(usage, 'input_tokens', 0)}"
+        logger.info(
+            "cache read=%s write=%s uncached=%s",
+            getattr(usage, "cache_read_input_tokens", 0),
+            getattr(usage, "cache_creation_input_tokens", 0),
+            getattr(usage, "input_tokens", 0),
         )
 
     raw_text = raw_text.replace("—", "-").replace("–", "-")
-
-    print("--- Claude raw response (before JSON parse) ---")
-    print(raw_text)
-    print("--- end raw response ---")
 
     try:
         raw_text = raw_text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         result_data = json.loads(raw_text)
     except json.JSONDecodeError as e:
+        # Logged here rather than on every request: this is the one moment the
+        # raw text is worth the space it takes in the log.
+        logger.error("Claude returned unparseable JSON: %s\n%s", e, raw_text)
         raise HTTPException(
             status_code=502,
             detail=(
                 "Claude did not return valid JSON. "
                 f"{e.msg} (line {e.lineno}, column {e.colno}). "
-                "The full raw response was printed to the server console."
+                "The full raw response was written to the server log."
             ),
         )
 
     try:
         result = TriageResult(**result_data)
     except ValidationError as e:
+        logger.error("Claude JSON failed TriageResult validation: %s", e)
         raise HTTPException(
             status_code=502,
             detail=f"Claude JSON could not be validated as TriageResult: {e}",
@@ -161,8 +164,13 @@ async def triage(intake: TriageIntake, request: Request):
         intake_data = json.loads(json.dumps(intake.model_dump(), default=str))
         result_data = json.loads(json.dumps(result.model_dump(), default=str))
 
-        print(f"[triage] intake_data: {intake_data}")
-        print(f"[triage] result_data: {result_data}")
+        # Intake text and the dog's name are the owner's, so they are not
+        # logged. Severity and behavior type are enough to spot a bad pattern.
+        logger.debug(
+            "storing session behavior_type=%s severity=%s",
+            intake.behavior_type,
+            result.severity,
+        )
 
         insert_res = supabase.table("triage_sessions").insert(
             {
@@ -175,11 +183,11 @@ async def triage(intake: TriageIntake, request: Request):
             }
         ).execute()
 
-        print(f"[triage] Insert response: {insert_res.data}")
+        logger.info("stored triage session %s", session_id)
 
-    except Exception as e:
-        print(f"[triage] Supabase insert error: {e}")
+    except Exception:
+        # The owner still gets their triage; only the session record is lost.
+        logger.exception("Supabase insert failed for session %s", session_id)
         session_id = None
 
-    print(f"[triage] Returning session_id={session_id}")
     return {**result.model_dump(), "session_id": session_id}

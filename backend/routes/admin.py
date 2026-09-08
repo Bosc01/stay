@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import secrets
 from collections import Counter
@@ -8,6 +9,8 @@ from fastapi import APIRouter, Header, HTTPException, Query
 
 from db import get_supabase
 from tasks.checkin import send_7day_checkins
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -301,7 +304,7 @@ async def admin_stats(
         )
         recent_user_interviews = list(iv_res.data or [])
     except Exception as e:
-        print(f"[admin] user_interviews fetch skipped: {e}")
+        logger.warning("user_interviews fetch skipped: %s", e)
 
     return {
         "total_triages": total_triages,

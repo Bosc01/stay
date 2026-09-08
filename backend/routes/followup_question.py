@@ -1,3 +1,4 @@
+import logging
 import json
 
 import anthropic
@@ -5,6 +6,8 @@ from fastapi import APIRouter, HTTPException
 
 from db import get_supabase
 from models import FollowupQuestionRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 client = anthropic.Anthropic()
@@ -67,6 +70,6 @@ async def followup_question(req: FollowupQuestionRequest):
         ).eq("id", req.session_id).execute()
     except Exception as e:
         # Do not fail answer delivery if persistence fails.
-        print(f"followup_question update error: {e}")
+        logger.warning("Could not persist followup question for %s: %s", req.session_id, e)
 
     return {"answer": answer_text}
