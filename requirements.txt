@@ -2,7 +2,7 @@
 # To upgrade: bump a pin, run `pytest`, and deploy deliberately.
 fastapi==0.141.1
 uvicorn[standard]==0.52.4
-anthropic==1.4.0
+anthropic==1.7.0
 supabase==2.31.0
 python-dotenv==1.2.3
 resend==2.43.0
