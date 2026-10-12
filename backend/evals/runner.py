@@ -159,9 +159,9 @@ def run_case_against_api(case: EvalCase) -> dict:
         system_blocks.append({"type": "text", "text": SUDDEN_ONSET_PRIORITY.strip()})
 
     response = anthropic.Anthropic().messages.create(
-        model="claude-sonnet-5",
+        model="claude-sonnet-5-5",
         max_tokens=1024,
-        thinking={"type": "disabled"},
+        thinking={"type": "between_tools"},
         system=system_blocks,
         messages=[{"role": "user", "content": json.dumps(intake, indent=2)}],
     )

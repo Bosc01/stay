@@ -77,9 +77,9 @@ def _generate_revised_first_step(
     }
     try:
         response = _claude.messages.create(
-            model="claude-sonnet-5",
+            model="claude-sonnet-5-5",
             max_tokens=500,
-            thinking={"type": "disabled"},
+            thinking={"type": "between_tools"},
             system=(
                 "You are Stay's triage assistant. You only output the revised "
                 "first step as plain prose — nothing else."

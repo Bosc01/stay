@@ -21,7 +21,7 @@ help.
 ## How a triage works
 
 1. The owner describes the behavior across three short screens.
-2. The backend sends the intake to Claude (Sonnet 5) with a fixed system prompt.
+2. The backend sends the intake to Claude (Sonnet 5.5) with a fixed system prompt.
 3. The response has to validate as a Pydantic model: a green, yellow, or red
    severity, the likely root cause, a first step, a plan for the week, and an
    escalation flag. A response that fails validation is logged and rejected
@@ -65,7 +65,7 @@ is checked by the eval harness below.
 |---|---|
 | Frontend | React and Vite, deployed on Vercel |
 | Backend | FastAPI (Python), deployed on Railway |
-| Model | Anthropic Claude API, Sonnet 5 |
+| Model | Anthropic Claude API, Sonnet 5.5 |
 | Database | Supabase (PostgreSQL) |
 | Email | Resend |
 
