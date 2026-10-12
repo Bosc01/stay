@@ -8,7 +8,7 @@ namely that everything varying per request sits after the breakpoint.
 from conftest import sample_intake
 from prompts.system import SYSTEM_PROMPT
 
-# Claude Sonnet 5 will not create a cache entry below this many tokens. The
+# Claude Sonnet 5.5 will not create a cache entry below this many tokens. The
 # check below is a deliberately loose character proxy, just enough to catch
 # someone trimming the prompt to the point where caching quietly stops.
 MIN_CACHEABLE_TOKENS = 1024

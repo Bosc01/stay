@@ -19,9 +19,9 @@ SYSTEM_PROMPT = (
 async def ask(req: AskRequest):
     try:
         response = client.messages.create(
-            model="claude-sonnet-5",
+            model="claude-sonnet-5-5",
             max_tokens=500,
-            thinking={"type": "disabled"},
+            thinking={"type": "between_tools"},
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": req.question}],
         )
