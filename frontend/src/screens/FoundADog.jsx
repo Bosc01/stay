@@ -118,6 +118,9 @@ export default function FoundADog() {
             Gallery photos: DogFaceNet, licensed CC BY 4.0. Guillaume Mougeot,
             &ldquo;The DogFaceNet datasets&rdquo;, Zenodo, 2024,{" "}
             <a href="https://doi.org/10.5281/zenodo.12578449">doi:10.5281/zenodo.12578449</a>.
+            Face detector trained on the Oxford-IIIT Pet dataset, licensed{" "}
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. O. M. Parkhi,
+            A. Vedaldi, A. Zisserman, C. V. Jawahar, &ldquo;Cats and Dogs&rdquo;, CVPR 2012.
             Matching by PawMatch.
           </p>
         </main>
