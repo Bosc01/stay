@@ -9,6 +9,7 @@ import AdminDashboard from "./screens/AdminDashboard.jsx";
 import PrintCard from "./screens/PrintCard.jsx";
 import ImpactPage from "./screens/ImpactPage.jsx";
 import CaseStudy from "./screens/CaseStudy.jsx";
+import FoundADog from "./screens/FoundADog.jsx";
 import "./App.css";
 import "./index.css";
 
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/print" element={<PrintCard />} />
         <Route path="/impact" element={<ImpactPage />} />
         <Route path="/case-study" element={<CaseStudy />} />
+        <Route path="/found-a-dog" element={<FoundADog />} />
         <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>

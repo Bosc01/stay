@@ -287,3 +287,19 @@ export async function fetchAdminStats(adminPassword) {
   }
   return res.json();
 }
+
+// PawMatch demo service for the "Found a dog?" page. Unset means the demo is off.
+// Which model the service uses is one line in its own config ([serve] checkpoint).
+export const PAWMATCH_URL = (import.meta.env.VITE_PAWMATCH_URL || "").replace(/\/$/, "");
+
+// Sends one photo to PawMatch. Neither Stay nor PawMatch stores it.
+export async function matchFoundDog(file) {
+  const body = new FormData();
+  body.append("photo", file);
+  const res = await fetch(`${PAWMATCH_URL}/match`, { method: "POST", body });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Matching request failed");
+  }
+  return res.json();
+}
