@@ -2255,6 +2255,26 @@ a.logo-link {
   display: none;
 }
 
+.admin-review-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0 16px;
+}
+
+.admin-review-form .text-input {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.admin-review-errors {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
 /* Triage result - delayed user interview invite */
 .result-interview-float {
   position: fixed;

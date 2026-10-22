@@ -365,3 +365,30 @@ export async function patchOutreachTarget(adminPassword, targetId, body) {
   if (!res.ok) throw await readAdminError(res, "Could not update this target");
   return res.json();
 }
+
+/** The review sample needs the admin header, so fetch it and save it as a file. */
+export async function downloadReviewSample(adminPassword) {
+  const res = await fetch(apiUrl("/admin/reviews/sample"), {
+    headers: adminHeaders(adminPassword),
+  });
+  if (!res.ok) throw await readAdminError(res, "Could not build the review file");
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `stay-review-sample-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Upload a marked review CSV. Returns { saved, errors }. */
+export async function importReviews(adminPassword, { reviewer, csvText }) {
+  const res = await fetch(apiUrl("/admin/reviews"), {
+    method: "POST",
+    headers: adminHeaders(adminPassword, true),
+    body: JSON.stringify({ reviewer, csv_text: csvText }),
+  });
+  if (!res.ok) throw await readAdminError(res, "Could not save these reviews");
+  return res.json();
+}

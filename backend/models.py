@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from typing import Annotated
+
+from pydantic import BaseModel, Field, StringConstraints, field_validator, model_validator
 
 
 class TriageIntake(BaseModel):
@@ -128,6 +130,13 @@ class UserInterviewCreate(BaseModel):
     q1: str = Field(default="", max_length=8000)
     q2: str = Field(default="", max_length=8000)
     q3: str = Field(default="", max_length=8000)
+
+
+class ReviewImport(BaseModel):
+    """A review sample CSV after a trainer or vet has marked it."""
+
+    reviewer: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+    csv_text: str = Field(..., min_length=1, max_length=1_000_000)
 
 
 class OutreachUpdate(BaseModel):

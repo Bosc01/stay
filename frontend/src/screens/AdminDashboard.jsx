@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchAdminStats } from "../api.js";
+import { downloadReviewSample, fetchAdminStats, importReviews } from "../api.js";
 import {
   clearStoredPassword,
   loadStoredPassword,
@@ -19,6 +19,8 @@ const FUNNEL_LABELS = {
   return_visit_7d: "Came back within 7 days",
 };
 
+const SEVERITY_LABELS = { green: "Green", yellow: "Yellow", red: "Red", unknown: "No severity" };
+
 export default function AdminDashboard() {
   const [storedPassword, setStoredPassword] = useState(loadStoredPassword);
   const [gateInput, setGateInput] = useState("");
@@ -26,6 +28,11 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [reviewer, setReviewer] = useState("");
+  const [reviewFile, setReviewFile] = useState(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState("");
+  const [reviewErrors, setReviewErrors] = useState([]);
 
   // The backend is the only judge of the password; a 401 sends you back here.
   const authed = Boolean(storedPassword);
@@ -77,6 +84,51 @@ export default function AdminDashboard() {
     setStoredPassword("");
     setStats(null);
     setLoadError("");
+  };
+
+  const reviewFailed = (e, fallback) => {
+    if (e?.status === 401) {
+      clearStoredPassword();
+      setStoredPassword("");
+      setStats(null);
+      setGateError("That password did not work.");
+      return;
+    }
+    setReviewMessage(sanitizeApiErrorMessage(e?.message || fallback));
+  };
+
+  const handleDownloadSample = async () => {
+    setReviewMessage("");
+    setReviewErrors([]);
+    try {
+      await downloadReviewSample(storedPassword);
+    } catch (e) {
+      reviewFailed(e, "Could not build the review file.");
+    }
+  };
+
+  const handleImportReviews = async (e) => {
+    e.preventDefault();
+    setReviewMessage("");
+    setReviewErrors([]);
+    if (!reviewer.trim() || !reviewFile) {
+      setReviewMessage("Add the reviewer's name and the marked file.");
+      return;
+    }
+    setReviewBusy(true);
+    try {
+      const res = await importReviews(storedPassword, {
+        reviewer: reviewer.trim(),
+        csvText: await reviewFile.text(),
+      });
+      setReviewMessage(`Saved ${res.saved} review${res.saved === 1 ? "" : "s"}.`);
+      setReviewErrors(res.errors || []);
+      loadStats();
+    } catch (err) {
+      reviewFailed(err, "Could not save these reviews.");
+    } finally {
+      setReviewBusy(false);
+    }
   };
 
   if (!authed) {
@@ -251,6 +303,81 @@ export default function AdminDashboard() {
                             : step.from_previous == null
                               ? " - "
                               : `${(step.from_previous * 100).toFixed(1)}% of the step above`}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </section>
+            ) : null}
+
+            {stats ? (
+              <section className="admin-breakdown" aria-labelledby="admin-review-heading">
+                <h3 id="admin-review-heading" className="admin-breakdown__title">
+                  Quality review
+                </h3>
+                <p className="admin-breakdown__hint">
+                  Download 30 random completed triages for a trainer or vet. They write
+                  agree or disagree in the verdict column, add a note if they like, and
+                  you upload the file back here. Uploading again under the same reviewer
+                  name replaces their earlier verdicts.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={handleDownloadSample}>
+                  Download 30 to review
+                </button>
+                <form onSubmit={handleImportReviews} className="admin-review-form">
+                  <input
+                    type="text"
+                    className="text-input"
+                    placeholder="Reviewer name"
+                    maxLength={100}
+                    value={reviewer}
+                    onChange={(e) => setReviewer(e.target.value)}
+                  />
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    aria-label="Marked review file"
+                    onChange={(e) => setReviewFile(e.target.files?.[0] || null)}
+                  />
+                  <button type="submit" className="btn btn-primary" disabled={reviewBusy}>
+                    {reviewBusy ? "Saving reviews" : "Upload marked file"}
+                  </button>
+                </form>
+                {reviewMessage ? <p className="admin-breakdown__hint">{reviewMessage}</p> : null}
+                {reviewErrors.length > 0 ? (
+                  <ul className="admin-review-errors">
+                    {reviewErrors.map((msg) => (
+                      <li key={msg}>{msg}</li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                <h4 className="admin-breakdown__subhead">Agreement by severity</h4>
+                {stats.review_agreement == null ? (
+                  <p className="admin-breakdown__empty">
+                    No review data yet. Run backend/sql/triage_reviews.sql in Supabase.
+                  </p>
+                ) : (
+                  <ol className="admin-daily-list">
+                    {stats.review_agreement.map((row) => (
+                      <li key={row.severity} className="admin-daily-row admin-funnel-row">
+                        <span className="admin-daily-date">
+                          {SEVERITY_LABELS[row.severity] || row.severity}
+                        </span>
+                        <div className="admin-daily-bar-wrap">
+                          <div
+                            className="admin-daily-bar"
+                            style={{ width: `${(row.rate || 0) * 100}%` }}
+                          />
+                        </div>
+                        <span className="admin-daily-count">
+                          {row.rate == null ? " - " : `${(row.rate * 100).toFixed(0)}%`}
+                        </span>
+                        <span className="admin-funnel-rate">
+                          {row.reviews
+                            ? `${row.agree} of ${row.reviews} reviews agree`
+                            : "No reviews yet"}
                         </span>
                       </li>
                     ))}
