@@ -91,8 +91,13 @@ class WeeklyCheckInRequest(BaseModel):
 
 class ProfileSessionUpdate(BaseModel):
     # The profile screen accepts photos up to 1.5 MB and sends them as a
-    # base64 data URL, which is just under 2.1 million characters.
-    photo_url: str | None = Field(default=None, max_length=2_100_000)
+    # base64 data URL, which is just under 2.1 million characters. Only an
+    # inline PNG, JPEG, or WebP passes, never a link the page would load.
+    photo_url: str | None = Field(
+        default=None,
+        max_length=2_100_000,
+        pattern=r"^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/]*={0,2}$",
+    )
     dog_name: str | None = Field(default=None, max_length=200)
 
 

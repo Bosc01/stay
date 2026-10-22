@@ -110,3 +110,19 @@ def test_intake_text_and_photo_url_are_capped():
     ProfileSessionUpdate(photo_url=photo)
     with pytest.raises(ValidationError):
         ProfileSessionUpdate(photo_url=photo + "A" * 10_000)
+
+
+def test_photo_url_must_be_an_inline_png_jpeg_or_webp():
+    for kind in ("png", "jpeg", "webp"):
+        ProfileSessionUpdate(photo_url=f"data:image/{kind};base64,iVBORw0KGgo=")
+    ProfileSessionUpdate(photo_url=None)
+
+    for bad in (
+        "https://tracker.example/pixel.png",
+        "data:image/svg+xml;base64,PHN2Zz4=",
+        "data:text/html;base64,PGgxPg==",
+        "data:image/png;base64,not base64!",
+        "",
+    ):
+        with pytest.raises(ValidationError):
+            ProfileSessionUpdate(photo_url=bad)

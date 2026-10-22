@@ -14,6 +14,8 @@ import { getProfileSessionIds } from "../profileHistory.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 
 const MAX_PHOTO_BYTES = 1.5 * 1024 * 1024;
+// The API stores only these, so check here and give a readable message.
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function formatHistoryDate(iso) {
   if (!iso) return " - ";
@@ -189,6 +191,10 @@ export default function DogProfile() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !sessionId) return;
+    if (!PHOTO_TYPES.includes(file.type)) {
+      setLoadError("Use a JPEG, PNG, or WebP photo.");
+      return;
+    }
     if (file.size > MAX_PHOTO_BYTES) {
       setLoadError("Photo is too large. Try an image under 1.5 MB.");
       return;
@@ -313,7 +319,7 @@ export default function DogProfile() {
                   {photoBusy ? "Uploading…" : "Upload photo"}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={PHOTO_TYPES.join(",")}
                     className="dog-profile-file-input"
                     disabled={photoBusy}
                     onChange={handlePhoto}
