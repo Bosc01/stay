@@ -203,14 +203,7 @@ def admin_send_checkins(
 
 
 @router.get("/stats")
-def admin_stats(
-    ref: str | None = Query(None, max_length=128),
-    x_admin_password: str | None = Header(None),
-):
-    ref_clean = (ref or "").strip()
-    if ref_clean:
-        return _shelter_impact_stats(ref_clean)
-
+def admin_stats(x_admin_password: str | None = Header(None)):
     _require_admin(x_admin_password)
 
     supabase = get_supabase()

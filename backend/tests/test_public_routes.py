@@ -61,3 +61,10 @@ def test_session_reads_never_return_the_owner_email(client, monkeypatch, path, m
     body = res.json()
     assert body["dog_name"] == "Rosie" and body["intake"]["dog_name"] == "Rosie"
     assert "owner@example.com" not in json.dumps(body)
+
+
+def test_admin_stats_with_a_ref_still_needs_the_admin_password(client):
+    """?ref= used to skip auth. Public shelter stats live at /impact/shelter/{ref}."""
+    res = client.get("/admin/stats", params={"ref": "austin-pets-alive"})
+
+    assert res.status_code == 401

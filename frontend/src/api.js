@@ -199,8 +199,7 @@ export async function submitAsk({ question }) {
 
 /** Public shelter impact metrics (no admin password). */
 export async function fetchShelterImpactStats(ref) {
-  const q = new URLSearchParams({ ref });
-  const res = await fetch(`${apiUrl("/admin/stats")}?${q.toString()}`);
+  const res = await fetch(apiUrl(`/impact/shelter/${encodeURIComponent(ref)}`));
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
