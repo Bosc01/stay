@@ -1,5 +1,7 @@
-/** Shared admin gate storage, used by the dashboard and the outreach queue. */
-export const ADMIN_PASSWORD = "stay2026";
+/**
+ * Shared admin gate storage, used by the dashboard and the outreach queue.
+ * The password itself is never in the bundle: the backend checks it.
+ */
 
 const SESSION_STORAGE_KEY = "stay_admin_password";
 

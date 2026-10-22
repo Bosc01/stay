@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../api.js";
 import {
-  ADMIN_PASSWORD,
   clearStoredPassword,
   loadStoredPassword,
   savePassword,
@@ -28,7 +27,8 @@ export default function AdminDashboard() {
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const authed = storedPassword === ADMIN_PASSWORD;
+  // The backend is the only judge of the password; a 401 sends you back here.
+  const authed = Boolean(storedPassword);
 
   const loadStats = useCallback(async () => {
     if (!authed) return;
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
         clearStoredPassword();
         setStoredPassword("");
         setStats(null);
-        setLoadError("Session expired - sign in again.");
+        setGateError("That password did not work.");
         return;
       }
       setLoadError(
@@ -63,8 +63,8 @@ export default function AdminDashboard() {
   const handleGateSubmit = (e) => {
     e.preventDefault();
     setGateError("");
-    if (gateInput !== ADMIN_PASSWORD) {
-      setGateError("Incorrect password.");
+    if (!gateInput) {
+      setGateError("Enter the dashboard password.");
       return;
     }
     savePassword(gateInput);

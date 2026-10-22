@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchOutreachTargets, patchOutreachTarget } from "../api.js";
 import {
-  ADMIN_PASSWORD,
   clearStoredPassword,
   loadStoredPassword,
   savePassword,
@@ -38,7 +37,8 @@ export default function AdminOutreach() {
   const [editBody, setEditBody] = useState("");
   const [notice, setNotice] = useState("");
 
-  const authed = storedPassword === ADMIN_PASSWORD;
+  // The backend is the only judge of the password; a 401 sends you back here.
+  const authed = Boolean(storedPassword);
 
   const loadTargets = useCallback(async () => {
     if (!authed) return;
@@ -52,7 +52,7 @@ export default function AdminOutreach() {
         clearStoredPassword();
         setStoredPassword("");
         setTargets([]);
-        setLoadError("Session expired - sign in again.");
+        setGateError("That password did not work.");
         return;
       }
       setLoadError(sanitizeApiErrorMessage(e.message || "Failed to load outreach"));
@@ -68,8 +68,8 @@ export default function AdminOutreach() {
   const handleGateSubmit = (e) => {
     e.preventDefault();
     setGateError("");
-    if (gateInput !== ADMIN_PASSWORD) {
-      setGateError("Incorrect password.");
+    if (!gateInput) {
+      setGateError("Enter the dashboard password.");
       return;
     }
     savePassword(gateInput);
