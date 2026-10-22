@@ -30,6 +30,11 @@ export default function SiteFooter({ className = "" }) {
                 Pilot impact
               </Link>
             </li>
+            <li>
+              <Link to="/found-a-dog" className="site-footer__link">
+                Found a dog? (demo)
+              </Link>
+            </li>
           </ul>
         </nav>
 

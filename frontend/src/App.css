@@ -2844,3 +2844,17 @@ a.logo-link {
   padding: 9px 16px;
   text-decoration: none;
 }
+
+/* Found a dog? demo page */
+.found-dog-page { display: flex; flex-direction: column; gap: 1rem; }
+.found-dog-page__headline { margin: 0; }
+.found-dog-page__demo { padding: 0.75rem 1rem; border-radius: 0.5rem; background: var(--bg-elevated); border-left: 3px solid var(--amber-400); color: var(--paper-100); margin: 0; }
+.found-dog-page__form { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+.found-dog-page__upload { display: flex; flex-direction: column; gap: 0.5rem; font-weight: 600; }
+.found-dog-page__preview { max-width: 240px; border-radius: 0.5rem; }
+.found-dog-page__matches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; padding: 0; list-style: none; margin: 0; }
+.found-dog-page__match { display: flex; flex-direction: column; gap: 0.25rem; }
+.found-dog-page__match img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0.5rem; }
+.found-dog-page__confidence { font-weight: 600; margin: 0; }
+.found-dog-page__muted { color: var(--paper-300); font-size: 0.9rem; margin: 0; }
+.found-dog-page__attribution { color: var(--paper-300); font-size: 0.85rem; }
