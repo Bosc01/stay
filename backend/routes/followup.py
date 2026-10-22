@@ -11,6 +11,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
 from routes.events import log_event
+from routes.profile import PUBLIC_SESSION_COLUMNS, public_session
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +291,7 @@ def get_followup(session_id: str):
         result = (
             get_supabase()
             .table("triage_sessions")
-            .select("*")
+            .select(PUBLIC_SESSION_COLUMNS)
             .eq("id", session_id)
             .execute()
         )
@@ -300,5 +301,4 @@ def get_followup(session_id: str):
     if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    session = result.data[0]
-    return session
+    return public_session(result.data[0])

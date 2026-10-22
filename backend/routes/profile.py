@@ -5,6 +5,18 @@ from models import JournalEntryCreate, ProfileSessionUpdate, SessionHistoryReque
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
+# Session reads take no auth, so they select only what the profile and
+# check-in screens show. The email column is never among them.
+PUBLIC_SESSION_COLUMNS = "id, created_at, dog_name, photo_url, intake, result"
+
+
+def public_session(row: dict) -> dict:
+    """The stored intake can carry an email too; drop it before returning."""
+    intake = row.get("intake")
+    if isinstance(intake, dict) and "email" in intake:
+        row = {**row, "intake": {k: v for k, v in intake.items() if k != "email"}}
+    return row
+
 
 @router.get("/session/{session_id}")
 def get_session(session_id: str):
@@ -12,7 +24,7 @@ def get_session(session_id: str):
         res = (
             get_supabase()
             .table("triage_sessions")
-            .select("*")
+            .select(PUBLIC_SESSION_COLUMNS)
             .eq("id", session_id)
             .single()
             .execute()
@@ -23,7 +35,7 @@ def get_session(session_id: str):
     if not res.data:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    return res.data
+    return public_session(res.data)
 
 
 @router.patch("/session/{session_id}")
