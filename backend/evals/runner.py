@@ -15,7 +15,6 @@ Costs roughly one triage call per case.
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
 from dataclasses import dataclass, field
@@ -138,36 +137,17 @@ def format_report(outcomes: list[CaseOutcome], summary: dict) -> str:
 
 
 def run_case_against_api(case: EvalCase) -> dict:
-    """Send one case through the real triage prompt. Costs an API call."""
-    import anthropic
+    """Send one case through the real triage path. Costs an API call.
 
-    from prompts.system import OWNER_CONTEXT, SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
+    Goes through run_triage itself, so the eval scores what owners get:
+    retrieved reference material, the thinking path for high-stakes cases, and
+    the same parsing. dry_run keeps it out of Supabase.
+    """
+    from models import TriageIntake
+    from routes.triage import run_triage
 
-    intake = case.intake
-    system_blocks = [
-        {"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}},
-        {
-            "type": "text",
-            "text": OWNER_CONTEXT.replace(
-                "{owner_experience}", intake.get("owner_experience") or "Not specified"
-            ).replace(
-                "{prior_training}", intake.get("prior_training") or "Not specified"
-            ),
-        },
-    ]
-    if intake.get("sudden_onset"):
-        system_blocks.append({"type": "text", "text": SUDDEN_ONSET_PRIORITY.strip()})
-
-    response = anthropic.Anthropic().messages.create(
-        model="claude-sonnet-5",
-        max_tokens=1024,
-        thinking={"type": "disabled"},
-        system=system_blocks,
-        messages=[{"role": "user", "content": json.dumps(intake, indent=2)}],
-    )
-    raw = response.content[0].text.strip()
-    raw = raw.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(raw)
+    result, _ = run_triage(TriageIntake(**case.intake), dry_run=True)
+    return result.model_dump()
 
 
 def main(argv: list[str] | None = None) -> int:

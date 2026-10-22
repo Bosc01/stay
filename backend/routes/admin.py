@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Header, HTTPException, Query
 
 from db import get_supabase
+from models import OutreachUpdate
 from tasks.checkin import send_7day_checkins
 
 logger = logging.getLogger(__name__)
@@ -203,10 +204,13 @@ def _created_at_date_utc(value) -> str | None:
 
 
 @router.get("/send-checkins")
-async def admin_send_checkins(x_admin_password: str | None = Header(None)):
+async def admin_send_checkins(
+    dry_run: bool = Query(False),
+    x_admin_password: str | None = Header(None),
+):
     """Manually trigger 7-day follow-up emails (due rows only)."""
     _require_admin(x_admin_password)
-    return send_7day_checkins()
+    return send_7day_checkins(dry_run=dry_run)
 
 
 @router.get("/stats")
@@ -322,3 +326,65 @@ async def admin_stats(
         "recent_user_interviews": recent_user_interviews,
         "updated_at": now.isoformat(),
     }
+
+
+OUTREACH_COLUMNS = (
+    "id,org_name,city,website,contact_name,contact_title,contact_email,"
+    "specific_detail,detail_source_url,status,drafted_body,sent_at,replied_at,created_at"
+)
+
+
+@router.get("/outreach")
+async def list_outreach_targets(
+    status: str | None = Query(None, max_length=32),
+    x_admin_password: str | None = Header(None),
+):
+    """Drafted outreach with the research attached, newest first."""
+    _require_admin(x_admin_password)
+
+    try:
+        query = (
+            get_supabase()
+            .table("outreach_targets")
+            .select(OUTREACH_COLUMNS)
+            .order("created_at", desc=True)
+            .limit(PAGE_SIZE)
+        )
+        if status:
+            query = query.eq("status", status.strip().lower())
+        res = query.execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    return {"targets": list(res.data or [])}
+
+
+@router.patch("/outreach/{target_id}")
+async def update_outreach_target(
+    target_id: str,
+    body: OutreachUpdate,
+    x_admin_password: str | None = Header(None),
+):
+    _require_admin(x_admin_password)
+
+    update_data = body.model_dump(exclude_unset=True, exclude_none=True)
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    if update_data.get("status") == "sent":
+        update_data["sent_at"] = datetime.now(timezone.utc).isoformat()
+
+    try:
+        res = (
+            get_supabase()
+            .table("outreach_targets")
+            .update(update_data)
+            .eq("id", target_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Target not found")
+
+    return {"status": "ok", "target": res.data[0]}

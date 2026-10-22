@@ -1837,3 +1837,16 @@ textarea:disabled {
     opacity: 1;
   }
 }
+
+/* Result: quiet source line under the first step */
+.result-source-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--paper-300);
+}
+.result-source-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

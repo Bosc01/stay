@@ -187,19 +187,25 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
 
 @router.post("/checkin")
 async def week1_checkin(req: CheckInRequest):
+    """Records a day-7 answer. Also the landing for the one-tap email links."""
     now = datetime.now()
+    update_data: dict = {}
+
+    if req.improvement_score is not None:
+        update_data["week1_improvement_score"] = req.improvement_score
+        update_data["week2_send_at"] = (now + timedelta(days=14)).isoformat()
+        update_data["week3_send_at"] = (now + timedelta(days=21)).isoformat()
+        update_data["week4_send_at"] = (now + timedelta(days=28)).isoformat()
+
+    if req.dog_still_home is not None:
+        update_data["followed_up"] = True
+        update_data["dog_still_home"] = req.dog_still_home
+
     try:
         result = (
             get_supabase()
             .table("triage_sessions")
-            .update(
-                {
-                    "week1_improvement_score": req.improvement_score,
-                    "week2_send_at": (now + timedelta(days=14)).isoformat(),
-                    "week3_send_at": (now + timedelta(days=21)).isoformat(),
-                    "week4_send_at": (now + timedelta(days=28)).isoformat(),
-                }
-            )
+            .update(update_data)
             .eq("id", req.session_id)
             .execute()
         )

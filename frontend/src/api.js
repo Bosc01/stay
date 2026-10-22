@@ -93,6 +93,30 @@ export async function fetchFollowupSession(sessionId) {
   return res.json();
 }
 
+/** Records a one-tap answer from the day 7 check-in email. */
+export async function submitCheckinReply({
+  session_id,
+  dog_still_home,
+  improvement_score,
+}) {
+  const body = { session_id };
+  if (dog_still_home !== null && dog_still_home !== undefined) {
+    body.dog_still_home = dog_still_home;
+  }
+  if (improvement_score !== null && improvement_score !== undefined) {
+    body.improvement_score = improvement_score;
+  }
+  const res = await fetch(apiUrl("/checkin"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error("Could not save check-in");
+  }
+  return res.json();
+}
+
 export async function submitWeeklyCheckin({
   session_id,
   week_number,
@@ -285,5 +309,45 @@ export async function fetchAdminStats(adminPassword) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Could not load admin stats");
   }
+  return res.json();
+}
+
+function adminHeaders(adminPassword, withBody = false) {
+  const headers = { "X-Admin-Password": adminPassword };
+  if (withBody) headers["Content-Type"] = "application/json";
+  return headers;
+}
+
+async function readAdminError(res, fallback) {
+  if (res.status === 401) {
+    const err = new Error("Unauthorized");
+    err.status = 401;
+    return err;
+  }
+  const body = await res.json().catch(() => ({}));
+  return new Error(body.detail || fallback);
+}
+
+/** Drafted shelter outreach, newest first. */
+export async function fetchOutreachTargets(adminPassword, status) {
+  const q = status ? `?${new URLSearchParams({ status }).toString()}` : "";
+  const res = await fetch(`${apiUrl("/admin/outreach")}${q}`, {
+    headers: adminHeaders(adminPassword),
+  });
+  if (!res.ok) throw await readAdminError(res, "Could not load outreach targets");
+  return res.json();
+}
+
+/** Change a target's status, or save an edited body. */
+export async function patchOutreachTarget(adminPassword, targetId, body) {
+  const res = await fetch(
+    apiUrl(`/admin/outreach/${encodeURIComponent(targetId)}`),
+    {
+      method: "PATCH",
+      headers: adminHeaders(adminPassword, true),
+      body: JSON.stringify(body),
+    }
+  );
+  if (!res.ok) throw await readAdminError(res, "Could not update this target");
   return res.json();
 }

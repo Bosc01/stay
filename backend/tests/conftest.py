@@ -38,6 +38,8 @@ VALID_TRIAGE_JSON = """{
 
 
 class FakeTextBlock:
+    type = "text"
+
     def __init__(self, text: str) -> None:
         self.text = text
 

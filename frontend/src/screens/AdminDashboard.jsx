@@ -1,37 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../api.js";
+import {
+  ADMIN_PASSWORD,
+  clearStoredPassword,
+  loadStoredPassword,
+  savePassword,
+} from "../adminAuth.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
-const ADMIN_PASSWORD = "stay2026";
-const SESSION_STORAGE_KEY = "stay_admin_password";
 const REFRESH_MS = 60_000;
-
-function loadStoredPassword() {
-  try {
-    return sessionStorage.getItem(SESSION_STORAGE_KEY) || "";
-  } catch {
-    return "";
-  }
-}
-
-function savePassword(pw) {
-  try {
-    sessionStorage.setItem(SESSION_STORAGE_KEY, pw);
-  } catch {
-    /* ignore */
-  }
-}
-
-function clearStoredPassword() {
-  try {
-    sessionStorage.removeItem(SESSION_STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
-}
 
 export default function AdminDashboard() {
   const [storedPassword, setStoredPassword] = useState(loadStoredPassword);
