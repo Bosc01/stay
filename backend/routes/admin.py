@@ -193,7 +193,7 @@ def _created_at_date_utc(value) -> str | None:
 
 
 @router.get("/send-checkins")
-async def admin_send_checkins(
+def admin_send_checkins(
     dry_run: bool = Query(False),
     x_admin_password: str | None = Header(None),
 ):
@@ -203,7 +203,7 @@ async def admin_send_checkins(
 
 
 @router.get("/stats")
-async def admin_stats(
+def admin_stats(
     ref: str | None = Query(None, max_length=128),
     x_admin_password: str | None = Header(None),
 ):
@@ -352,7 +352,7 @@ OUTREACH_COLUMNS = (
 
 
 @router.get("/outreach")
-async def list_outreach_targets(
+def list_outreach_targets(
     status: str | None = Query(None, max_length=32),
     x_admin_password: str | None = Header(None),
 ):
@@ -377,7 +377,7 @@ async def list_outreach_targets(
 
 
 @router.patch("/outreach/{target_id}")
-async def update_outreach_target(
+def update_outreach_target(
     target_id: str,
     body: OutreachUpdate,
     x_admin_password: str | None = Header(None),
@@ -544,7 +544,7 @@ def agreement_by_severity(reviews: list[dict]) -> list[dict]:
 
 
 @router.get("/reviews/sample")
-async def review_sample(x_admin_password: str | None = Header(None)):
+def review_sample(x_admin_password: str | None = Header(None)):
     """REVIEW_SAMPLE_SIZE random completed triages as CSV, ready to mark."""
     _require_admin(x_admin_password)
     try:
@@ -579,7 +579,7 @@ async def review_sample(x_admin_password: str | None = Header(None)):
 
 
 @router.post("/reviews")
-async def import_reviews(body: ReviewImport, x_admin_password: str | None = Header(None)):
+def import_reviews(body: ReviewImport, x_admin_password: str | None = Header(None)):
     """Store verdicts from a marked review CSV. The severity comes from the
     stored triage, not from the file, so an edited cell cannot move a verdict."""
     _require_admin(x_admin_password)

@@ -204,8 +204,10 @@ def _funnel_session_id(raw: str | None) -> str:
         return str(uuid.uuid4())
 
 
+# Plain def, not async: the Claude and Supabase clients block, so FastAPI must
+# run this in its threadpool or one slow triage stalls every other request.
 @router.post("/triage")
-async def triage(intake: TriageIntake, request: Request, background_tasks: BackgroundTasks):
+def triage(intake: TriageIntake, request: Request, background_tasks: BackgroundTasks):
     if not allow_request(client_ip(request)):
         raise HTTPException(
             status_code=429,

@@ -100,8 +100,11 @@ def test_parallel_requests_from_one_client_stop_at_the_limit(fake_supabase, fake
 
     class SlowBuckets(dict):
         def get(self, key, default=None):
-            time.sleep(0.005)
-            return super().get(key, default)
+            # Read, then hold the stale value, so unguarded threads all act on
+            # the same count before any of them writes it back.
+            value = super().get(key, default)
+            time.sleep(0.01)
+            return value
 
     monkeypatch.setattr(ratelimit, "_rate_limit", SlowBuckets())
     fake_claude()

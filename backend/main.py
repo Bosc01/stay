@@ -2,6 +2,9 @@ from dotenv import load_dotenv
 
 load_dotenv("backend/.env")
 
+from contextlib import asynccontextmanager
+
+from anyio import to_thread
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,7 +26,18 @@ from routes.user_interview import router as user_interview_router
 from routes.impact import router as impact_router
 from routes.events import router as events_router
 
-app = FastAPI(title="Stay — Dog Behavior Triage")
+# Every handler but two is sync, and a thinking-path triage can hold a thread
+# for tens of seconds, so AnyIO's default of 40 threads runs out first.
+THREADPOOL_SIZE = 100
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    to_thread.current_default_thread_limiter().total_tokens = THREADPOOL_SIZE
+    yield
+
+
+app = FastAPI(title="Stay - Dog Behavior Triage", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

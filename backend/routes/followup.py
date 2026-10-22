@@ -95,7 +95,7 @@ def _generate_revised_first_step(
 
 
 @router.post("/followup")
-async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
+def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
     update_data: dict = {}
     response_extra: dict = {}
 
@@ -191,7 +191,7 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
 
 
 @router.post("/checkin")
-async def week1_checkin(req: CheckInRequest):
+def week1_checkin(req: CheckInRequest):
     """Records a day-7 answer. Also the landing for the one-tap email links."""
     now = datetime.now()
     update_data: dict = {}
@@ -224,7 +224,7 @@ async def week1_checkin(req: CheckInRequest):
 
 
 @router.post("/checkin/weekly")
-async def weekly_checkin(req: WeeklyCheckInRequest):
+def weekly_checkin(req: WeeklyCheckInRequest):
     try:
         session_row = (
             get_supabase()
@@ -285,7 +285,7 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
 
 
 @router.get("/followup/{session_id}")
-async def get_followup(session_id: str):
+def get_followup(session_id: str):
     try:
         result = (
             get_supabase()

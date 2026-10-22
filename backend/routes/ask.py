@@ -16,7 +16,7 @@ SYSTEM_PROMPT = (
 
 
 @router.post("/ask")
-async def ask(req: AskRequest):
+def ask(req: AskRequest):
     try:
         response = client.messages.create(
             model="claude-sonnet-5",
