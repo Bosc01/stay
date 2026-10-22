@@ -68,3 +68,16 @@ def test_admin_stats_with_a_ref_still_needs_the_admin_password(client):
     res = client.get("/admin/stats", params={"ref": "austin-pets-alive"})
 
     assert res.status_code == 401
+
+
+def test_cors_answers_only_listed_origins(client, monkeypatch):
+    from main import allowed_origins
+
+    allowed = client.get("/health", headers={"Origin": "https://www.trystay.org"})
+    assert allowed.headers.get("access-control-allow-origin") == "https://www.trystay.org"
+
+    other = client.get("/health", headers={"Origin": "https://evil.example"})
+    assert "access-control-allow-origin" not in other.headers
+
+    monkeypatch.setenv("ALLOWED_ORIGINS", " https://preview.example/ , https://www.trystay.org")
+    assert allowed_origins() == ["https://preview.example", "https://www.trystay.org"]

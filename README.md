@@ -95,6 +95,8 @@ uvicorn main:app --reload
 
 `RESEND_API_KEY` and `ADMIN_PASSWORD` are needed only for email and the admin
 dashboard.
+`ALLOWED_ORIGINS` (comma separated) replaces the CORS allowlist, which
+defaults to trystay.org, www.trystay.org, and the local Vite ports.
 
 Frontend:
 

@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv("backend/.env")
 
+import os
 from contextlib import asynccontextmanager
 
 from anyio import to_thread
@@ -26,6 +27,19 @@ from routes.user_interview import router as user_interview_router
 from routes.impact import router as impact_router
 from routes.events import router as events_router
 
+# Browsers may call the API only from these origins. ALLOWED_ORIGINS, comma
+# separated, replaces the list (a preview deploy, for example).
+DEFAULT_ALLOWED_ORIGINS = (
+    "https://trystay.org,https://www.trystay.org,"
+    "http://localhost:5173,http://localhost:4173"
+)
+
+
+def allowed_origins() -> list[str]:
+    raw = os.environ.get("ALLOWED_ORIGINS") or DEFAULT_ALLOWED_ORIGINS
+    return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+
+
 # Every handler but two is sync, and a thinking-path triage can hold a thread
 # for tens of seconds, so AnyIO's default of 40 threads runs out first.
 THREADPOOL_SIZE = 100
@@ -41,7 +55,7 @@ app = FastAPI(title="Stay - Dog Behavior Triage", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
