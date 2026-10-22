@@ -224,6 +224,6 @@ def test_stats_page_past_1000_rows_and_carry_funnel_and_agreement(monkeypatch):
     assert stats["funnel"][0] == {"event": "triage_started", "count": 1, "from_previous": None}
     assert stats["review_agreement"][2] == {"severity": "red", "reviews": 1, "agree": 1, "rate": 1.0}
 
-    shelter = client.get("/admin/stats", params={"ref": "austin-pets-alive"}).json()
+    shelter = client.get("/impact/shelter/austin-pets-alive").json()
     assert shelter["owners_helped"] == 1500 and shelter["average_severity_label"] == "High", shelter
 

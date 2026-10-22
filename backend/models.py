@@ -4,18 +4,19 @@ from pydantic import BaseModel, Field, StringConstraints, field_validator, model
 
 
 class TriageIntake(BaseModel):
-    behavior_type: str
+    # Every field is stored and sent to the model, so each one is capped.
+    behavior_type: str = Field(..., max_length=200)
     behavior_intensity: int | None = Field(default=None, ge=1, le=3)
-    behavior_description: str | None = None
-    dog_name: str | None = None
-    owner_experience: str | None = None
-    prior_training: str | None = None
-    referral_source: str | None = None
+    behavior_description: str | None = Field(default=None, max_length=4000)
+    dog_name: str | None = Field(default=None, max_length=200)
+    owner_experience: str | None = Field(default=None, max_length=100)
+    prior_training: str | None = Field(default=None, max_length=100)
+    referral_source: str | None = Field(default=None, max_length=128)
     sudden_onset: bool = False
-    triggers: list[str]
-    duration: str
-    already_tried: str
-    email: str | None = None
+    triggers: list[Annotated[str, StringConstraints(max_length=200)]] = Field(..., max_length=10)
+    duration: str = Field(..., max_length=100)
+    already_tried: str = Field(..., max_length=4000)
+    email: str | None = Field(default=None, max_length=320)
     # Minted by the browser at intake start so the funnel can follow the
     # session. Excluded from model_dump, so it never reaches the prompt or the
     # stored intake.
@@ -54,7 +55,7 @@ class TriageWithSession(TriageResult):
 
 class FollowUpRequest(BaseModel):
     session_id: str
-    email: str | None = None
+    email: str | None = Field(default=None, max_length=320)
     dog_still_home: bool | None = None
     improvement_score: int | None = None
 
@@ -89,8 +90,15 @@ class WeeklyCheckInRequest(BaseModel):
 
 
 class ProfileSessionUpdate(BaseModel):
-    photo_url: str | None = None
-    dog_name: str | None = None
+    # The profile screen accepts photos up to 1.5 MB and sends them as a
+    # base64 data URL, which is just under 2.1 million characters. Only an
+    # inline PNG, JPEG, or WebP passes, never a link the page would load.
+    photo_url: str | None = Field(
+        default=None,
+        max_length=2_100_000,
+        pattern=r"^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/]*={0,2}$",
+    )
+    dog_name: str | None = Field(default=None, max_length=200)
 
 
 class SessionHistoryRequest(BaseModel):

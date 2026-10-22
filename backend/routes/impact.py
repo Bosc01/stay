@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import datetime, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Path
 
 from db import get_supabase
 from routes.admin import (
@@ -9,6 +9,7 @@ from routes.admin import (
     _count_with_email,
     _paginate_select,
     _parse_result,
+    _shelter_impact_stats,
 )
 
 router = APIRouter(prefix="/impact", tags=["impact"])
@@ -74,3 +75,12 @@ def impact_public():
         "avg_improvement": avg_improvement,
         "updated_at": now.isoformat(),
     }
+
+
+@router.get("/shelter/{ref}")
+def impact_shelter(ref: str = Path(max_length=128)):
+    """Public per-shelter counts for the shelter page, keyed by referral slug (no auth)."""
+    ref_clean = ref.strip()
+    if not ref_clean:
+        raise HTTPException(status_code=404, detail="Unknown shelter")
+    return _shelter_impact_stats(ref_clean)

@@ -192,25 +192,22 @@ def _created_at_date_utc(value) -> str | None:
     return day.isoformat() if day else None
 
 
-@router.get("/send-checkins")
+@router.post("/send-checkins")
 def admin_send_checkins(
     dry_run: bool = Query(False),
     x_admin_password: str | None = Header(None),
 ):
-    """Manually trigger 7-day follow-up emails (due rows only)."""
+    """Manually trigger 7-day follow-up emails (due rows only).
+
+    POST because it sends real email, and link prefetchers and crawlers
+    follow GETs.
+    """
     _require_admin(x_admin_password)
     return send_7day_checkins(dry_run=dry_run)
 
 
 @router.get("/stats")
-def admin_stats(
-    ref: str | None = Query(None, max_length=128),
-    x_admin_password: str | None = Header(None),
-):
-    ref_clean = (ref or "").strip()
-    if ref_clean:
-        return _shelter_impact_stats(ref_clean)
-
+def admin_stats(x_admin_password: str | None = Header(None)):
     _require_admin(x_admin_password)
 
     supabase = get_supabase()

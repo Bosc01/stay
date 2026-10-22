@@ -11,6 +11,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
 from routes.events import log_event
+from routes.profile import PUBLIC_SESSION_COLUMNS, public_session
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,7 @@ def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
 
     # If we can't find the session, create a minimal one so the user still gets confirmation.
     saved = False
+    row: dict = {}
     try:
         supabase = get_supabase()
         update_res = (
@@ -128,7 +130,9 @@ def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
             .execute()
         )
 
-        if not update_res.data:
+        if update_res.data:
+            row = update_res.data[0]
+        else:
             minimal_row = {"id": req.session_id}
             if req.email is not None:
                 minimal_row["email"] = req.email
@@ -143,16 +147,12 @@ def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
         if saved:
             background_tasks.add_task(log_event, req.session_id, "email_signup")
 
-    # Best-effort welcome email after email signup is saved.
-    if req.email is not None:
+    # Best-effort welcome email after email signup is saved. When the save
+    # failed, no check-in is scheduled, so the email's promise would be false.
+    if req.email is not None and saved:
         try:
             resend.api_key = os.environ.get("RESEND_API_KEY")
             if resend.api_key:
-                row = (
-                    update_res.data[0]
-                    if isinstance(update_res.data, list) and update_res.data
-                    else {}
-                )
                 intake = row.get("intake") or {}
                 triage_result = row.get("result") or {}
                 dog_name = (
@@ -290,7 +290,7 @@ def get_followup(session_id: str):
         result = (
             get_supabase()
             .table("triage_sessions")
-            .select("*")
+            .select(PUBLIC_SESSION_COLUMNS)
             .eq("id", session_id)
             .execute()
         )
@@ -300,5 +300,4 @@ def get_followup(session_id: str):
     if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    session = result.data[0]
-    return session
+    return public_session(result.data[0])

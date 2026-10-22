@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from models import (
     CheckInRequest,
+    ProfileSessionUpdate,
     SessionHistoryRequest,
     TriageIntake,
     TriageResult,
@@ -89,3 +90,39 @@ def test_session_history_dedupes_and_caps():
     assert req.session_ids[:2] == ["a", "b"]
     assert len(req.session_ids) == 40
     assert len(set(req.session_ids)) == len(req.session_ids)
+
+
+def test_intake_text_and_photo_url_are_capped():
+    base = dict(behavior_type="Barking", triggers=["Doorbell"], duration="3 months", already_tried="Treats")
+    TriageIntake(**{**base, "already_tried": "x" * 4000})
+    for field, too_long in (
+        ("already_tried", "x" * 4001),
+        ("behavior_description", "x" * 4001),
+        ("dog_name", "x" * 201),
+        ("triggers", ["Doorbell"] * 11),
+        ("triggers", ["x" * 201]),
+    ):
+        with pytest.raises(ValidationError):
+            TriageIntake(**{**base, field: too_long})
+
+    # 1.5 MB, the most the profile screen lets through, still fits.
+    photo = "data:image/jpeg;base64," + "A" * (int(1.5 * 1024 * 1024) * 4 // 3)
+    ProfileSessionUpdate(photo_url=photo)
+    with pytest.raises(ValidationError):
+        ProfileSessionUpdate(photo_url=photo + "A" * 10_000)
+
+
+def test_photo_url_must_be_an_inline_png_jpeg_or_webp():
+    for kind in ("png", "jpeg", "webp"):
+        ProfileSessionUpdate(photo_url=f"data:image/{kind};base64,iVBORw0KGgo=")
+    ProfileSessionUpdate(photo_url=None)
+
+    for bad in (
+        "https://tracker.example/pixel.png",
+        "data:image/svg+xml;base64,PHN2Zz4=",
+        "data:text/html;base64,PGgxPg==",
+        "data:image/png;base64,not base64!",
+        "",
+    ):
+        with pytest.raises(ValidationError):
+            ProfileSessionUpdate(photo_url=bad)

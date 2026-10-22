@@ -69,15 +69,23 @@ def test_no_default_password_literal_in_source():
 def test_admin_endpoint_returns_401_without_header(client, monkeypatch):
     monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse")
 
-    res = client.get("/admin/send-checkins")
+    res = client.post("/admin/send-checkins")
     assert res.status_code == 401
 
 
 def test_admin_endpoint_rejects_wrong_header(client, monkeypatch):
     monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse")
 
-    res = client.get("/admin/send-checkins", headers={"x-admin-password": "nope"})
+    res = client.post("/admin/send-checkins", headers={"x-admin-password": "nope"})
     assert res.status_code == 401
+
+
+def test_send_checkins_refuses_a_get_even_with_the_password(client, monkeypatch):
+    """It sends real email, so a prefetched or crawled link must not trigger it."""
+    monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse")
+
+    res = client.get("/admin/send-checkins", headers={"x-admin-password": "correct-horse"})
+    assert res.status_code == 405
 
 
 def test_no_password_literal_in_the_frontend_bundle_source():
