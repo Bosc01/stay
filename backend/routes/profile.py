@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, HTTPException
 
 from db import get_supabase
@@ -11,11 +13,17 @@ PUBLIC_SESSION_COLUMNS = "id, created_at, dog_name, photo_url, intake, result"
 
 
 def public_session(row: dict) -> dict:
-    """The stored intake can carry an email too; drop it before returning."""
+    """The stored intake can carry an email too; drop it before returning.
+    Some rows hold the intake as a JSON string, so parse those first."""
     intake = row.get("intake")
-    if isinstance(intake, dict) and "email" in intake:
-        row = {**row, "intake": {k: v for k, v in intake.items() if k != "email"}}
-    return row
+    if isinstance(intake, str):
+        try:
+            intake = json.loads(intake)
+        except json.JSONDecodeError:
+            intake = None
+    if isinstance(intake, dict):
+        intake = {k: v for k, v in intake.items() if k != "email"}
+    return {**row, "intake": intake}
 
 
 @router.get("/session/{session_id}")

@@ -55,7 +55,7 @@ class TriageWithSession(TriageResult):
 
 class FollowUpRequest(BaseModel):
     session_id: str
-    email: str | None = None
+    email: str | None = Field(default=None, max_length=320)
     dog_still_home: bool | None = None
     improvement_score: int | None = None
 
