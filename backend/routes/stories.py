@@ -6,7 +6,7 @@ router = APIRouter(prefix="/stories", tags=["stories"])
 
 
 @router.get("/recent")
-async def recent_stories():
+def recent_stories():
     """Public read of latest story cards for landing social proof."""
     try:
         res = (
@@ -35,7 +35,7 @@ async def recent_stories():
 
 
 @router.get("/similar")
-async def similar_stories(behavior_classification: str):
+def similar_stories(behavior_classification: str):
     """Public read of anonymized similar stories for triage result."""
     if not behavior_classification or not behavior_classification.strip():
         return {"stories": []}

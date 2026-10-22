@@ -7,7 +7,7 @@ router = APIRouter(prefix="/shelter", tags=["shelter"])
 
 
 @router.post("/inquiry")
-async def create_shelter_inquiry(body: ShelterInquiryCreate):
+def create_shelter_inquiry(body: ShelterInquiryCreate):
     try:
         res = (
             get_supabase()

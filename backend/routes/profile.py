@@ -7,7 +7,7 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 
 
 @router.get("/session/{session_id}")
-async def get_session(session_id: str):
+def get_session(session_id: str):
     try:
         res = (
             get_supabase()
@@ -27,7 +27,7 @@ async def get_session(session_id: str):
 
 
 @router.patch("/session/{session_id}")
-async def update_session(session_id: str, body: ProfileSessionUpdate):
+def update_session(session_id: str, body: ProfileSessionUpdate):
     update_data = body.model_dump(exclude_unset=True)
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
@@ -52,7 +52,7 @@ async def update_session(session_id: str, body: ProfileSessionUpdate):
 
 
 @router.post("/history")
-async def session_history(req: SessionHistoryRequest):
+def session_history(req: SessionHistoryRequest):
     ids = req.session_ids
     if not ids:
         return {"sessions": []}
@@ -93,7 +93,7 @@ async def session_history(req: SessionHistoryRequest):
 
 
 @router.get("/journal/{session_id}")
-async def list_journal(session_id: str):
+def list_journal(session_id: str):
     try:
         res = (
             get_supabase()
@@ -110,7 +110,7 @@ async def list_journal(session_id: str):
 
 
 @router.post("/journal")
-async def create_journal(req: JournalEntryCreate):
+def create_journal(req: JournalEntryCreate):
     try:
         res = (
             get_supabase()

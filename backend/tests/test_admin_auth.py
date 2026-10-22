@@ -78,3 +78,14 @@ def test_admin_endpoint_rejects_wrong_header(client, monkeypatch):
 
     res = client.get("/admin/send-checkins", headers={"x-admin-password": "nope"})
     assert res.status_code == 401
+
+
+def test_no_password_literal_in_the_frontend_bundle_source():
+    """The gate used to compare against a constant shipped in the public JS bundle."""
+    frontend = Path(__file__).resolve().parents[2] / "frontend" / "src"
+    offenders = [
+        str(path.relative_to(frontend))
+        for path in frontend.rglob("*.js*")
+        if "stay2026" in path.read_text()
+    ]
+    assert not offenders, f"admin password literal in {offenders}"

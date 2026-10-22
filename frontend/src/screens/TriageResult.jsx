@@ -92,6 +92,16 @@ export default function TriageResult({
   const hasHonestNote = honestNoteText.length > 0;
   const showReadMoreToggle = rootCauseSplit.hasMore || hasHonestNote;
 
+  // One quiet credibility line under the first step: first source per
+  // organization, at most two, so it never becomes a citation list.
+  const sourceLinks = [];
+  for (const source of result.sources ?? []) {
+    if (!source?.org || !source?.url) continue;
+    if (sourceLinks.some((s) => s.org === source.org)) continue;
+    sourceLinks.push(source);
+    if (sourceLinks.length === 2) break;
+  }
+
   const handleSendToFriend = async () => {
     const dogName = intake.dog_name?.trim();
     const friendShareText = `I just used Stay to understand ${dogName || "my dog"}'s behavior. It's free and takes 2 minutes - no judgment.`;
@@ -302,6 +312,25 @@ export default function TriageResult({
               What to try today
             </p>
             <p className="result-card-body">{result.first_step}</p>
+            {sourceLinks.length > 0 ? (
+              <p className="result-source-note">
+                This lines up with guidance from{" "}
+                {sourceLinks.map((source, i) => (
+                  <span key={source.url}>
+                    {i > 0 ? " and " : ""}
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={source.name}
+                    >
+                      {source.org}
+                    </a>
+                  </span>
+                ))}
+                .
+              </p>
+            ) : null}
           </section>
 
           <div className="result-letter-divider" aria-hidden="true" />

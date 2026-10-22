@@ -79,6 +79,9 @@ export default function Question3({
 
       const finalSessionId = res.session_id || crypto.randomUUID();
       setResult({ ...res, session_id: finalSessionId });
+      // This intake's id is used up. The logo goes back to landing without a
+      // reset, so a second triage must mint its own id, not reuse this one.
+      update({ session_id: null });
       setScreen("result");
     } catch (err) {
       setError(

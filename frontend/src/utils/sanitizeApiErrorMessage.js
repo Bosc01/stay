@@ -7,7 +7,11 @@ export function sanitizeApiErrorMessage(message) {
   if (message == null || message === "") return message;
   const s = String(message);
   const lower = s.toLowerCase();
-  if (lower.includes("database error") || lower.includes("pgrst")) {
+  if (
+    lower.includes("database error") ||
+    lower.includes("pgrst") ||
+    lower.includes("not found")
+  ) {
     return GENERIC;
   }
   // Browser network errors ("Failed to fetch", "NetworkError", "Load failed")

@@ -10,6 +10,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
+from routes.events import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ def _generate_revised_first_step(
 
 
 @router.post("/followup")
-async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
+def create_followup(req: FollowUpRequest, background_tasks: BackgroundTasks):
     update_data: dict = {}
     response_extra: dict = {}
 
@@ -117,6 +118,7 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
         )
 
     # If we can't find the session, create a minimal one so the user still gets confirmation.
+    saved = False
     try:
         supabase = get_supabase()
         update_res = (
@@ -132,11 +134,14 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
                 minimal_row["email"] = req.email
                 minimal_row["follow_up_send_at"] = update_data.get("follow_up_send_at")
             supabase.table("triage_sessions").insert(minimal_row).execute()
+        saved = True
     except Exception as e:
         logger.exception("Followup update failed for session %s", req.session_id)
 
     if req.email is not None:
         background_tasks.add_task(_ensure_follow_up_7_day_at, req.session_id)
+        if saved:
+            background_tasks.add_task(log_event, req.session_id, "email_signup")
 
     # Best-effort welcome email after email signup is saved.
     if req.email is not None:
@@ -186,20 +191,26 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
 
 
 @router.post("/checkin")
-async def week1_checkin(req: CheckInRequest):
+def week1_checkin(req: CheckInRequest):
+    """Records a day-7 answer. Also the landing for the one-tap email links."""
     now = datetime.now()
+    update_data: dict = {}
+
+    if req.improvement_score is not None:
+        update_data["week1_improvement_score"] = req.improvement_score
+        update_data["week2_send_at"] = (now + timedelta(days=14)).isoformat()
+        update_data["week3_send_at"] = (now + timedelta(days=21)).isoformat()
+        update_data["week4_send_at"] = (now + timedelta(days=28)).isoformat()
+
+    if req.dog_still_home is not None:
+        update_data["followed_up"] = True
+        update_data["dog_still_home"] = req.dog_still_home
+
     try:
         result = (
             get_supabase()
             .table("triage_sessions")
-            .update(
-                {
-                    "week1_improvement_score": req.improvement_score,
-                    "week2_send_at": (now + timedelta(days=14)).isoformat(),
-                    "week3_send_at": (now + timedelta(days=21)).isoformat(),
-                    "week4_send_at": (now + timedelta(days=28)).isoformat(),
-                }
-            )
+            .update(update_data)
             .eq("id", req.session_id)
             .execute()
         )
@@ -213,7 +224,7 @@ async def week1_checkin(req: CheckInRequest):
 
 
 @router.post("/checkin/weekly")
-async def weekly_checkin(req: WeeklyCheckInRequest):
+def weekly_checkin(req: WeeklyCheckInRequest):
     try:
         session_row = (
             get_supabase()
@@ -274,7 +285,7 @@ async def weekly_checkin(req: WeeklyCheckInRequest):
 
 
 @router.get("/followup/{session_id}")
-async def get_followup(session_id: str):
+def get_followup(session_id: str):
     try:
         result = (
             get_supabase()

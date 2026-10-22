@@ -6,6 +6,7 @@ import {
   fetchProfileHistory,
   fetchProfileJournal,
   fetchProfileSession,
+  logFunnelEvent,
   patchProfileSession,
 } from "../api.js";
 import { sanitizeApiErrorMessage } from "../utils/sanitizeApiErrorMessage.js";
@@ -95,6 +96,10 @@ export default function DogProfile() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    logFunnelEvent(sessionId, "visit");
+  }, [sessionId]);
 
   const pageTitle = useMemo(() => {
     const n = (session?.dog_name || session?.intake?.dog_name || "").trim();

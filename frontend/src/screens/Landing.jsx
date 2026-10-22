@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchRecentStories } from "../api.js";
+import { fetchRecentStories, logFunnelEvent } from "../api.js";
 import logo from "../assets/stay-logo.png";
 
 /** Normalize ?ref= value to the same slug shape as shelter partner links. */
@@ -21,7 +21,7 @@ const REF_TO_SHELTER_DISPLAY_NAME = {
   "san-antonio-animal-care-services": "San Antonio Animal Care Services",
 };
 
-export default function Landing({ setScreen }) {
+export default function Landing({ setScreen, intake, update }) {
   const [stories, setStories] = useState([]);
   const [isIOS, setIsIOS] = useState(false);
   const [referralShelterDisplayName, setReferralShelterDisplayName] = useState(null);
@@ -103,7 +103,15 @@ export default function Landing({ setScreen }) {
         <button
           type="button"
           className="btn btn-primary landing-cta"
-          onClick={() => setScreen("q1")}
+          onClick={() => {
+            // One id per intake; it becomes the triage session id later.
+            const sessionId = intake.session_id || crypto.randomUUID?.() || null;
+            if (!intake.session_id) {
+              update({ session_id: sessionId });
+              logFunnelEvent(sessionId, "triage_started");
+            }
+            setScreen("q1");
+          }}
         >
           Tell us what's going on
         </button>

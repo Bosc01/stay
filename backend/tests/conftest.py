@@ -21,6 +21,8 @@ os.environ.setdefault("ADMIN_PASSWORD", "test-admin-password")
 
 import pytest  # noqa: E402
 
+import ratelimit  # noqa: E402
+import routes.events as events_module  # noqa: E402
 import routes.triage as triage_module  # noqa: E402
 
 VALID_TRIAGE_JSON = """{
@@ -38,6 +40,8 @@ VALID_TRIAGE_JSON = """{
 
 
 class FakeTextBlock:
+    type = "text"
+
     def __init__(self, text: str) -> None:
         self.text = text
 
@@ -97,11 +101,31 @@ class FakeSupabase:
 
 
 @pytest.fixture(autouse=True)
-def clear_rate_limit():
-    """The limiter is module level state, so it leaks between tests otherwise."""
-    triage_module._rate_limit.clear()
+def clear_rate_limit(monkeypatch):
+    """The limiter is module level state, so it leaks between tests otherwise.
+
+    The store and the client address header are pinned too, so a
+    RATE_LIMIT_STORE or RENDER in the shell cannot change what a test sees.
+    """
+    monkeypatch.setattr(ratelimit, "RATE_LIMIT_STORE", "memory")
+    monkeypatch.setattr(ratelimit, "CLIENT_IP_HEADER", "")
+    ratelimit._rate_limit.clear()
     yield
-    triage_module._rate_limit.clear()
+    ratelimit._rate_limit.clear()
+
+
+@pytest.fixture(autouse=True)
+def no_funnel_writes(monkeypatch):
+    """Routes log funnel events in the background; never let that reach a network.
+
+    log_event swallows the error, so a test that does not care sees nothing.
+    Tests that do care install their own fake on routes.events.
+    """
+
+    def unavailable():
+        raise RuntimeError("no Supabase in tests")
+
+    monkeypatch.setattr(events_module, "get_supabase", unavailable)
 
 
 @pytest.fixture

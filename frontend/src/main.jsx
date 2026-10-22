@@ -3,9 +3,11 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App.jsx";
 import WeekOneCheckin from "./screens/WeekOneCheckin.jsx";
+import CheckinReply from "./screens/CheckinReply.jsx";
 import DogProfile from "./screens/DogProfile.jsx";
 import ShelterPage from "./screens/ShelterPage.jsx";
 import AdminDashboard from "./screens/AdminDashboard.jsx";
+import AdminOutreach from "./screens/AdminOutreach.jsx";
 import PrintCard from "./screens/PrintCard.jsx";
 import ImpactPage from "./screens/ImpactPage.jsx";
 import CaseStudy from "./screens/CaseStudy.jsx";
@@ -19,8 +21,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/shelter" element={<ShelterPage />} />
         <Route path="/checkin" element={<WeekOneCheckin />} />
+        <Route path="/checkin/:sessionId" element={<CheckinReply />} />
         <Route path="/profile/:sessionId" element={<DogProfile />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/outreach" element={<AdminOutreach />} />
         <Route path="/print" element={<PrintCard />} />
         <Route path="/impact" element={<ImpactPage />} />
         <Route path="/case-study" element={<CaseStudy />} />

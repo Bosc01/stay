@@ -6,7 +6,7 @@ namely that everything varying per request sits after the breakpoint.
 """
 
 from conftest import sample_intake
-from prompts.system import SYSTEM_PROMPT
+from prompts.system import SUDDEN_ONSET_PRIORITY, SYSTEM_PROMPT
 
 # Claude Sonnet 5 will not create a cache entry below this many tokens. The
 # check below is a deliberately loose character proxy, just enough to catch
@@ -44,7 +44,11 @@ def test_only_the_static_block_carries_a_breakpoint(client, fake_claude):
     client.post("/triage", json=sample_intake(sudden_onset=True))
 
     blocks = sent_blocks(fake)
-    assert len(blocks) == 3
+    # static prompt, owner context, sudden onset, retrieved reference material
+    assert len(blocks) == 4
+    assert "Owner context" in blocks[1]["text"]
+    assert blocks[2]["text"] == SUDDEN_ONSET_PRIORITY.strip()
+    assert blocks[3]["text"].startswith("## Reference material")
     assert "cache_control" in blocks[0]
     assert all("cache_control" not in b for b in blocks[1:])
 

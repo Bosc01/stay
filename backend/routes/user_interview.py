@@ -7,7 +7,7 @@ router = APIRouter(tags=["user-interview"])
 
 
 @router.post("/user-interview")
-async def create_user_interview(body: UserInterviewCreate):
+def create_user_interview(body: UserInterviewCreate):
     try:
         session_ok = (
             get_supabase()

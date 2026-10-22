@@ -15,7 +15,7 @@ router = APIRouter(prefix="/impact", tags=["impact"])
 
 
 @router.get("/public")
-async def impact_public():
+def impact_public():
     """Public pilot metrics for marketing / transparency (no auth)."""
     supabase = get_supabase()
     now = datetime.now(timezone.utc)
