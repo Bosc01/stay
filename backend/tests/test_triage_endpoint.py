@@ -86,10 +86,10 @@ def test_invalid_intake_is_rejected(client, fake_claude):
 
 
 def test_rate_limit_blocks_the_eleventh_request(client, fake_claude):
-    import routes.triage as triage_module
+    import ratelimit
 
     fake_claude()
-    for _ in range(triage_module.RATE_LIMIT):
+    for _ in range(ratelimit.RATE_LIMIT):
         assert client.post("/triage", json=sample_intake()).status_code == 200
 
     blocked = client.post("/triage", json=sample_intake())

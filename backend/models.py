@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field, field_validator
+from typing import Annotated
+
+from pydantic import BaseModel, Field, StringConstraints, field_validator, model_validator
 
 
 class TriageIntake(BaseModel):
@@ -14,6 +16,22 @@ class TriageIntake(BaseModel):
     duration: str
     already_tried: str
     email: str | None = None
+    # Minted by the browser at intake start so the funnel can follow the
+    # session. Excluded from model_dump, so it never reaches the prompt or the
+    # stored intake.
+    session_id: str | None = Field(default=None, exclude=True)
+
+
+class Source(BaseModel):
+    """A piece of professional guidance the advice was grounded in.
+
+    Set by the backend from backend/knowledge/, never by the model, so the
+    name and link always point at a real document.
+    """
+
+    name: str
+    org: str
+    url: str
 
 
 class TriageResult(BaseModel):
@@ -27,6 +45,7 @@ class TriageResult(BaseModel):
     escalation_needed: bool
     escalation_reason: str | None
     resource_tags: list[str]
+    sources: list[Source] = Field(default_factory=list)
 
 
 class TriageWithSession(TriageResult):
@@ -42,7 +61,14 @@ class FollowUpRequest(BaseModel):
 
 class CheckInRequest(BaseModel):
     session_id: str
-    improvement_score: int = Field(..., ge=1, le=5)
+    improvement_score: int | None = Field(default=None, ge=1, le=5)
+    dog_still_home: bool | None = None
+
+    @model_validator(mode="after")
+    def at_least_one_answer(self):
+        if self.improvement_score is None and self.dog_still_home is None:
+            raise ValueError("send improvement_score and/or dog_still_home")
+        return self
 
 
 class WeeklyCheckInRequest(BaseModel):
@@ -104,3 +130,26 @@ class UserInterviewCreate(BaseModel):
     q1: str = Field(default="", max_length=8000)
     q2: str = Field(default="", max_length=8000)
     q3: str = Field(default="", max_length=8000)
+
+
+class ReviewImport(BaseModel):
+    """A review sample CSV after a trainer or vet has marked it."""
+
+    reviewer: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+    csv_text: str = Field(..., min_length=1, max_length=1_000_000)
+
+
+class OutreachUpdate(BaseModel):
+    status: str | None = None
+    drafted_body: str | None = Field(default=None, max_length=8000)
+
+    @field_validator("status")
+    @classmethod
+    def normalize_status(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        allowed = {"drafted", "approved", "rejected", "sent"}
+        key = (v or "").strip().lower()
+        if key not in allowed:
+            raise ValueError(f"status must be one of {sorted(allowed)}")
+        return key

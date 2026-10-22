@@ -9,6 +9,8 @@ import Ask from "./screens/Ask.jsx";
 import SiteFooter from "./components/SiteFooter.jsx";
 import StayHeaderLogo from "./components/StayHeaderLogo.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { logFunnelEvent } from "./api.js";
+import { getProfileSessionIds } from "./profileHistory.js";
 
 const SCREENS = ["landing", "q1", "q2", "q3", "result", "ask"];
 
@@ -25,6 +27,7 @@ const INITIAL_INTAKE = {
   duration: "",
   already_tried: "",
   email: null,
+  session_id: null,
 };
 
 const IOS_INSTALL_BANNER_KEY = "stay_ios_install_banner_dismissed";
@@ -63,6 +66,11 @@ export default function App() {
     ping();
     const interval = setInterval(ping, 4 * 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // A returning owner; the server decides whether it counts as a 7-day return.
+    logFunnelEvent(getProfileSessionIds()[0], "visit");
   }, []);
 
   useEffect(() => {

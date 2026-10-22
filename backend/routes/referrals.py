@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 @router.get("/referral-stats")
-async def referral_stats(
+def referral_stats(
     ref: str = Query(..., min_length=1, max_length=128, description="referral_source slug"),
 ):
     try:

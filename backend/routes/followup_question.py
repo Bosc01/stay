@@ -14,7 +14,7 @@ client = anthropic.Anthropic()
 
 
 @router.post("/followup-question")
-async def followup_question(req: FollowupQuestionRequest):
+def followup_question(req: FollowupQuestionRequest):
     try:
         row = (
             get_supabase()

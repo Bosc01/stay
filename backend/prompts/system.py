@@ -140,3 +140,18 @@ SUDDEN_ONSET_PRIORITY = """
 
 PRIORITY: This owner has flagged sudden onset. Lead your root_cause with the possibility of a medical cause. Include low_cost_vet in resource_tags regardless of other factors. First step must reference a vet visit.
 """
+
+# Prepended to the user message when knowledge excerpts are retrieved
+# (see routes/triage.py and retrieval.py). The owner never sees this.
+REFERENCE_MATERIAL_INSTRUCTIONS = """
+## Reference material
+
+Below are excerpts from veterinary behavior organizations. Ground first_step in this
+material. Use the specific distances, durations, repetition counts, and thresholds it
+gives rather than numbers you invent. Do not recommend a technique that contradicts it.
+If it does not cover this dog's situation, keep first_step conservative and say what you
+actually know.
+
+Do not quote the excerpts, do not name the organizations, and do not mention that
+reference material exists. The owner sees only your JSON. Do not include a sources field.
+"""

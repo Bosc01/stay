@@ -2239,6 +2239,42 @@ a.logo-link {
   font-variant-numeric: tabular-nums;
 }
 
+/* Funnel and review rows reuse the daily bars with a wider label and a rate line */
+.admin-funnel-row {
+  grid-template-columns: 150px 1fr 48px;
+  row-gap: 2px;
+}
+
+.admin-funnel-rate {
+  grid-column: 2 / -1;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.admin-funnel-rate:empty {
+  display: none;
+}
+
+.admin-review-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0 16px;
+}
+
+.admin-review-form .text-input {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.admin-review-errors {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
 /* Triage result - delayed user interview invite */
 .result-interview-float {
   position: fixed;
@@ -2656,4 +2692,155 @@ a.logo-link {
   border: 1px solid var(--border);
   background: var(--bg-muted);
   color: var(--fg);
+}
+
+/* Outreach review queue (/admin/outreach) */
+.app-frame--wide {
+  max-width: 860px;
+}
+
+.outreach-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 12px;
+}
+
+.outreach-filter {
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.outreach-filter.is-active {
+  background: var(--primary-bg);
+  border-color: var(--primary-bg);
+  color: var(--primary-fg);
+}
+
+.outreach-notice {
+  background: var(--selected-bg);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: 13px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+}
+
+.outreach-card {
+  background: var(--bg-elevated, #141414);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
+.outreach-card__head {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.outreach-card__org {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.outreach-card__org a {
+  color: var(--fg);
+}
+
+.outreach-card__meta {
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin: 0;
+  word-break: break-word;
+}
+
+.outreach-status {
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+
+.outreach-status--approved {
+  border-color: rgba(134, 239, 172, 0.4);
+  color: #bbf7d0;
+}
+
+.outreach-status--rejected {
+  border-color: var(--urgency-border);
+  color: var(--urgency-fg);
+}
+
+.outreach-card__detail {
+  background: var(--selected-bg);
+  border-radius: 10px;
+  margin: 14px 0;
+  padding: 12px 14px;
+}
+
+.outreach-card__detail p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.outreach-card__label {
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.outreach-card__source {
+  display: inline-block;
+  font-size: 13px;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.outreach-card__body {
+  color: var(--card-body);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.outreach-card__editor {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  width: 100%;
+}
+
+.outreach-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.outreach-card__actions .btn {
+  flex: 0 0 auto;
+  font-size: 14px;
+  padding: 9px 16px;
+  text-decoration: none;
 }

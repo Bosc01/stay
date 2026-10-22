@@ -78,15 +78,15 @@ def test_storage_failure_is_logged_with_a_traceback(client, fake_claude, caplog,
 def test_no_print_statements_remain_in_backend_source():
     """print bypasses levels and formatting, so it should not come back.
 
-    Scoped to server code. `evals/` is a command line tool whose report is its
-    actual output, not a diagnostic, so print is right there.
+    Scoped to server code. `evals/` and `scripts/` are command line tools whose
+    report is their actual output, not a diagnostic, so print is right there.
     """
     from pathlib import Path
 
     backend = Path(__file__).resolve().parents[1]
     offenders = []
     for path in backend.rglob("*.py"):
-        if "tests" in path.parts or "evals" in path.parts:
+        if {"tests", "evals", "scripts", "venv"} & set(path.parts):
             continue
         for number, line in enumerate(path.read_text().splitlines(), start=1):
             stripped = line.strip()
