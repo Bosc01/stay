@@ -46,6 +46,20 @@ export async function fetchNearbyResources({ lat, lon } = {}) {
   return res.json();
 }
 
+/**
+ * Best-effort funnel event ("triage_started" or "visit"). Never throws and is
+ * never awaited, so it cannot slow or break anything the owner is doing.
+ */
+export function logFunnelEvent(sessionId, event) {
+  if (!sessionId) return;
+  fetch(apiUrl("/events"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, event }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 export async function submitTriage(intake) {
   const res = await fetch(apiUrl("/triage"), {
     method: "POST",

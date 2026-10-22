@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { fetchFollowupSession, submitCheckinReply } from "../api.js";
+import { fetchFollowupSession, logFunnelEvent, submitCheckinReply } from "../api.js";
 import SiteFooter from "../components/SiteFooter.jsx";
 import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
@@ -22,6 +22,7 @@ export default function CheckinReply() {
   useEffect(() => {
     let cancelled = false;
     if (!sessionId) return;
+    logFunnelEvent(sessionId, "visit");
     (async () => {
       try {
         const row = await fetchFollowupSession(sessionId);

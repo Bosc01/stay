@@ -14,6 +14,10 @@ class TriageIntake(BaseModel):
     duration: str
     already_tried: str
     email: str | None = None
+    # Minted by the browser at intake start so the funnel can follow the
+    # session. Excluded from model_dump, so it never reaches the prompt or the
+    # stored intake.
+    session_id: str | None = Field(default=None, exclude=True)
 
 
 class Source(BaseModel):

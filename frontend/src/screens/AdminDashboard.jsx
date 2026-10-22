@@ -13,6 +13,13 @@ import StayHeaderLogo from "../components/StayHeaderLogo.jsx";
 
 const REFRESH_MS = 60_000;
 
+const FUNNEL_LABELS = {
+  triage_started: "Started a triage",
+  triage_completed: "Got their result",
+  email_signup: "Signed up for email",
+  return_visit_7d: "Came back within 7 days",
+};
+
 export default function AdminDashboard() {
   const [storedPassword, setStoredPassword] = useState(loadStoredPassword);
   const [gateInput, setGateInput] = useState("");
@@ -129,6 +136,8 @@ export default function AdminDashboard() {
   const behaviorRows = stats?.behavior_breakdown || [];
   const dailyRows = stats?.daily_triages || [];
   const maxDailyCount = Math.max(1, ...dailyRows.map((d) => d.count || 0));
+  const funnelRows = stats?.funnel || [];
+  const funnelTop = funnelRows[0]?.count || 0;
 
   return (
     <div className="app">
@@ -204,6 +213,50 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               </div>
+            ) : null}
+
+            {stats ? (
+              <section className="admin-breakdown" aria-labelledby="admin-funnel-heading">
+                <h3 id="admin-funnel-heading" className="admin-breakdown__title">
+                  Funnel, last {stats.funnel_window_days ?? 30} days
+                </h3>
+                <p className="admin-breakdown__hint">
+                  Sessions that started in the window. Each step counts sessions that
+                  also reached every step above it. Return visits for the newest week
+                  are still coming in.
+                </p>
+                {stats.funnel == null ? (
+                  <p className="admin-breakdown__empty">
+                    No funnel data yet. Run backend/sql/funnel_events.sql in Supabase.
+                  </p>
+                ) : funnelTop === 0 ? (
+                  <p className="admin-breakdown__empty">No sessions started in the window.</p>
+                ) : (
+                  <ol className="admin-daily-list">
+                    {funnelRows.map((step, idx) => (
+                      <li key={step.event} className="admin-daily-row admin-funnel-row">
+                        <span className="admin-daily-date">
+                          {FUNNEL_LABELS[step.event] || step.event}
+                        </span>
+                        <div className="admin-daily-bar-wrap">
+                          <div
+                            className="admin-daily-bar"
+                            style={{ width: `${(step.count / funnelTop) * 100}%` }}
+                          />
+                        </div>
+                        <span className="admin-daily-count">{step.count.toLocaleString()}</span>
+                        <span className="admin-funnel-rate">
+                          {idx === 0
+                            ? ""
+                            : step.from_previous == null
+                              ? " - "
+                              : `${(step.from_previous * 100).toFixed(1)}% of the step above`}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </section>
             ) : null}
 
             {stats ? (

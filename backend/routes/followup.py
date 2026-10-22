@@ -10,6 +10,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from db import get_supabase
 from models import CheckInRequest, FollowUpRequest, WeeklyCheckInRequest
+from routes.events import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +118,7 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
         )
 
     # If we can't find the session, create a minimal one so the user still gets confirmation.
+    saved = False
     try:
         supabase = get_supabase()
         update_res = (
@@ -132,11 +134,14 @@ async def create_followup(req: FollowUpRequest, background_tasks: BackgroundTask
                 minimal_row["email"] = req.email
                 minimal_row["follow_up_send_at"] = update_data.get("follow_up_send_at")
             supabase.table("triage_sessions").insert(minimal_row).execute()
+        saved = True
     except Exception as e:
         logger.exception("Followup update failed for session %s", req.session_id)
 
     if req.email is not None:
         background_tasks.add_task(_ensure_follow_up_7_day_at, req.session_id)
+        if saved:
+            background_tasks.add_task(log_event, req.session_id, "email_signup")
 
     # Best-effort welcome email after email signup is saved.
     if req.email is not None:

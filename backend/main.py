@@ -21,6 +21,7 @@ from routes.admin import router as admin_router
 from routes.shelter import router as shelter_router
 from routes.user_interview import router as user_interview_router
 from routes.impact import router as impact_router
+from routes.events import router as events_router
 
 app = FastAPI(title="Stay — Dog Behavior Triage")
 
@@ -44,6 +45,7 @@ app.include_router(admin_router)
 app.include_router(shelter_router)
 app.include_router(user_interview_router)
 app.include_router(impact_router)
+app.include_router(events_router)
 
 
 @app.get("/health")

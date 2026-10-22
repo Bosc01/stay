@@ -3,12 +3,13 @@ import logging
 import os
 import secrets
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Header, HTTPException, Query
 
 from db import get_supabase
 from models import OutreachUpdate
+from routes.events import funnel_summary
 from tasks.checkin import send_7day_checkins
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 PAGE_SIZE = 1000
+FUNNEL_WINDOW_DAYS = 30
 
 
 def _admin_password() -> str:
@@ -79,6 +81,26 @@ def _paginate_select(supabase, columns: str):
         res = (
             supabase.table("triage_sessions")
             .select(columns)
+            .range(start, start + PAGE_SIZE - 1)
+            .execute()
+        )
+        batch = res.data or []
+        rows.extend(batch)
+        if len(batch) < PAGE_SIZE:
+            break
+        start += PAGE_SIZE
+    return rows
+
+
+def _funnel_rows_since(supabase, iso_start: str) -> list[dict]:
+    rows = []
+    start = 0
+    while True:
+        res = (
+            supabase.table("funnel_events")
+            .select("session_id,event")
+            .gte("created_at", iso_start)
+            .order("id")
             .range(start, start + PAGE_SIZE - 1)
             .execute()
         )
@@ -310,7 +332,17 @@ async def admin_stats(
     except Exception as e:
         logger.warning("user_interviews fetch skipped: %s", e)
 
+    # Sessions that started in the window; their later steps fall inside it too.
+    funnel = None
+    try:
+        since = (now - timedelta(days=FUNNEL_WINDOW_DAYS)).isoformat()
+        funnel = funnel_summary(_funnel_rows_since(supabase, since))
+    except Exception as e:
+        logger.warning("funnel_events fetch skipped: %s", e)
+
     return {
+        "funnel": funnel,
+        "funnel_window_days": FUNNEL_WINDOW_DAYS,
         "total_triages": total_triages,
         "triages_today": triages_today,
         "email_capture_rate": round(email_capture_rate, 4),

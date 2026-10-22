@@ -22,6 +22,7 @@ os.environ.setdefault("ADMIN_PASSWORD", "test-admin-password")
 import pytest  # noqa: E402
 
 import ratelimit  # noqa: E402
+import routes.events as events_module  # noqa: E402
 import routes.triage as triage_module  # noqa: E402
 
 VALID_TRIAGE_JSON = """{
@@ -111,6 +112,20 @@ def clear_rate_limit(monkeypatch):
     ratelimit._rate_limit.clear()
     yield
     ratelimit._rate_limit.clear()
+
+
+@pytest.fixture(autouse=True)
+def no_funnel_writes(monkeypatch):
+    """Routes log funnel events in the background; never let that reach a network.
+
+    log_event swallows the error, so a test that does not care sees nothing.
+    Tests that do care install their own fake on routes.events.
+    """
+
+    def unavailable():
+        raise RuntimeError("no Supabase in tests")
+
+    monkeypatch.setattr(events_module, "get_supabase", unavailable)
 
 
 @pytest.fixture

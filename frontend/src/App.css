@@ -2239,6 +2239,22 @@ a.logo-link {
   font-variant-numeric: tabular-nums;
 }
 
+/* Funnel and review rows reuse the daily bars with a wider label and a rate line */
+.admin-funnel-row {
+  grid-template-columns: 150px 1fr 48px;
+  row-gap: 2px;
+}
+
+.admin-funnel-rate {
+  grid-column: 2 / -1;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.admin-funnel-rate:empty {
+  display: none;
+}
+
 /* Triage result - delayed user interview invite */
 .result-interview-float {
   position: fixed;

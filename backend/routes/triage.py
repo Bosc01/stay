@@ -3,11 +3,12 @@ import logging
 import uuid
 
 import anthropic
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from pydantic import ValidationError
 
 from db import get_supabase
 from models import Source, TriageIntake, TriageResult
+from routes.events import log_event
 from prompts.system import (
     OWNER_CONTEXT,
     REFERENCE_MATERIAL_INSTRUCTIONS,
@@ -74,12 +75,13 @@ def build_system_blocks(intake: TriageIntake, docs: list) -> list[dict]:
 
 
 def run_triage(
-    intake: TriageIntake, dry_run: bool = False
+    intake: TriageIntake, dry_run: bool = False, session_id: str | None = None
 ) -> tuple[TriageResult, str | None]:
     """Call Claude, parse and validate the triage, and store the session.
 
     dry_run skips the Supabase insert entirely and returns session_id None,
-    so evals and local runs never touch production data.
+    so evals and local runs never touch production data. session_id, when
+    given, is the id the session is stored under; otherwise one is minted.
     Raises HTTPException on an upstream or parse failure.
     """
     docs = select_sources(intake)
@@ -157,7 +159,7 @@ def run_triage(
     if dry_run:
         return result, None
 
-    session_id = str(uuid.uuid4())
+    session_id = session_id or str(uuid.uuid4())
 
     try:
         supabase = get_supabase()
@@ -194,13 +196,26 @@ def run_triage(
     return result, session_id
 
 
+def _funnel_session_id(raw: str | None) -> str:
+    """The browser's id when it is a real UUID, so the funnel can follow it."""
+    try:
+        return str(uuid.UUID(raw))
+    except (TypeError, ValueError):
+        return str(uuid.uuid4())
+
+
 @router.post("/triage")
-async def triage(intake: TriageIntake, request: Request):
+async def triage(intake: TriageIntake, request: Request, background_tasks: BackgroundTasks):
     if not allow_request(client_ip(request)):
         raise HTTPException(
             status_code=429,
             detail="Too many requests. Please try again later.",
         )
 
-    result, session_id = run_triage(intake)
+    funnel_id = _funnel_session_id(intake.session_id)
+    result, session_id = run_triage(intake, session_id=funnel_id)
+    # Only a stored session counts: when the insert fails the browser swaps in
+    # its own id, so later steps would land under a different one.
+    if session_id:
+        background_tasks.add_task(log_event, session_id, "triage_completed")
     return {**result.model_dump(), "session_id": session_id}
